@@ -1,0 +1,307 @@
+﻿<ContentPage
+    x:Class="KeyCatcher_acc.Views.tstpag"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:KeyCatcher_acc.converters"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:vm="clr-namespace:KeyCatcher_acc.ViewModels"
+    Title="KeyCatcher"
+    x:DataType="vm:tstpagViewModel"
+    BackgroundColor="#F3E6CC">
+
+    <!--  ✦ tiny button style (in page Resources or App.xaml)  -->
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+                <x:String x:Key="BrandBluetooth">&#xf293;</x:String>
+                <x:String x:Key="BrandBluetoothB">&#xf294;</x:String>
+                <x:String x:Key="SolidWifi">&#xf1eb;</x:String>
+            </ResourceDictionary>
+
+
+
+            <Color x:Key="KcOff">#9AA0A6</Color>
+            <Color x:Key="KcTrying">#F4B400</Color>
+            <Color x:Key="KcOn">#34A853</Color>
+            <Color x:Key="KcError">#EA4335</Color>
+
+            <!--  converter maps LinkState to a Color  -->
+            <local:IconByStateConverter
+                x:Key="WifiIconConv"
+                Error="red"
+                Off="grey"
+                On="green"
+                Trying="orange" />
+            <local:IconByStateConverter
+                x:Key="BleIconConv"
+                Error="red"
+                Off="grey"
+                On="green"
+                Trying="orange" />
+
+
+            <Style x:Key="SlimButton" TargetType="Button">
+                <Setter Property="Padding" Value="10,2" />
+                <Setter Property="FontSize" Value="10" />
+                <Setter Property="CornerRadius" Value="14" />
+                <Setter Property="HeightRequest" Value="10" />
+                <!--  beats platform min height  -->
+                <Setter Property="BackgroundColor" Value="#30a6c0" />
+                <Setter Property="TextColor" Value="White" />
+            </Style>
+
+        </ResourceDictionary>
+    </ContentPage.Resources>
+ <Shell.TitleView>
+        <HorizontalStackLayout Spacing="16" Padding="0,0,12,0">
+            
+            <!-- WiFi -->
+            <Grid HeightRequest="28" WidthRequest="28">
+                <Image>
+                    <Image.Source>
+                        <FontImageSource FontFamily="FontAwesomeSolid"
+                                         Glyph="{StaticResource SolidWifi}"
+                                         Color="{Binding WifiLinkState, Converter={StaticResource LinkToColorConv}}" />
+                    </Image.Source>
+                </Image>
+                <Image IsVisible="{Binding Hub.WifiEnabled, Converter={StaticResource InverseBoolConv}}">
+                    <Image.Source>
+                        <FontImageSource FontFamily="FontAwesomeSolid"
+                                         Glyph="{StaticResource SolidBan}"
+                                         Color="Red" />
+                    </Image.Source>
+                </Image>
+            </Grid>
+
+            <!-- BLE -->
+            <Grid HeightRequest="28" WidthRequest="28">
+                <Image>
+                    <Image.Source>
+                        <FontImageSource FontFamily="FontAwesomeBrands"
+                                         Glyph="{StaticResource BrandBluetooth}"
+                                         Color="{Binding BleLinkState, Converter={StaticResource LinkToColorConv}}" />
+                    </Image.Source>
+                </Image>
+                <Image IsVisible="{Binding Hub.BleEnabled, Converter={StaticResource InverseBoolConv}}">
+                    <Image.Source>
+                        <FontImageSource FontFamily="FontAwesomeSolid"
+                                         Glyph="{StaticResource SolidBan}"
+                                         Color="Red" />
+                    </Image.Source>
+                </Image>
+            </Grid>
+
+            <!-- Settings button -->
+            <ImageButton Source="set100.png"
+                         WidthRequest="28" HeightRequest="28"
+                         BackgroundColor="Transparent"
+                         Command="{Binding NavigateSettingsCommand}" />
+        </HorizontalStackLayout>
+    </Shell.TitleView>
+    <Grid RowDefinitions="Auto,*,Auto">
+        <HorizontalStackLayout
+            Grid.Row="0"
+            Padding="8"
+            HorizontalOptions="End"
+            VerticalOptions="Start"
+            ZIndex="1">
+            
+            
+            
+            
+            <ImageButton
+                BackgroundColor="Transparent"
+                HeightRequest="50"
+                Source="   blegray.png"
+                WidthRequest="50" />
+            <ImageButton
+                BackgroundColor="Transparent"
+                Command="{Binding NavigateSettingsCommand}"
+                HeightRequest="50"
+                Source="set100.png"
+                WidthRequest="50" />
+        </HorizontalStackLayout>
+
+        <Grid Grid.Row="0" Margin="0,16,0,8">
+
+           
+            <HorizontalStackLayout Padding="8,6" Spacing="18">
+
+                <!--  WiFi  -->
+                <Grid HeightRequest="48" WidthRequest="48">
+                    <!--<Image WidthRequest="44" HeightRequest="84"
+                           HorizontalOptions="Center" VerticalOptions="Center"
+                           Source="{Binding WifiStatus, Converter={StaticResource BleIconConv}}"/>-->
+
+
+                    <!--  active ring for WIFI or AP  -->
+                    <Ellipse
+                        HeightRequest="56"
+                        HorizontalOptions="Center"
+                        Opacity="0"
+                        Stroke="#34A853"
+                        StrokeThickness="5"
+                        VerticalOptions="Center"
+                        WidthRequest="50">
+                        <Ellipse.Triggers>
+                            <DataTrigger
+                                Binding="{Binding ActiveTransport}"
+                                TargetType="Ellipse"
+                                Value="WIFI">
+                                <Setter Property="Opacity" Value="9" />
+                            </DataTrigger>
+                            <DataTrigger
+                                Binding="{Binding ActiveTransport}"
+                                TargetType="Ellipse"
+                                Value="AP">
+                                <Setter Property="Opacity" Value="1" />
+                            </DataTrigger>
+                        </Ellipse.Triggers>
+                    </Ellipse>
+
+                    <Image
+                        HeightRequest="40"
+                        IsVisible="{Binding Hub.IsWifiUp}"
+                        SemanticProperties.Description="Kissing Face"
+                        WidthRequest="40">
+                        <Image.Source>
+                            <FontImageSource
+                                FontFamily="FontAwesomeSolid"
+                                Glyph="{StaticResource SolidWifi}"
+                                Color="Green" />
+                        </Image.Source>
+                    </Image>
+                </Grid>
+
+                <!--  BLE  -->
+                <Grid HeightRequest="48" WidthRequest="48">
+                    <Ellipse
+                        HeightRequest="60"
+                        HorizontalOptions="Center"
+                        Opacity="0"
+                        Stroke="#34A853"
+                        StrokeThickness="5"
+                        VerticalOptions="Center"
+                        WidthRequest="50">
+                        <Ellipse.Triggers>
+                            <DataTrigger
+                                Binding="{Binding ActiveTransport}"
+                                TargetType="Ellipse"
+                                Value="BLE">
+                                <Setter Property="Opacity" Value="1" />
+                            </DataTrigger>
+                        </Ellipse.Triggers>
+                    </Ellipse>
+
+                  
+
+                    <Image
+                        HeightRequest="40"
+                        IsVisible="{Binding Hub.IsBleUp}"
+                        SemanticProperties.Description="FontAwesom Flag Logo"
+                        WidthRequest="40">
+
+                        <Image.Source>
+                            <FontImageSource
+                                FontFamily="FontAwesomeBrands"
+                                Glyph="{StaticResource BrandBluetooth}"
+                                Color="green" />
+                        </Image.Source>
+                    </Image>
+
+                </Grid>
+
+            </HorizontalStackLayout>
+          
+        </Grid>
+
+        <!--  Row-1 decoration; this row may stretch  -->
+        <!--<Button Text="Test Send" Clicked="TestSend_Clicked" />
+        -->
+        <!--  Row-2 input bar  -->
+        <Border
+            Grid.Row="1"
+            Margin="16,0,16,24"
+            Padding="12"
+            Background="#CC3d4930"
+            Stroke="#282820"
+            StrokeShape="RoundRectangle 24"
+            StrokeThickness="3">
+
+            <!--  controls (auto)  +  editor (auto)  -->
+            <Grid RowDefinitions="Auto,Auto">
+
+                <!--  row-0  buttons  -->
+                <HorizontalStackLayout HorizontalOptions="End" Spacing="6">
+                    <!--<Button Command="{Binding PingCommand}" Text="PING" />-->
+                    <Button Command="{Binding SendCommand}" Text="Send" />
+                    <!--<Button Command="{Binding SetAutoCommand}" Text="entertest" />-->
+                    <Button Command="{Binding SetBleCommand}" Text="BLE" />
+                    <!--<Button Command="{Binding SetWifiCommand}" Text="WIFI" />-->
+                    <!--<Button
+                        Command="{Binding sendCommand}"
+                        Style="{StaticResource SlimButton}"
+                        Text="Send" />
+                    <Button
+                        Command="{Binding setBOTHCommand}"
+                        Style="{StaticResource SlimButton}"
+                        Text="BBOTH" />
+                    <Button
+                        Command="{Binding setBLECommand}"
+                        Style="{StaticResource SlimButton}"
+                        Text="BLE" />
+                    <Button
+                        Command="{Binding setWIFICommand}"
+                        Style="{StaticResource SlimButton}"
+                        Text="WIFI" />
+                    <Button
+                        Command="{Binding setWIFICommand}"
+                        Style="{StaticResource SlimButton}"
+                        Text="BOTH" />-->
+
+
+                    <Picker
+                        ItemsSource="{Binding PauseOptions}"
+                        SelectedItem="{Binding PauseSeconds}"
+                        WidthRequest="60" />
+                </HorizontalStackLayout>
+
+                <!--  row-1  editor that now grows  -->
+                <ScrollView
+                    Grid.Row="1"
+                    HeightRequest="540"
+                    HorizontalScrollBarVisibility="Default"
+                    Orientation="Vertical"
+                    VerticalScrollBarVisibility="Never">
+                    <Editor
+                        x:Name="MessageBox"
+                        AutoSize="TextChanges"
+                        BackgroundColor="Transparent"
+                        Text="{Binding MessageText}"
+                        TextColor="White" />
+                </ScrollView>
+
+
+                <!--<ScrollView
+                    Grid.Row="1"
+                    HeightRequest="540"
+                    HorizontalScrollBarVisibility="Default"
+                    Orientation="Vertical"
+                    VerticalScrollBarVisibility="Never">
+                    <Editor
+                        x:Name="MessageBox2"
+                        AutoSize="TextChanges"
+                        BackgroundColor="Transparent"
+                        Text="{Binding RsltText}"
+                        TextColor="White" />
+                </ScrollView>-->
+
+            </Grid>
+        </Border>
+
+        <!--<Image Grid.Row="2" Source="floating.png"
+           Aspect="AspectFit" InputTransparent="True"/>-->
+
+    </Grid>
+</ContentPage>

@@ -1,0 +1,39 @@
+﻿<?xml version = "1.0" encoding = "UTF-8" ?>
+<Application xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+			 xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+			 xmlns:local="clr-namespace:KeyCatcher_acc.converters"
+			 x:Class="KeyCatcher_acc.App">
+	<Application.Resources>
+		<ResourceDictionary>
+			<ResourceDictionary.MergedDictionaries>
+				<ResourceDictionary Source="Resources/Styles/Colors.xaml" />
+				<ResourceDictionary Source="Resources/Styles/Styles.xaml" />
+			</ResourceDictionary.MergedDictionaries>
+            <ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+                <x:String x:Key="SolidPencil">&#x270f;</x:String>
+                <x:String x:Key="BrandBluetooth">&#xf293;</x:String>
+                <x:String x:Key="BrandBluetoothB">&#xf294;</x:String>
+                <x:String x:Key="SolidWifi">&#xf1eb;</x:String>
+                <x:String x:Key="SolidDeleteLeft">&#x232b;</x:String>
+                <x:String x:Key="RegularPaste">&#xf0ea;</x:String>
+                <x:String x:Key="RegularFile">&#xf016;</x:String>
+                <x:String x:Key="SolidPlus">&#x2b;</x:String>
+                <x:String x:Key="SolidTrash">&#xf1f8;</x:String>
+                <x:String x:Key="SolidBan">&#xf05e;</x:String>
+            </ResourceDictionary>
+            <!-- Colors -->
+            <Color x:Key="KcOff">#9AA0A6</Color>
+            <Color x:Key="KcTrying">#F4B400</Color>
+            <Color x:Key="KcOn">#34A853</Color>
+            <Color x:Key="KcError">#EA4335</Color>
+
+            <!-- Converters -->
+            <local:IconByStateConverter x:Key="LinkToColorConv"
+                                    Off="{StaticResource KcOff}"
+                                    On="{StaticResource KcOn}"
+                                    Trying="{StaticResource KcTrying}"
+                                    Error="{StaticResource KcError}" />
+            <local:InverseBoolConverter x:Key="InverseBoolConv" />
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

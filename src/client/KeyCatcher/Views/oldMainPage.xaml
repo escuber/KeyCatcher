@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="BleTestingAndDev.Views.oldMainPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <VerticalStackLayout Padding="20" Spacing="10" HeightRequest="100">
+        <Entry x:Name="TextEntry" Placeholder="Text to send..." />
+       <Button Clicked="OnSendClicked" Text="Send via BLE" />
+        <Label x:Name="StatusLabel" Text="" />
+         <ScrollView HeightRequest="920">
+                 
+             <Editor
+            x:Name="LogLabel"
+            HeightRequest="920"
+            Text="Idle..." />
+
+       
+        </ScrollView> 
+    </VerticalStackLayout>
+
+</ContentPage>

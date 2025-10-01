@@ -1,0 +1,24 @@
+﻿<toolkit:Popup
+    x:Class="KeyCatcher_acc.Popups.CountdownPopup"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit">
+
+    <Frame
+        Padding="20"
+        BackgroundColor="White"
+        CornerRadius="16">
+        <VerticalStackLayout Spacing="12">
+            <Label
+                FontSize="18"
+                HorizontalOptions="Center"
+                Text="Pause Countdown" />
+            <Label
+                x:Name="CountdownLabel"
+                FontSize="32"
+                HorizontalOptions="Center"
+                TextColor="Red" />
+            <Button Clicked="Stop_Clicked" Text="Stop" />
+        </VerticalStackLayout>
+    </Frame>
+</toolkit:Popup>

@@ -1,0 +1,36 @@
+﻿<toolkit:Popup
+    x:Class="KeyCatcher_acc.Popups.BleProgressPopup"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    Size="400,160">
+
+    <Frame
+        Padding="32,28"
+        BackgroundColor="#1C1C1E"
+        CornerRadius="28"
+        HasShadow="True"
+        HorizontalOptions="Center"
+        VerticalOptions="Center">
+
+        <VerticalStackLayout
+            HorizontalOptions="Center"
+            Spacing="18"
+            VerticalOptions="Center">
+            <ActivityIndicator
+                HeightRequest="48"
+                IsRunning="True"
+                WidthRequest="48"
+                Color="White" />
+            <Label
+                x:Name="StatusLabel"
+                Margin="0,12,0,0"
+                FontSize="22"
+                HorizontalTextAlignment="Center"
+                LineBreakMode="WordWrap"
+                MaxLines="3"
+                Text="{Binding StatusText}"
+                TextColor="White" />
+        </VerticalStackLayout>
+    </Frame>
+</toolkit:Popup>

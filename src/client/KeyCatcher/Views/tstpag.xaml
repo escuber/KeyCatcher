@@ -1,0 +1,152 @@
+﻿<ContentPage
+    x:Class="KeyCatcher_acc.Views.tstpag"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:KeyCatcher_acc.Controls"
+    xmlns:local="clr-namespace:KeyCatcher_acc.converters"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:vm="clr-namespace:KeyCatcher_acc.ViewModels"
+    Title="KeyCatcher"
+    x:DataType="vm:tstpagViewModel"
+    BackgroundColor="{StaticResource KcBg}">
+
+    <!--  tiny button style (in page Resources or App.xaml)  -->
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+                <local:StringToBoolConverter x:Key="StringToBoolConverter" />
+                <local:EnumToBoolConverter x:Key="EnumToBoolConverter" />
+                <local:StringEqualsToBoolConverter x:Key="StringEqualsToBool" />
+
+                <local:BoolToColorConverter
+                    x:Key="BoolToColor"
+                    FalseColor="#888888"
+                    TrueColor="LimeGreen" />
+
+                <x:String x:Key="BrandBluetooth">&#xf293;</x:String>
+                <x:String x:Key="BrandBluetoothB">&#xf294;</x:String>
+                <x:String x:Key="SolidWifi">&#xf1eb;</x:String>
+            </ResourceDictionary>
+            <ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+                <x:String x:Key="SolidArrowsRotate">&#xf021;</x:String>
+                <x:String x:Key="BrandBluetooth">&#xf293;</x:String>
+                <x:String x:Key="BrandBluetoothB">&#xf294;</x:String>
+                <x:String x:Key="SolidWifi">&#xf1eb;</x:String>
+            </ResourceDictionary>
+            <Color x:Key="KcBg">#F3E6CC</Color>
+            <Color x:Key="KcInk">#222429</Color>
+            <Color x:Key="KcAccent">#2B0B98</Color>
+            <Color x:Key="KcAccentLite">#30A6C0</Color>
+            <Color x:Key="KcCard">#55614D</Color>
+
+            <!--  Reusable styles  -->
+            <Style x:Key="Card" TargetType="Border">
+                <Setter Property="Background" Value="{StaticResource KcCard}" />
+                <Setter Property="Stroke" Value="#2B2B20" />
+                <Setter Property="StrokeThickness" Value="3" />
+                <Setter Property="StrokeShape" Value="RoundRectangle 24" />
+                <Setter Property="Padding" Value="16" />
+                <Setter Property="Shadow">
+                    <Setter.Value>
+                        <Shadow
+                            Brush="#80000000"
+                            Radius="10"
+                            Offset="0,3" />
+                    </Setter.Value>
+                </Setter>
+            </Style>
+            <Style x:Key="Pill" TargetType="Button">
+                <Setter Property="CornerRadius" Value="22" />
+                <Setter Property="Padding" Value="18,8" />
+                <Setter Property="BackgroundColor" Value="{StaticResource KcAccent}" />
+                <Setter Property="TextColor" Value="White" />
+                <Setter Property="FontAttributes" Value="Bold" />
+            </Style>
+            <!--  status colors you already use  -->
+            <Color x:Key="KcOff">#9AA0A6</Color>
+            <Color x:Key="KcTrying">#F4B400</Color>
+            <Color x:Key="KcOn">#34A853</Color>
+            <Color x:Key="KcError">#EA4335</Color>
+
+            <!--  converter maps LinkState to a Color  -->
+            <local:IconByStateConverter
+                x:Key="WifiIconConv"
+                Error="red"
+                Off="grey"
+                On="green"
+                Trying="orange" />
+            <local:IconByStateConverter
+                x:Key="BleIconConv"
+                Error="red"
+                Off="grey"
+                On="green"
+                Trying="orange" />
+
+
+            <Style x:Key="SlimButton" TargetType="Button">
+                <Setter Property="Padding" Value="10,2" />
+                <Setter Property="FontSize" Value="10" />
+                <Setter Property="CornerRadius" Value="14" />
+                <Setter Property="HeightRequest" Value="10" />
+                <!--  beats platform min height  -->
+                <Setter Property="BackgroundColor" Value="#30a6c0" />
+                <Setter Property="TextColor" Value="White" />
+            </Style>
+
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+        <Shell.TitleView>
+            <HorizontalStackLayout Padding="0,0,6,0" Spacing="12">
+
+                <!-- BLE icon -->
+                <Grid HeightRequest="26" WidthRequest="26">
+                    <Image>
+                        <Image.Source>
+                            <FontImageSource
+                            FontFamily="FontAwesomeBrands"
+                            Glyph="{StaticResource BrandBluetooth}"
+                            Size="22"
+                            Color="{Binding BleUp, Converter={StaticResource BoolToColor}}" />
+                        </Image.Source>
+                    </Image>
+                    <Image IsVisible="{Binding InputType, Converter={StaticResource StringEqualsToBool}, ConverterParameter=WIFI}">
+                        <Image.Source>
+                            <FontImageSource
+                            FontFamily="FontAwesomeSolid"
+                            Glyph="{StaticResource SolidBan}"
+                            Size="22"
+                            Color="Red" />
+                        </Image.Source>
+                    </Image>
+                </Grid>
+
+                <!-- WiFi icon -->
+                <Grid HeightRequest="26" WidthRequest="26">
+                    <Image>
+                        <Image.Source>
+                            <FontImageSource
+                            FontFamily="FontAwesomeSolid"
+                            Glyph="{StaticResource SolidWifi}"
+                            Size="22"
+                            Color="{Binding WifiUp, Converter={StaticResource BoolToColor}}" />
+                        </Image.Source>
+                    </Image>
+                    <Image IsVisible="{Binding InputType, Converter={StaticResource StringEqualsToBool}, ConverterParameter=BLE}">
+                        <Image.Source>
+                            <FontImageSource
+                            FontFamily="FontAwesomeSolid"
+                            Glyph="{StaticResource SolidBan}"
+                            Size="22"
+                            Color="Red" />
+                        </Image.Source>
+                    </Image>
+                </Grid>
+            </HorizontalStackLayout>
+        </Shell.TitleView>
+
+        <VerticalStackLayout Padding="20" Spacing="10">
+            <Entry Text="{Binding MessageText}" Placeholder="Enter message" />
+            <Button Text="Send" Command="{Binding SendCommand}" />
+        </VerticalStackLayout>
+    </ContentPage>
