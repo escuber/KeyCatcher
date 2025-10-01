@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using KeyCatcher_acc.models;
+using KeyCatcher.models;
+using KeyCatcher.models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
-namespace KeyCatcher_acc.services
+namespace KeyCatcher.services
 {
     public sealed class DeviceConfigDto
 

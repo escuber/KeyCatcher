@@ -1,4 +1,4 @@
-﻿namespace KeyCatcher_acc.services
+﻿namespace KeyCatcher.services
 {
     public interface IKeyCatcherCommService
     {

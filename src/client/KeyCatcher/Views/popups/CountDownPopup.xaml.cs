@@ -1,7 +1,7 @@
 ﻿using CommunityToolkit.Maui.Views;
-using KeyCatcher_acc.services;
+using KeyCatcher.services;
 
-namespace KeyCatcher_acc.Popups;
+namespace KeyCatcher.Popups;
 
 public partial class CountdownPopup : Popup
 {

@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace KeyCatcher_acc.services
+namespace KeyCatcher.services
 {
     public sealed class KeyCatcherWiFiService : IDisposable //IKeyCatcherCommService, 
     {

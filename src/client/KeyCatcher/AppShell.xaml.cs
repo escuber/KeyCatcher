@@ -1,4 +1,4 @@
-﻿namespace KeyCatcher_acc;
+﻿namespace KeyCatcher;
 
 public partial class AppShell : Shell
 {

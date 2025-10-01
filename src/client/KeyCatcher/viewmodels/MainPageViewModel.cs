@@ -2,15 +2,16 @@
 using CommunityToolkit.Maui.Views;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using KeyCatcher_acc.models;
-using KeyCatcher_acc.services;
-using KeyCatcher_acc.services;
+using KeyCatcher.services;
+using KeyCatcher.models;
+using KeyCatcher.services;
+using KeyCatcher.services;
 using Plugin.BLE;
 using Plugin.BLE.Abstractions;
 using Plugin.BLE.Abstractions.Contracts;
 using Plugin.BLE.Abstractions.EventArgs;
 
-namespace KeyCatcher_acc.ViewModels;
+namespace KeyCatcher.ViewModels;
 
 public partial class MainPageViewModel : ObservableObject
 {

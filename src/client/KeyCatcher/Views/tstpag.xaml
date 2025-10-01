@@ -1,11 +1,11 @@
 ﻿<ContentPage
-    x:Class="KeyCatcher_acc.Views.tstpag"
+    x:Class="KeyCatcher.Views.tstpag"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:controls="clr-namespace:KeyCatcher_acc.Controls"
     xmlns:local="clr-namespace:KeyCatcher_acc.converters"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
-    xmlns:vm="clr-namespace:KeyCatcher_acc.ViewModels"
+    xmlns:vm="clr-namespace:KeyCatcher.ViewModels"
     Title="KeyCatcher"
     x:DataType="vm:tstpagViewModel"
     BackgroundColor="{StaticResource KcBg}">

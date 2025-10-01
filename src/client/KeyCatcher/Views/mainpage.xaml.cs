@@ -1,13 +1,13 @@
 ﻿
 
-using KeyCatcher_acc.services;
-using KeyCatcher_acc.ViewModels;
+using KeyCatcher.services;
+using KeyCatcher.ViewModels;
 using Microsoft.Maui;
 using Microsoft.Maui.ApplicationModel;
 using Microsoft.Maui.Storage;
 using Plugin.BLE.Abstractions.Contracts;
 
-namespace KeyCatcher_acc.Views;
+namespace KeyCatcher.Views;
 
 public partial class mainpage : ContentPage
 {

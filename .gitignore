@@ -1,0 +1,7 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/src/client/KeyCatcher/.vs/KeyCatcher2
+/src/client/KeyCatcher/obj
+/src/server/CatcherResetMenuRebuild/.vs

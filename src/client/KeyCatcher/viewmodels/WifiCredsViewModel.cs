@@ -1,10 +1,11 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using KeyCatcher_acc.models;
-using KeyCatcher_acc.services;
+using KeyCatcher.services;
+using KeyCatcher.models;
+using KeyCatcher.services;
 using System.Text.Json;
 
-namespace KeyCatcher_acc.ViewModels
+namespace KeyCatcher.ViewModels
 {
     public partial class WifiCredsViewModel : ObservableObject
     {
@@ -32,12 +33,23 @@ namespace KeyCatcher_acc.ViewModels
             Networks.Clear();
             try
             {
-                var list = string.IsNullOrWhiteSpace(svc.Creds)
-                    ? new List<WifiCredential>()
-                    : JsonSerializer.Deserialize<List<WifiCredential>>(svc.Creds) ?? new List<WifiCredential>();
+                //var list = string.IsNullOrWhiteSpace(svc.Creds)
+                //    ? new List<WifiCredential>()
+                //    : JsonSerializer.Deserialize<List<WifiCredential>>(svc.Creds) ?? new List<WifiCredential>();
 
-                foreach (var n in list)
-                    Networks.Add(n);
+                //foreach (var n in list)
+                //    Networks.Add(n);
+
+                PrimarySSID = svc.SSID ?? "";
+                PrimaryPassword = svc.Password ?? "";
+
+                Networks.Clear();
+                // Just use the List directly
+                if (svc.Creds != null)
+                {
+                    foreach (var n in svc.Creds)
+                        Networks.Add(n);
+                }
             }
             catch
             {
@@ -52,7 +64,8 @@ namespace KeyCatcher_acc.ViewModels
             svc.Password = PrimaryPassword ?? "";
 
             var list = Networks?.ToList() ?? new List<WifiCredential>();
-            svc.Creds = JsonSerializer.Serialize(list);
+            svc.Creds = list;// JsonSerializer.Serialize(list);
+
             svc.Save();
         }
 

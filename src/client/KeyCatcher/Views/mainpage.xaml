@@ -1,8 +1,9 @@
 ﻿<ContentPage
-    x:Class="KeyCatcher_acc.Views.mainpage"
+    x:Class="KeyCatcher.Views.mainpage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:vm="clr-namespace:KeyCatcher_acc.ViewModels"
+    xmlns:vm="clr-namespace:KeyCatcher.ViewModels"
+    xmlns:views="clr-namespace:KeyCatcher.Views"
     x:DataType="vm:MainPageViewModel"
     xmlns:local="clr-namespace:KeyCatcher_acc.converters"
     Title="KeyCatcher">
@@ -80,9 +81,15 @@
             <!-- Apply template to all CardViews -->
         </ResourceDictionary>
     </ContentPage.Resources>
-    <Shell.TitleView>
-        <HorizontalStackLayout Padding="0,0,6,0" Spacing="12" BindingContext="{Binding settingsService}">
-            <!-- BLE icon -->
+
+        <Shell.TitleView>
+            <views:header            Title="KeyCatcher Settings"            />
+    </Shell.TitleView>
+
+
+
+    <!--<HorizontalStackLayout Padding="0,0,6,0" Spacing="12" BindingContext="{Binding settingsService}">
+            --><!-- BLE icon --><!--
             <Grid HeightRequest="26" WidthRequest="26">
                 <Image>
                     <Image.Source>
@@ -90,29 +97,28 @@
                             Converter={StaticResource BoolToColor}}" />
                     </Image.Source>
                 </Image>
-                <!-- ban overlay when InputType == WIFI (BLE disabled) -->
+                --><!-- ban overlay when InputType == WIFI (BLE disabled) --><!--
                 <Image IsVisible="{Binding InputType, Converter={StaticResource StringEqualsToBool}, ConverterParameter=WIFI}">
                     <Image.Source>
                         <FontImageSource FontFamily="FontAwesomeSolid" Glyph="{StaticResource SolidBan}" Size="22" Color="Red" />
                     </Image.Source>
                 </Image>
             </Grid>
-            <!-- Wi-Fi icon -->
+            --><!-- Wi-Fi icon --><!--
             <Grid HeightRequest="26" WidthRequest="26">
                 <Image>
                     <Image.Source>
                         <FontImageSource FontFamily="FontAwesomeSolid" Glyph="{StaticResource SolidWifi}" Size="22" Color="{Binding WifiUp, Converter={StaticResource BoolToColor}}" />
                     </Image.Source>
                 </Image>
-                <!-- ban overlay when InputType == BLE (WiFi disabled) -->
+                --><!-- ban overlay when InputType == BLE (WiFi disabled) --><!--
                 <Image IsVisible="{Binding InputType, Converter={StaticResource StringEqualsToBool}, ConverterParameter=BLE}">
                     <Image.Source>
                         <FontImageSource FontFamily="FontAwesomeSolid" Glyph="{StaticResource SolidBan}" Size="22" Color="Red" />
                     </Image.Source>
                 </Image>
             </Grid>
-        </HorizontalStackLayout>
-    </Shell.TitleView>
+        </HorizontalStackLayout>-->
 
 
     <!--<Shell.TitleView>

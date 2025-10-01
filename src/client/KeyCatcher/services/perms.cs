@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace KeyCatcher_acc.services
+namespace KeyCatcher.services
 {
     public static class perms
     {

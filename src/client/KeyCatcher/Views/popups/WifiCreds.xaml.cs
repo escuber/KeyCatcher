@@ -1,10 +1,10 @@
 ﻿using CommunityToolkit.Maui.Views;
-using KeyCatcher_acc.ViewModels;
-using KeyCatcher_acc.services;
-using KeyCatcher_acc.models; // WifiCredential
+using KeyCatcher.ViewModels;
+using KeyCatcher.services;
+using KeyCatcher.models; // WifiCredential
 using System.Windows.Input;
 
-namespace KeyCatcher_acc.Popups
+namespace KeyCatcher.Popups
 {
     public partial class WifiCreds : Popup
     {

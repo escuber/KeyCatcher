@@ -1,8 +1,9 @@
 ﻿using KeyCatcher_acc.services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using KeyCatcher.services;
 
-namespace KeyCatcher_acc.ViewModels;
+namespace KeyCatcher.ViewModels;
 
 public partial class tstpagViewModel : ObservableObject
 {

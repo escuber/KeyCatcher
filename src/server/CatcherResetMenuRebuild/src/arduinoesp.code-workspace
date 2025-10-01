@@ -1,0 +1,12 @@
+{
+	"folders": [
+		{
+			"name": " arduinoesp",
+			"path": "../../../arduino32/ arduinoesp"
+		},
+		{
+			"path": "../../../.."
+		}
+	],
+	"settings": {}
+}

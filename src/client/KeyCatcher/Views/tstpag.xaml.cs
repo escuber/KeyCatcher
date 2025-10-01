@@ -1,6 +1,6 @@
-﻿using KeyCatcher_acc.ViewModels;
+﻿using KeyCatcher.ViewModels;
 
-namespace KeyCatcher_acc.Views;
+namespace KeyCatcher.Views;
 
 public partial class tstpag : ContentPage
 {

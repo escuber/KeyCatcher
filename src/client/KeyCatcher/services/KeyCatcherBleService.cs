@@ -1,7 +1,7 @@
 ﻿using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Maui.Views;
-using CommunityToolkit.Maui.Views;
-using KeyCatcher_acc.Popups;
+using KeyCatcher.Popups;
+using KeyCatcher.Popups;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging;
 using Plugin.BLE.Abstractions;

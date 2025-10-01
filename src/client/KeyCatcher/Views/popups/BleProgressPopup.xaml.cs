@@ -1,5 +1,5 @@
 ﻿using CommunityToolkit.Maui.Views;
-namespace KeyCatcher_acc.Popups;
+namespace KeyCatcher.Popups;
 public partial class BleProgressPopup : Popup
 {
     public static readonly BindableProperty StatusTextProperty =

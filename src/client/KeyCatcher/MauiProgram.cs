@@ -1,8 +1,8 @@
 ﻿
-using KeyCatcher_acc;
-using KeyCatcher_acc.services;
-using KeyCatcher_acc.ViewModels;
-using KeyCatcher_acc.Views;
+using KeyCatcher;
+using KeyCatcher.services;
+using KeyCatcher.ViewModels;
+using KeyCatcher.Views;
 using Microsoft.Maui.LifecycleEvents;
 using Plugin.BLE;
 using Plugin.BLE.Abstractions.Contracts;

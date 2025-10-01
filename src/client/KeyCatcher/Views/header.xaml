@@ -1,0 +1,56 @@
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="KeyCatcher.Views.header">
+
+
+    
+        <Grid Padding="12,0" ColumnDefinitions="Auto,*,Auto,Auto" HeightRequest="44">
+            <!-- left “hamburger”/back space, keep for symmetry -->
+            <BoxView WidthRequest="1" />
+            <Label Grid.Column="1" FontAttributes="Bold" Text="KeyCatcher Settings" VerticalTextAlignment="Center" />
+            <!-- BLE icon -->
+            <Image Grid.Column="2" Margin="12,0,6,0" HeightRequest="20" WidthRequest="20">
+                <Image.Source>
+                    <FontImageSource FontFamily="FontAwesomeBrands" Glyph="{StaticResource BrandBluetooth}" Color="{Binding Hub.IsBleUp, Converter={StaticResource BoolToColor}}" />
+                </Image.Source>
+            </Image >
+            <Image Grid.Column="2" IsVisible="{Binding InputType, Converter={StaticResource StringEqualsToBool}, ConverterParameter=WIFI}">
+                <Image.Source>
+                    <FontImageSource FontFamily="FontAwesomeSolid" Glyph="{StaticResource SolidBan}" Size="22" Color="Red" />
+                </Image.Source>
+            </Image>
+            <!-- Wi-Fi icon -->
+            <Image Grid.Column="3" Margin="6,0,0,0" HeightRequest="20" WidthRequest="20">
+                <Image.Source>
+                    <FontImageSource FontFamily="FontAwesomeSolid" Glyph="{StaticResource SolidWifi}" Color="{Binding Hub.IsWifiUp, Converter={StaticResource BoolToColor}}" />
+                </Image.Source>
+            </Image>
+            <Image Grid.Column="3" IsVisible="{Binding InputType, Converter={StaticResource StringEqualsToBool}, ConverterParameter=BLE}">
+                <Image.Source>
+                    <FontImageSource FontFamily="FontAwesomeSolid" Glyph="{StaticResource SolidBan}" Size="22" Color="Red" />
+                </Image.Source>
+            </Image>
+            <ImageButton
+                Grid.Column="4"
+                HeightRequest="20"
+                WidthRequest="20"
+                IsVisible="{Binding IsAllDown}"  
+                    Clicked="OnHelpClicked">
+                    <ImageButton.Source>
+                        <FontImageSource
+                            FontFamily="FontAwesomeSolid"
+                            Glyph="{StaticResource SolidQuestionCircle}"
+                            Color="Orange" />
+                    </ImageButton.Source>
+                </ImageButton>
+            </Grid>
+        
+        <!--<VerticalStackLayout>
+
+            <Label Text="{Binding Title, Source={x:Reference Name=headerBarRoot}}" />
+            <Label
+                Text="Welcome to .NET MAUI!"
+                VerticalOptions="Center"
+                HorizontalOptions="Center" />
+        </VerticalStackLayout>-->
+    </ContentView>
