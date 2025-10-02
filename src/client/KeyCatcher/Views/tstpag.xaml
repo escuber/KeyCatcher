@@ -2,8 +2,8 @@
     x:Class="KeyCatcher.Views.tstpag"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:controls="clr-namespace:KeyCatcher_acc.Controls"
-    xmlns:local="clr-namespace:KeyCatcher_acc.converters"
+    xmlns:controls="clr-namespace:KeyCatcher.Controls"
+    xmlns:local="clr-namespace:KeyCatcher.converters"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     xmlns:vm="clr-namespace:KeyCatcher.ViewModels"
     Title="KeyCatcher"
@@ -18,10 +18,10 @@
                 <local:EnumToBoolConverter x:Key="EnumToBoolConverter" />
                 <local:StringEqualsToBoolConverter x:Key="StringEqualsToBool" />
 
-                <local:BoolToColorConverter
+                <!--<local:BoolToColorConverter
                     x:Key="BoolToColor"
                     FalseColor="#888888"
-                    TrueColor="LimeGreen" />
+                    TrueColor="LimeGreen" />-->
 
                 <x:String x:Key="BrandBluetooth">&#xf293;</x:String>
                 <x:String x:Key="BrandBluetoothB">&#xf294;</x:String>
@@ -96,57 +96,57 @@
         </ResourceDictionary>
     </ContentPage.Resources>
 
-        <Shell.TitleView>
-            <HorizontalStackLayout Padding="0,0,6,0" Spacing="12">
+    <Shell.TitleView>
+        <HorizontalStackLayout Padding="0,0,6,0" Spacing="12">
 
-                <!-- BLE icon -->
-                <Grid HeightRequest="26" WidthRequest="26">
-                    <Image>
-                        <Image.Source>
-                            <FontImageSource
+            <!--  BLE icon  -->
+            <Grid HeightRequest="26" WidthRequest="26">
+                <Image>
+                    <Image.Source>
+                        <FontImageSource
                             FontFamily="FontAwesomeBrands"
                             Glyph="{StaticResource BrandBluetooth}"
                             Size="22"
                             Color="{Binding BleUp, Converter={StaticResource BoolToColor}}" />
-                        </Image.Source>
-                    </Image>
-                    <Image IsVisible="{Binding InputType, Converter={StaticResource StringEqualsToBool}, ConverterParameter=WIFI}">
-                        <Image.Source>
-                            <FontImageSource
+                    </Image.Source>
+                </Image>
+                <Image IsVisible="{Binding InputType, Converter={StaticResource StringEqualsToBool}, ConverterParameter=WIFI}">
+                    <Image.Source>
+                        <FontImageSource
                             FontFamily="FontAwesomeSolid"
                             Glyph="{StaticResource SolidBan}"
                             Size="22"
                             Color="Red" />
-                        </Image.Source>
-                    </Image>
-                </Grid>
+                    </Image.Source>
+                </Image>
+            </Grid>
 
-                <!-- WiFi icon -->
-                <Grid HeightRequest="26" WidthRequest="26">
-                    <Image>
-                        <Image.Source>
-                            <FontImageSource
+            <!--  WiFi icon  -->
+            <Grid HeightRequest="26" WidthRequest="26">
+                <Image>
+                    <Image.Source>
+                        <FontImageSource
                             FontFamily="FontAwesomeSolid"
                             Glyph="{StaticResource SolidWifi}"
                             Size="22"
                             Color="{Binding WifiUp, Converter={StaticResource BoolToColor}}" />
-                        </Image.Source>
-                    </Image>
-                    <Image IsVisible="{Binding InputType, Converter={StaticResource StringEqualsToBool}, ConverterParameter=BLE}">
-                        <Image.Source>
-                            <FontImageSource
+                    </Image.Source>
+                </Image>
+                <Image IsVisible="{Binding InputType, Converter={StaticResource StringEqualsToBool}, ConverterParameter=BLE}">
+                    <Image.Source>
+                        <FontImageSource
                             FontFamily="FontAwesomeSolid"
                             Glyph="{StaticResource SolidBan}"
                             Size="22"
                             Color="Red" />
-                        </Image.Source>
-                    </Image>
-                </Grid>
-            </HorizontalStackLayout>
-        </Shell.TitleView>
+                    </Image.Source>
+                </Image>
+            </Grid>
+        </HorizontalStackLayout>
+    </Shell.TitleView>
 
-        <VerticalStackLayout Padding="20" Spacing="10">
-            <Entry Text="{Binding MessageText}" Placeholder="Enter message" />
-            <Button Text="Send" Command="{Binding SendCommand}" />
-        </VerticalStackLayout>
-    </ContentPage>
+    <VerticalStackLayout Padding="20" Spacing="10">
+        <Entry Placeholder="Enter message" Text="{Binding MessageText}" />
+        <Button Command="{Binding SendCommand}" Text="Send" />
+    </VerticalStackLayout>
+</ContentPage>

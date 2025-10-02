@@ -2,8 +2,21 @@
 using System.Globalization;
 using Microsoft.Maui.Controls;
 
-namespace KeyCatcher_acc.converters
+namespace KeyCatcher.converters
 {
+
+    public class BothDownToBoolConverter : IMultiValueConverter
+    {
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (values.Length < 2) return false;
+            bool isBleUp = values[0] is bool b1 && b1;
+            bool isWifiUp = values[1] is bool b2 && b2;
+            return !(isBleUp || isWifiUp);
+        }
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+            => throw new NotImplementedException();
+    }
     public enum LinkState
     {
         Off,      // not connected and not trying

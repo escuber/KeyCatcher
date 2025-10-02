@@ -61,7 +61,7 @@ namespace KeyCatcher.Popups
             Card.MaximumHeightRequest = h * 0.90;
 
             // Ensure the editor never exceeds the card
-            EditorCard.MaximumHeightRequest = Card.MaximumHeightRequest - 24;
+          // EditorCard.MaximumHeightRequest = Card.MaximumHeightRequest - 24;
         }
 
         // Exposed to XAML

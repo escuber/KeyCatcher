@@ -1,14 +1,15 @@
-﻿<?xml version = "1.0" encoding = "UTF-8" ?>
-<Application xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-			 xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-			 xmlns:local="clr-namespace:KeyCatcher_acc.converters"
-			 x:Class="KeyCatcher.App">
-	<Application.Resources>
-		<ResourceDictionary>
-			<ResourceDictionary.MergedDictionaries>
-				<ResourceDictionary Source="Resources/Styles/Colors.xaml" />
-				<ResourceDictionary Source="Resources/Styles/Styles.xaml" />
-			</ResourceDictionary.MergedDictionaries>
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<Application
+    x:Class="KeyCatcher.App"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:KeyCatcher.converters">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Resources/Styles/Colors.xaml" />
+                <ResourceDictionary Source="Resources/Styles/Styles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
             <ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
                 <x:String x:Key="SolidPencil">&#x270f;</x:String>
                 <x:String x:Key="BrandBluetooth">&#xf293;</x:String>
@@ -20,20 +21,30 @@
                 <x:String x:Key="SolidPlus">&#x2b;</x:String>
                 <x:String x:Key="SolidTrash">&#xf1f8;</x:String>
                 <x:String x:Key="SolidBan">&#xf05e;</x:String>
+                <x:String x:Key="SolidCircleQuestion">&#xf059;</x:String>
             </ResourceDictionary>
-            <!-- Colors -->
+            <!--  Colors  -->
             <Color x:Key="KcOff">#9AA0A6</Color>
             <Color x:Key="KcTrying">#F4B400</Color>
             <Color x:Key="KcOn">#34A853</Color>
             <Color x:Key="KcError">#EA4335</Color>
-
-            <!-- Converters -->
-            <local:IconByStateConverter x:Key="LinkToColorConv"
-                                    Off="{StaticResource KcOff}"
-                                    On="{StaticResource KcOn}"
-                                    Trying="{StaticResource KcTrying}"
-                                    Error="{StaticResource KcError}" />
+            <Color x:Key="KcBg">#F3E6CC</Color>
+            <Color x:Key="KcInk">#222429</Color>
+            <Color x:Key="KcAccent">#2B0B98</Color>
+            <Color x:Key="KcAccentLite">#30A6C0</Color>
+            <Color x:Key="KcCard">#55614D</Color>
+            <!--  Converters  -->
+            <local:IconByStateConverter
+                x:Key="LinkToColorConv"
+                Error="{StaticResource KcError}"
+                Off="{StaticResource KcOff}"
+                On="{StaticResource KcOn}"
+                Trying="{StaticResource KcTrying}" />
             <local:InverseBoolConverter x:Key="InverseBoolConv" />
+
+            <local:BothDownToBoolConverter x:Key="BothDownToBool" />
+            <local:StringEqualsToBoolConverter x:Key="StringEqualsToBool" />
+
         </ResourceDictionary>
     </Application.Resources>
 </Application>

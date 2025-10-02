@@ -1,14 +1,12 @@
 ﻿using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Maui.Views;
 using KeyCatcher.Popups;
-using KeyCatcher.Popups;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging;
 using Plugin.BLE.Abstractions;
 using Plugin.BLE.Abstractions.Contracts;
 using Plugin.BLE.Abstractions.EventArgs;
 using System.Text;
-//using Xamarin.Google.Crypto.Tink;
 public sealed class KeyCatcherBleService //: IKeyCatcherCommService
 {
     static readonly Guid SVC_UUID = Guid.Parse("0000AAAA-0000-1000-8000-00805F9B34FB");
@@ -298,13 +296,6 @@ public sealed class KeyCatcherBleService //: IKeyCatcherCommService
 
         }
 
-        //finally
-        //{
-        //   
-        //}
-
-
-
         catch (Exception ex)
         {
             ShowBlePopup("BLE error: " + ex.Message);
@@ -426,127 +417,14 @@ public sealed class KeyCatcherBleService //: IKeyCatcherCommService
 
 
 
-    //    if (rx == null || tx == null)
-    //    {
-    //        ShowBlePopup("RX/TX not found.");
-    //        await Task.Delay(800);
-    //        return null;
-    //    }
-
-    //    // === 3. Subscribe for config (notifications) ===
-    //    var tcs = new TaskCompletionSource<string?>();
-    //    void OnConfig(object? s, CharacteristicUpdatedEventArgs e)
-    //    {
-    //        var msg = Encoding.UTF8.GetString(e.Characteristic.Value ?? Array.Empty<byte>());
-    //        // You can customize this: check for a config marker, or just take the first full JSON blob
-    //        if (msg.Contains("{") && msg.Contains("}"))
-    //        {
-    //            tcs.TrySetResult(msg);
-    //        }
-    //    }
-    //    tx.ValueUpdated += OnConfig;
-    //    await tx.StartUpdatesAsync();
-
-    //    // === 4. Request config ===
-    //    ShowBlePopup("Requesting config...");
-    //    await rx.WriteAsync(Encoding.UTF8.GetBytes("get_config"));
-
-    //    var completed = await Task.WhenAny(tcs.Task, Task.Delay(12000));
-    //    await tx.StopUpdatesAsync();
-    //    tx.ValueUpdated -= OnConfig;
-    //    await _adapter.DisconnectDeviceAsync(device);
-
-    //    if (completed == tcs.Task)
-    //    {
-    //        ShowBlePopup("Config received!");
-    //        await Task.Delay(600);
-    //        return tcs.Task.Result;
-    //    }
-    //    else
-    //    {
-    //        ShowBlePopup("Config timeout.");
-    //        await Task.Delay(1000);
-    //        return null;
-    //    }
-    //}
-    //catch (Exception ex)
-    //{
-    //    ShowBlePopup("BLE error: " + ex.Message);
-    //    await Task.Delay(1600);
-    //    return null;
-    //}
-    //finally
-    //{
-    //    DismissBlePopup();
-    //}
-
 
     public async Task<bool> SendConfigAsync(string configJson)
     {
         ShowBlePopup("Sending config...");
         try
         {
-            // -- Same scan/connect/discover as above (can refactor to helper later) --
-            IDevice? device = null;
-            void Handler(object? s, DeviceEventArgs ev)
-            {
-                if (!string.IsNullOrEmpty(ev.Device.Name) && ev.Device.Name.Contains("KeyCatcher"))
-                    device ??= ev.Device;
-            }
-            _adapter.DeviceDiscovered += Handler;
-            await _adapter.StartScanningForDevicesAsync();
-            _adapter.DeviceDiscovered -= Handler;
-            if (device == null)
-            {
-                ShowBlePopup("Device not found.");
-                await Task.Delay(1000);
-                return false;
-            }
-
-            ShowBlePopup($"Found {device.Name}, connecting...");
-            await _adapter.ConnectToDeviceAsync(device);
-            if (device.State != DeviceState.Connected)
-            {
-                ShowBlePopup("Device not connected!");
-                await Task.Delay(800);
-                return false;
-            }
-
-            // === Service/Chars ===
-            ShowBlePopup("Discovering services...");
-            var svc = (await device.GetServicesAsync()).FirstOrDefault(s => s.Id == SVC_UUID);
-            if (svc == null)
-            {
-                ShowBlePopup("Service not found.");
-                await Task.Delay(800);
-                return false;
-            }
-            var chars = await svc.GetCharacteristicsAsync();
-            var rx = chars.FirstOrDefault(c => c.Id == RX_UUID);
-            var tx = chars.FirstOrDefault(c => c.Id == TX_UUID);
-            if (rx == null || tx == null)
-            {
-                ShowBlePopup("RX/TX not found.");
-                await Task.Delay(800);
-                return false;
-            }
-
-            // === Send config (chunked) ===
-            ShowBlePopup("Sending config data...");
-            try
-            {
-                await KCBle.SendWithAckBleAsync(configJson + "<<END>>", rx, tx, 10000); // your proven chunk send
-                ShowBlePopup("Config sent!");
-                await Task.Delay(500);
-                await _adapter.DisconnectDeviceAsync(device);
-                return true;
-            }
-            catch (Exception ex)
-            {
-                ShowBlePopup("Config send error: " + ex.Message);
-                await Task.Delay(1200);
-                return false;
-            }
+            SendAsync(configJson);
+            return true;
         }
         catch (Exception ex)
         {
@@ -732,20 +610,7 @@ public sealed class KeyCatcherBleService //: IKeyCatcherCommService
 
         await DoFullSend(text);
         return true;
-        //if (!IsConnected) return false;
-       // if (_characteristic == null) return false;
-
-        //var bytes = Encoding.UTF8.GetBytes(text);
-        //try
-        //{
-        //    await _characteristic.WriteAsync(bytes);
-        //    return true;
-        //}
-        //catch
-        //{
-        //    await DisconnectAsync();
-        //    return false;
-        //}
+        
     }
 
     private void StartHealthLoop()
@@ -804,3 +669,4 @@ public sealed class KeyCatcherBleService //: IKeyCatcherCommService
         }
     }
 }
+    

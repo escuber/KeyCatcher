@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace KeyCatcher.services
 {
@@ -55,11 +56,13 @@ namespace KeyCatcher.services
     {
         private readonly KeyCatcherBleService _ble;
         private readonly KeyCatcherWiFiService _wifi;
+        private readonly KeyCatcherSettingsService settings;
         [ObservableProperty] private int pauseSeconds = 0;
         private bool _initialized;
         //private readonly SendHealthGate _gate = new();
-        public CommHub(KeyCatcherBleService ble, KeyCatcherWiFiService wifi)
+        public CommHub(KeyCatcherBleService ble, KeyCatcherWiFiService wifi, KeyCatcherSettingsService ssettings)
         {
+            settings=   ssettings;
             _ble = ble;
             _wifi = wifi;
             PauseSeconds = Preferences.Get("pauseSeconds", 0);
@@ -74,7 +77,27 @@ namespace KeyCatcher.services
             _ = MaintainWifiAsync();
             _ = MaintainBleAsync();
         }
+        public async Task<string?> GetConfigAsync()
+        {
 
+
+
+            
+
+            var config = "";
+
+            // Use WiFi if connected, else BLE
+            if (_wifi.IsConnected)
+                config = await _wifi.GetConfigAsync();
+            if (_ble.IsConnected)
+                config = await _ble.GetConfigAsync();
+            ///settings.ApplyDeviceJson(config);
+
+            return config;
+
+
+
+        }
         public LinkMode Mode { get; private set; } = LinkMode.Auto;
         public bool WifiEnabled { get; private set; } = true;
         public bool BleEnabled { get; private set; } = true;
@@ -130,33 +153,6 @@ namespace KeyCatcher.services
         private static string Finish(string s) =>
             s.EndsWith("<<END>>", StringComparison.Ordinal) ? s : s + "<<END>>";
 
-        //public async Task<bool> SendAsync(string text)
-        //{
-        //    var payload = Finish(text);
-
-        //    _busy = true;
-        //    try
-        //    {
-        //        if (Mode == LinkMode.WifiOnly && WifiEnabled)
-        //            return await _wifi.SendTextAsync(payload);
-
-        //        if (Mode == LinkMode.BleOnly && BleEnabled)
-        //            return await _ble.SendTextAsync(payload);
-
-        //        // Auto mode
-        //        if (WifiEnabled && await _wifi.ProbeAsync())
-        //            return await _wifi.SendTextAsync(payload);
-
-        //        if (BleEnabled && await _ble.ProbeAsync())
-        //            return await _ble.SendTextAsync(payload);
-
-        //        return false;
-        //    }
-        //    finally
-        //    {
-        //        _busy = false;
-        //    }
-        //}
         private readonly SendHealthGate _gate = new();
 
         public async Task<bool> SendAsync(string text)
@@ -164,7 +160,7 @@ namespace KeyCatcher.services
             return await _gate.RunSendAsync(async () =>
             {
                 if (PauseSeconds > 0)
-                    await Task.Delay(2 * 1000);
+                    await Task.Delay(PauseSeconds * 1000);
 
                 // Use WiFi if connected, else BLE
                 if (_wifi.IsConnected)
@@ -184,32 +180,7 @@ namespace KeyCatcher.services
 
             return result ?? false; // if skipped, treat as failed probe
         }
-        //public async Task<bool> ApplyConfigAsync(string configJson)
-        //{
-        //    _busy = true;
-        //    try
-        //    {
-        //        if (Mode == LinkMode.WifiOnly && WifiEnabled)
-        //            return await _wifi.SendConfigAsync(configJson);
-
-        //        if (Mode == LinkMode.BleOnly && BleEnabled)
-        //            return await _ble.SendConfigAsync(configJson);
-
-        //        // Auto mode: prefer WiFi, fallback to BLE
-        //        if (WifiEnabled && await _wifi.ProbeAsync())
-        //            return await _wifi.SendConfigAsync(configJson);
-
-        //        if (BleEnabled && await _ble.ProbeAsync())
-        //            return await _ble.SendConfigAsync(configJson);
-
-        //        return false;
-        //    }
-        //    finally
-        //    {
-        //        _busy = false;
-        //    }
-        //}
-
+     
         // --------------------------------------------------------------------
         // Keepalive probes
         // --------------------------------------------------------------------
@@ -228,37 +199,6 @@ namespace KeyCatcher.services
             }
         }
         private CancellationTokenSource? _bleCts;
-
-        private void StartBleMaintainLoop()
-        {
-            _bleCts?.Cancel();
-            _bleCts = new CancellationTokenSource();
-            _ = MaintainBleAsync(_bleCts.Token);
-        }
-
-        private async Task MaintainBleAsync(CancellationToken ct)
-        {
-            while (!ct.IsCancellationRequested)
-            {
-                try
-                {
-                    if (!BleEnabled)
-                    {
-                        IsBleUp = false;
-                    }
-                    else
-                    {
-                        IsBleUp = await _ble.ProbeAsync();
-                    }
-                }
-                catch
-                {
-                    IsBleUp = false;
-                }
-
-                await Task.Delay(5000, ct);
-            }
-        }
 
         private async Task MaintainBleAsync()
         {

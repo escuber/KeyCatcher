@@ -2,7 +2,7 @@
     x:Class="KeyCatcher.Popups.WifiCreds"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:conv="clr-namespace:KeyCatcher_acc.converters"
+    xmlns:conv="clr-namespace:KeyCatcher.converters"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     x:Name="RootPopup"
     CanBeDismissedByTappingOutsideOfPopup="True">
@@ -52,160 +52,249 @@
         </ResourceDictionary>
     </toolkit:Popup.Resources>
     <!-- inside <toolkit:Popup> ... -->
-    <Border x:Name="Card"
-        Padding="{OnIdiom Phone=8, Desktop=12}"
+    <Border
+        x:Name="Card"
+        Padding="{OnIdiom Phone=8,
+                          Desktop=12}"
+        BackgroundColor="{AppThemeBinding Light=#ffffff,
+                                          Dark=#111827}"
         HorizontalOptions="Fill"
-        VerticalOptions="Center"
+        Stroke="{AppThemeBinding Light=#e5e7eb,
+                                 Dark=#374151}"
         StrokeThickness="1"
-        Stroke="{AppThemeBinding Light=#e5e7eb, Dark=#374151}"
-        BackgroundColor="{AppThemeBinding Light=#ffffff, Dark=#111827}">
+        VerticalOptions="Center">
 
-        <!-- Root with sticky footer -->
+        <!--  Root with sticky footer  -->
         <Grid RowDefinitions="*,Auto">
-            <!-- Row 0: scrollable content -->
+            <!--  Row 0: scrollable content  -->
             <ScrollView Grid.Row="0">
                 <Grid
-          HorizontalOptions="Fill"
-          MaximumWidthRequest="{OnIdiom Phone=500, Desktop=720}"
-          RowSpacing="12"
-          ColumnSpacing="12"
-          RowDefinitions="Auto,Auto,Auto,Auto,*,Auto">
+                    ColumnSpacing="12"
+                    HorizontalOptions="Fill"
+                    MaximumWidthRequest="{OnIdiom Phone=500,
+                                                  Desktop=720}"
+                    RowDefinitions="Auto,Auto,Auto,Auto,*,Auto"
+                    RowSpacing="12">
 
-                    <!-- Title -->
-                    <Label Grid.Row="0" Text="Network Settings" FontSize="20" FontAttributes="Bold" />
+                    <!--  Title  -->
+                    <Label
+                        Grid.Row="0"
+                        FontAttributes="Bold"
+                        FontSize="20"
+                        Text="Network Settings" />
 
-                    <!-- Primary -->
-                    <Grid Grid.Row="1"
-              ColumnDefinitions="Auto,*"
-              RowDefinitions="Auto,Auto"
-              ColumnSpacing="10" RowSpacing="8">
-                        <Label Grid.Row="0" Grid.Column="0" Text="Primary SSID" VerticalTextAlignment="Center" />
-                        <Entry  Grid.Row="0" Grid.Column="1" Placeholder="Your WiFi"
-                  ClearButtonVisibility="WhileEditing"
-                  Text="{Binding PrimarySSID}" />
-                        <Label Grid.Row="1" Grid.Column="0" Text="Primary Password" VerticalTextAlignment="Center" />
-                        <Entry  Grid.Row="1" Grid.Column="1" Placeholder="password"
-                  IsPassword="True" ClearButtonVisibility="WhileEditing"
-                  Text="{Binding PrimaryPassword}" />
+                    <!--  Primary  -->
+                    <Grid
+                        Grid.Row="1"
+                        ColumnDefinitions="Auto,*"
+                        ColumnSpacing="10"
+                        RowDefinitions="Auto,Auto"
+                        RowSpacing="8">
+                        <Label
+                            Grid.Row="0"
+                            Grid.Column="0"
+                            Text="Primary SSID"
+                            VerticalTextAlignment="Center" />
+                        <Entry
+                            Grid.Row="0"
+                            Grid.Column="1"
+                            ClearButtonVisibility="WhileEditing"
+                            Placeholder="Your WiFi"
+                            Text="{Binding PrimarySSID}" />
+                        <Label
+                            Grid.Row="1"
+                            Grid.Column="0"
+                            Text="Primary Password"
+                            VerticalTextAlignment="Center" />
+                        <Entry
+                            Grid.Row="1"
+                            Grid.Column="1"
+                            ClearButtonVisibility="WhileEditing"
+                            IsPassword="True"
+                            Placeholder="password"
+                            Text="{Binding PrimaryPassword}" />
                     </Grid>
 
-                    <!-- Backups header + Add -->
-                    <FlexLayout Grid.Row="2"
-                    Direction="Row"
-                    AlignItems="Center"
-                    JustifyContent="SpaceBetween"
-                    Margin="0,4,0,0">
-                        <Label Text="Backups (up to 4)"
-                 LineBreakMode="TailTruncation"
-                 MaxLines="1"
-                 FlexLayout.Basis="0%"
-                 FlexLayout.Grow="1"
-                 FlexLayout.Shrink="1" />
-                        <Button Text="Add"
-                  Command="{Binding AddNetworkCommand}"
-                  IsEnabled="{Binding Networks.Count, Converter={StaticResource LessThanConverter}, ConverterParameter=4}" />
+                    <!--  Backups header + Add  -->
+                    <FlexLayout
+                        Grid.Row="2"
+                        Margin="0,4,0,0"
+                        AlignItems="Center"
+                        Direction="Row"
+                        JustifyContent="SpaceBetween">
+                        <Label
+                            FlexLayout.Basis="0%"
+                            FlexLayout.Grow="1"
+                            FlexLayout.Shrink="1"
+                            LineBreakMode="TailTruncation"
+                            MaxLines="1"
+                            Text="Backups (up to 4)" />
+                        <Button
+                            Command="{Binding AddNetworkCommand}"
+                            IsEnabled="{Binding Networks.Count, Converter={StaticResource LessThanConverter}, ConverterParameter=4}"
+                            Text="Add" />
                     </FlexLayout>
 
-                    <!-- Backups list -->
-                    <CollectionView Grid.Row="3"
+                    <!--  Backups list  -->
+                    <CollectionView
+                        Grid.Row="3"
                         ItemsSource="{Binding Networks}"
                         SelectionMode="None">
                         <CollectionView.EmptyView>
                             <VerticalStackLayout Padding="8" Spacing="6">
                                 <Label Text="No backups yet." />
-                                <Button Text="Add a backup network"
-                      Command="{Binding AddNetworkCommand}" />
+                                <Button Command="{Binding AddNetworkCommand}" Text="Add a backup network" />
                             </VerticalStackLayout>
                         </CollectionView.EmptyView>
 
                         <CollectionView.ItemTemplate>
                             <DataTemplate>
-                                <!-- keep your icon buttons here -->
-                                <Grid Padding="6" ColumnSpacing="8"
-                    ColumnDefinitions="*,Auto,Auto,Auto">
-                                    <Label Grid.Column="0"
-                       Text="{Binding SSID}"
-                       FontAttributes="Bold"
-                       LineBreakMode="TailTruncation" />
+                                <!--  keep your icon buttons here  -->
+                                <Grid
+                                    Padding="6"
+                                    ColumnDefinitions="*,Auto,Auto,Auto"
+                                    ColumnSpacing="8">
+                                    <Label
+                                        Grid.Column="0"
+                                        FontAttributes="Bold"
+                                        LineBreakMode="TailTruncation"
+                                        Text="{Binding SSID}" />
 
-                                    <ImageButton Grid.Column="1" Source="ic_primary.png"
-                             BackgroundColor="Transparent" Padding="6"
-                             HeightRequest="36" WidthRequest="36"
-                             Command="{Binding Source={x:Reference RootPopup}, Path=BindingContext.MakePrimaryCommand}"
-                             CommandParameter="{Binding .}"
-                             SemanticProperties.Hint="Make primary" />
-                                    <ImageButton Grid.Column="2" Source="ic_edit.png"
-                             BackgroundColor="Transparent" Padding="6"
-                             HeightRequest="36" WidthRequest="36"
-                             Command="{Binding Source={x:Reference RootPopup}, Path=BindingContext.EditNetworkCommand}"
-                             CommandParameter="{Binding .}"
-                             SemanticProperties.Hint="Edit network" />
-                                    <ImageButton Grid.Column="3" Source="ic_delete.png"
-                             BackgroundColor="Transparent" Padding="6"
-                             HeightRequest="36" WidthRequest="36"
-                             Command="{Binding Source={x:Reference RootPopup}, Path=BindingContext.RemoveNetworkCommand}"
-                             CommandParameter="{Binding .}"
-                             SemanticProperties.Hint="Delete network" />
+                                    <ImageButton
+                                        Grid.Column="1"
+                                        Padding="6"
+                                        BackgroundColor="Transparent"
+                                        Command="{Binding Source={x:Reference RootPopup}, Path=BindingContext.MakePrimaryCommand}"
+                                        CommandParameter="{Binding .}"
+                                        HeightRequest="36"
+                                        SemanticProperties.Hint="Make primary"
+                                        Source="ic_primary.png"
+                                        WidthRequest="36" />
+                                    <ImageButton
+                                        Grid.Column="2"
+                                        Padding="6"
+                                        BackgroundColor="Transparent"
+                                        Command="{Binding Source={x:Reference RootPopup}, Path=BindingContext.EditNetworkCommand}"
+                                        CommandParameter="{Binding .}"
+                                        HeightRequest="36"
+                                        SemanticProperties.Hint="Edit network"
+                                        Source="ic_edit.png"
+                                        WidthRequest="36" />
+                                    <ImageButton
+                                        Grid.Column="3"
+                                        Padding="6"
+                                        BackgroundColor="Transparent"
+                                        Command="{Binding Source={x:Reference RootPopup}, Path=BindingContext.RemoveNetworkCommand}"
+                                        CommandParameter="{Binding .}"
+                                        HeightRequest="36"
+                                        SemanticProperties.Hint="Delete network"
+                                        Source="ic_delete.png"
+                                        WidthRequest="36" />
                                 </Grid>
                             </DataTemplate>
                         </CollectionView.ItemTemplate>
                     </CollectionView>
 
-                    <!-- Spacer keeps last item clear of bottom edge of scroller -->
-                    <BoxView Grid.Row="4" HeightRequest="16" Opacity="0" />
+                    <!--  Spacer keeps last item clear of bottom edge of scroller  -->
+                    <BoxView
+                        Grid.Row="4"
+                        HeightRequest="16"
+                        Opacity="0" />
 
-                    <!-- Row 5 was the old footer; remove it now -->
+                    <!--  Row 5 was the old footer; remove it now  -->
                 </Grid>
             </ScrollView>
 
-            <!-- Row 1: sticky popup footer -->
-            <Grid Grid.Row="1"
-          Padding="8,6"
-          ColumnDefinitions="*,Auto,Auto"
-          BackgroundColor="{AppThemeBinding Light=#ffffff, Dark=#111827}"
-          >
-                <Label VerticalTextAlignment="Center"
-             Text="{Binding Networks.Count, StringFormat='Backups: {0}/4'}" />
-                <Button Grid.Column="1" Text="Close" Margin="8,0"
-              Command="{Binding Source={x:Reference RootPopup}, Path=CloseCommand}" />
-                <Button Grid.Column="2" Text="Save"
-              BackgroundColor="{AppThemeBinding Light=#6366f1, Dark=#4f46e5}"
-              TextColor="White"
-              Command="{Binding Source={x:Reference RootPopup}, Path=SaveAndCloseCommand}" />
+            <!--  Row 1: sticky popup footer  -->
+            <Grid
+                Grid.Row="1"
+                Padding="8,6"
+                BackgroundColor="{AppThemeBinding Light=#ffffff,
+                                                  Dark=#111827}"
+                ColumnDefinitions="*,Auto,Auto">
+                <Label Text="{Binding Networks.Count, StringFormat='Backups: {0}/4'}" VerticalTextAlignment="Center" />
+                <Button
+                    Grid.Column="1"
+                    Margin="8,0"
+                    Command="{Binding Source={x:Reference RootPopup}, Path=CloseCommand}"
+                    Text="Close" />
+                <Button
+                    Grid.Column="2"
+                    BackgroundColor="{AppThemeBinding Light=#6366f1,
+                                                      Dark=#4f46e5}"
+                    Command="{Binding Source={x:Reference RootPopup}, Path=SaveAndCloseCommand}"
+                    Text="Save"
+                    TextColor="White" />
             </Grid>
 
-            <!-- Overlay editor stays as top layer; spans both rows -->
-            <Grid IsVisible="{Binding IsEditing}" Grid.RowSpan="2"
-          BackgroundColor="#80000000" ZIndex="10" InputTransparent="False">
-                <!-- use the sticky editor overlay we already built -->
-                <Border x:Name="EditorCard"
-              HorizontalOptions="Fill"
-              VerticalOptions="End"
-              Margin="12" Padding="16"
-              BackgroundColor="{AppThemeBinding Light=#ffffff, Dark=#1f2937}"
-              Stroke="{AppThemeBinding Light=#e5e7eb, Dark=#374151}" StrokeThickness="1">
+            <!--  Overlay editor stays as top layer; spans both rows  -->
+            <Grid
+                Grid.RowSpan="2"
+                BackgroundColor="#80000000"
+                InputTransparent="False"
+                IsVisible="{Binding IsEditing}"
+                ZIndex="10">
+                <!--  use the sticky editor overlay we already built  -->
+                <Border
+                    x:Name="EditorCard"
+                    Margin="12"
+                    Padding="16"
+                    BackgroundColor="{AppThemeBinding Light=#ffffff,
+                                                      Dark=#1f2937}"
+                    HorizontalOptions="Fill"
+                    Stroke="{AppThemeBinding Light=#e5e7eb,
+                                             Dark=#374151}"
+                    StrokeThickness="1"
+                    VerticalOptions="End">
                     <Grid RowDefinitions="*,Auto" RowSpacing="12">
                         <ScrollView Grid.Row="0">
-                            <Grid RowSpacing="10" ColumnSpacing="10"
-                  RowDefinitions="Auto,Auto,Auto"
-                  ColumnDefinitions="Auto,*">
-                                <Label Grid.ColumnSpan="2" Text="Edit Network" FontAttributes="Bold" FontSize="20" />
-                                <Label Grid.Row="1" Text="SSID" VerticalTextAlignment="Center" />
-                                <Entry Grid.Row="1" Grid.Column="1" Placeholder="SSID" Text="{Binding EditingNetwork.SSID}" />
-                                <Label Grid.Row="2" Text="Password" VerticalTextAlignment="Center" />
-                                <Entry Grid.Row="2" Grid.Column="1" Placeholder="password" IsPassword="True"
-                     Text="{Binding EditingNetwork.Password}" />
+                            <Grid
+                                ColumnDefinitions="Auto,*"
+                                ColumnSpacing="10"
+                                RowDefinitions="Auto,Auto,Auto"
+                                RowSpacing="10">
+                                <Label
+                                    Grid.ColumnSpan="2"
+                                    FontAttributes="Bold"
+                                    FontSize="20"
+                                    Text="Edit Network" />
+                                <Label
+                                    Grid.Row="1"
+                                    Text="SSID"
+                                    VerticalTextAlignment="Center" />
+                                <Entry
+                                    Grid.Row="1"
+                                    Grid.Column="1"
+                                    Placeholder="SSID"
+                                    Text="{Binding EditingNetwork.SSID}" />
+                                <Label
+                                    Grid.Row="2"
+                                    Text="Password"
+                                    VerticalTextAlignment="Center" />
+                                <Entry
+                                    Grid.Row="2"
+                                    Grid.Column="1"
+                                    IsPassword="True"
+                                    Placeholder="password"
+                                    Text="{Binding EditingNetwork.Password}" />
                             </Grid>
                         </ScrollView>
-                        <Grid Grid.Row="1" ColumnDefinitions="*,*" ColumnSpacing="12">
-                            <Button Text="Cancel"
-                    HeightRequest="44"
-                    Command="{Binding Source={x:Reference RootPopup}, Path=CancelEditCommand}" />
-                            <Button Grid.Column="1" Text="Save"
-                    HeightRequest="44"
-                    BackgroundColor="{AppThemeBinding Light=#6366f1, Dark=#4f46e5}"
-                    TextColor="White"
-                    Command="{Binding SaveNetworkCommand}" />
+                        <Grid
+                            Grid.Row="1"
+                            ColumnDefinitions="*,*"
+                            ColumnSpacing="12">
+                            <Button
+                                Command="{Binding Source={x:Reference RootPopup}, Path=CancelEditCommand}"
+                                HeightRequest="44"
+                                Text="Cancel" />
+                            <Button
+                                Grid.Column="1"
+                                BackgroundColor="{AppThemeBinding Light=#6366f1,
+                                                                  Dark=#4f46e5}"
+                                Command="{Binding SaveNetworkCommand}"
+                                HeightRequest="44"
+                                Text="Save"
+                                TextColor="White" />
                         </Grid>
                     </Grid>
                 </Border>

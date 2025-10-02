@@ -1,56 +1,97 @@
-<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="KeyCatcher.Views.header">
+
+<ContentView
+    x:Class="KeyCatcher.Views.header"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Name="headerRoot">
 
 
-    
-        <Grid Padding="12,0" ColumnDefinitions="Auto,*,Auto,Auto" HeightRequest="44">
-            <!-- left “hamburger”/back space, keep for symmetry -->
-            <BoxView WidthRequest="1" />
-            <Label Grid.Column="1" FontAttributes="Bold" Text="KeyCatcher Settings" VerticalTextAlignment="Center" />
-            <!-- BLE icon -->
-            <Image Grid.Column="2" Margin="12,0,6,0" HeightRequest="20" WidthRequest="20">
-                <Image.Source>
-                    <FontImageSource FontFamily="FontAwesomeBrands" Glyph="{StaticResource BrandBluetooth}" Color="{Binding Hub.IsBleUp, Converter={StaticResource BoolToColor}}" />
-                </Image.Source>
-            </Image >
-            <Image Grid.Column="2" IsVisible="{Binding InputType, Converter={StaticResource StringEqualsToBool}, ConverterParameter=WIFI}">
-                <Image.Source>
-                    <FontImageSource FontFamily="FontAwesomeSolid" Glyph="{StaticResource SolidBan}" Size="22" Color="Red" />
-                </Image.Source>
-            </Image>
-            <!-- Wi-Fi icon -->
-            <Image Grid.Column="3" Margin="6,0,0,0" HeightRequest="20" WidthRequest="20">
-                <Image.Source>
-                    <FontImageSource FontFamily="FontAwesomeSolid" Glyph="{StaticResource SolidWifi}" Color="{Binding Hub.IsWifiUp, Converter={StaticResource BoolToColor}}" />
-                </Image.Source>
-            </Image>
-            <Image Grid.Column="3" IsVisible="{Binding InputType, Converter={StaticResource StringEqualsToBool}, ConverterParameter=BLE}">
-                <Image.Source>
-                    <FontImageSource FontFamily="FontAwesomeSolid" Glyph="{StaticResource SolidBan}" Size="22" Color="Red" />
-                </Image.Source>
-            </Image>
-            <ImageButton
-                Grid.Column="4"
-                HeightRequest="20"
-                WidthRequest="20"
-                IsVisible="{Binding IsAllDown}"  
-                    Clicked="OnHelpClicked">
-                    <ImageButton.Source>
-                        <FontImageSource
-                            FontFamily="FontAwesomeSolid"
-                            Glyph="{StaticResource SolidQuestionCircle}"
-                            Color="Orange" />
-                    </ImageButton.Source>
-                </ImageButton>
-            </Grid>
-        
-        <!--<VerticalStackLayout>
+    <Grid
+        Padding="12,0"
+        ColumnDefinitions="Auto,*,Auto,Auto,Auto"
+        HeightRequest="44"
+        BackgroundColor="#22243a"
+        VerticalOptions="Center">
+        <!--  Placeholder for symmetry (could be a menu/back button in future)  -->
+        <BoxView WidthRequest="1" />
 
-            <Label Text="{Binding Title, Source={x:Reference Name=headerBarRoot}}" />
+        <!--  Title  -->
+        <Label
+            Grid.Column="1"
+            FontAttributes="Bold"
+            FontSize="32"
+            TextColor="SteelBlue"
+            Text="{Binding Title, Source={x:Reference headerRoot}}" 
+            VerticalTextAlignment="Center" />
+
+        <!--  "{Binding Title, Source={x:Reference headerRoot}}"BLE Icon Button  -->
+        <ImageButton
+            Grid.Column="2"
+            BackgroundColor="Transparent"
+            Command="{Binding BleCommand, Source={x:Reference headerRoot}}"
+            HeightRequest="24"            
+            WidthRequest="24">
+            <ImageButton.Source>
+                <FontImageSource
+                    FontFamily="FontAwesomeBrands"
+                    Glyph="{StaticResource BrandBluetooth}"
+                    Color="{Binding BleIconColor, Source={x:Reference headerRoot}}" />
+
+            </ImageButton.Source>
+        </ImageButton>
+        <!--<ImageButton
+            Grid.Column="2"
+            BackgroundColor="Transparent"
+            Command="{Binding BleCommand, Source={x:Reference headerRoot}}"
+            HeightRequest="24"
+            WidthRequest="24">
+            <ImageButton.Source>
+                <FontImageSource
+                    FontFamily="FontAwesomeBrands"
+                    Glyph="{StaticResource BrandBluetooth}"
+                    Color="{Binding BleIconColor}" />
+
+            </ImageButton.Source>
+        </ImageButton>-->
+
+        <!--  Wi-Fi Icon Button  -->
+        <ImageButton
+            Grid.Column="3"
+            Margin="6,0,0,0"
+            BackgroundColor="Transparent"
+            Command="{Binding WifiCommand, Source={x:Reference headerRoot}}"
+            HeightRequest="14"
+            WidthRequest="15">
+            <ImageButton.Source>
+                <FontImageSource
+                    FontFamily="FontAwesomeSolid"
+                    Glyph="{StaticResource SolidWifi}"
+                    Color="{Binding WifiIconColor, Source={x:Reference headerRoot}}" />
+            </ImageButton.Source>
+        </ImageButton>
+
+        <!--  Help/Question Icon  Color="{Binding WifiIconColor, Source={x:Reference headerRoot}}" /> (only visible if both are down)  -->
+        <ImageButton
+            Grid.Column="4"
+            BackgroundColor="Transparent"
+            Command="{Binding HelpCommand, Source={x:Reference headerRoot}}"
+            HeightRequest="24"
+            IsVisible="True"
+            WidthRequest="24">
+            <ImageButton.Source>
+                <FontImageSource
+                    FontFamily="FontAwesomeSolid"
+                    Glyph="{StaticResource SolidCircleQuestion}"
+                    Color="Orange" />
+            </ImageButton.Source>
+        </ImageButton>
+    </Grid>
+</ContentView>
+<!--<VerticalStackLayout>
+"{Binding ShowHelp, Source={x:Reference headerRoot}}"
+            <Label Text="{Binding Title, Source={x:Reference Name=headerRoot}}" />
             <Label
                 Text="Welcome to .NET MAUI!"
                 VerticalOptions="Center"
                 HorizontalOptions="Center" />
         </VerticalStackLayout>-->
-    </ContentView>

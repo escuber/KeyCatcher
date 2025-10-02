@@ -22,7 +22,7 @@ namespace KeyCatcher.services
         [JsonPropertyName("ap")] public bool Ap { get; set; }
         //[JsonPropertyName("creds")] public List<string>? Creds { get; set; }
         [JsonPropertyName("creds")]
-        public List<WifiCredential>? Creds { get; set; }
+        public List<string>? Creds { get; set; }
         [JsonPropertyName("bflag")] public string? Bflag { get; set; }
     }
     public partial class KeyCatcherSettingsService : ObservableObject, INotifyPropertyChanged
@@ -68,7 +68,7 @@ namespace KeyCatcher.services
         //}
 
 
-        [ObservableProperty] public List<WifiCredential> Creds { get; set; } = new List<WifiCredential>();
+        [ObservableProperty] public List<WifiCredential> creds { get; set; } = new List<WifiCredential>();
         //public string OutputType
         //{
         //    get => outputType;
@@ -101,8 +101,19 @@ namespace KeyCatcher.services
             if (!string.IsNullOrWhiteSpace(dto.In)) InputType = dto.In!;
             if (!string.IsNullOrWhiteSpace(dto.Out)) OutputType = dto.Out!;
             ApMode = dto.Ap;
-            //if (dto.Creds is not null) Creds = JsonSerializer.Serialize(dto.Creds);
-            if (dto.Creds is not null) Creds = dto.Creds;
+
+            foreach (var item in dto.Creds)
+            {
+              creds.Add(new WifiCredential
+                {
+                    SSID = item.Split(':')[0],
+                    Password = item.Split(':').Length > 1 ? item.Split(':')[1] : ""
+                });
+            } 
+
+          //  var j = dto.Creds;
+            //if (dto.Creds is not null) creds = JsonSerializer.Serialize(dto.Creds);
+            //if (dto.Creds is not null) creds = dto.Creds;
             Save();
             //if (!string.IsNullOrWhiteSpace(dto.Bflag)) BFlag = dto.Bflag!;
         }
@@ -116,7 +127,7 @@ namespace KeyCatcher.services
             InputType = Preferences.Get("inputType", "WIFI");
             OutputType = Preferences.Get("outputType", "BLEHID");
             string credsJson = Preferences.Get("Creds", "[]");
-            Creds = JsonSerializer.Deserialize<List<WifiCredential>>(credsJson) ?? new List<WifiCredential>();
+            creds = JsonSerializer.Deserialize<List<WifiCredential>>(credsJson) ?? new List<WifiCredential>();
 
 
         }
@@ -128,7 +139,7 @@ namespace KeyCatcher.services
             Preferences.Set("ap_mode", ApMode ? "true" : "false");
             Preferences.Set("inputType", InputType ?? "WIFI");
             Preferences.Set("outputType", OutputType ?? "BLEHID");
-            Preferences.Set("Creds", JsonSerializer.Serialize(Creds ?? new List<WifiCredential>()));
+            Preferences.Set("Creds", JsonSerializer.Serialize(creds ?? new List<WifiCredential>()));
             
         }
         public List<string> InputSources { get; set; } = new() { "WIFI", "BLE" };
@@ -139,7 +150,7 @@ namespace KeyCatcher.services
         public string MakeMessage()
         {
 
-            string credsJson = JsonSerializer.Serialize(Creds);
+            string credsJson = JsonSerializer.Serialize(creds);
             var builder = new StringBuilder();
 
             builder.Append($"<setup>\n");
@@ -148,7 +159,7 @@ namespace KeyCatcher.services
             builder.Append($"input_source:{InputType ?? "WIFI"}\n");
             builder.Append($"output_source:{OutputType ?? "BLEHID"} \n");
             builder.Append($"ap_mode:{(ApMode ? "true" : "false")}\n");
-            builder.Append($"creds:{JsonSerializer.Serialize(Creds)}\n");            
+            builder.Append($"creds:{JsonSerializer.Serialize(creds)}\n");            
             builder.Append($"<endsetup>");
             return builder.ToString();
             //return "";
@@ -162,7 +173,7 @@ namespace KeyCatcher.services
                 ap_mode = ApMode ? "true" : "false",
                 inputType = InputType,
                 outputType = OutputType,
-                creds = Creds
+                creds = creds
             };
             var json = JsonSerializer.Serialize(config);
             var bytes = System.Text.Encoding.UTF8.GetBytes(json);

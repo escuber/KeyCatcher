@@ -1,5 +1,8 @@
 ﻿
 
+//using Android.Provider;
+using CommunityToolkit.Maui.Views;
+using KeyCatcher.Popups;
 using KeyCatcher.services;
 using KeyCatcher.ViewModels;
 using Microsoft.Maui;
@@ -12,21 +15,24 @@ namespace KeyCatcher.Views;
 public partial class mainpage : ContentPage
 {
     private bool _permissionsChecked = false;
-    
-    
-    
+    public string wifiUp { get; set; } = "THE FUCK";
+        //=> vm.Hub.IsWifiUp ? "Wi-Fi: Up" : "Wi-Fi: Down";
+
+
     private MainPageViewModel vm;
-    
+    public KeyCatcherSettingsService _settings;
     public CommHub _cntl;
     private readonly KeyCatcherWiFiService _wifi;
-    
-  
-    public mainpage(MainPageViewModel viewModel, CommHub cntl,  KeyCatcherWiFiService wifi)
+    public bool ShowHelp => !vm.Hub.IsBleUp && !vm.Hub.IsWifiUp;
+
+
+    public mainpage(MainPageViewModel viewModel, CommHub cntl, KeyCatcherWiFiService wifi, KeyCatcherSettingsService sets)
     {
-        _cntl = cntl;
-        _wifi = wifi;
+        
         InitializeComponent();
-       
+        _cntl = cntl; _wifi = wifi; _settings = sets;
+        
+
         BindingContext = vm = viewModel;
         //(BindingContext is HomePageViewModel vm)
         //_ = vm.ConnectNowCommand; // do not await
@@ -37,6 +43,16 @@ public partial class mainpage : ContentPage
             System.Diagnostics.Debug.WriteLine($"[VM] {p.Name} : {p.PropertyType.Name}");
 #endif
     }
+
+    private async void OnPasteClicked(object sender, EventArgs e)
+    {
+
+     //   var clipboardText = await Clipboard.Default.GetTextAsync();
+       // if (!string.IsNullOrEmpty(clipboardText))
+         //   MessageEditor.Text = clipboardText;
+
+    }
+
     //    private async void TestSend_Clicked(object sender, EventArgs e)
     //    {
     ////        var ok = await cntlr.ConnectAsync();
@@ -145,10 +161,19 @@ public partial class mainpage : ContentPage
     }
 
 
-    private async void Settings_Clicked(object sender, EventArgs e)
+    private async void OnWifiIconClickedCommand(object sender, EventArgs e)
     {
         Debug.WriteLine("Tapped!");
+
+
+        var popup = new WifiCreds(_settings, _cntl); // _settings = KeyCatcherSettingsService, _cntl = CommHub
+        await Shell.Current.CurrentPage.ShowPopupAsync(popup);
     }
-    
+    Editor _currentEditor;
+
+    void OnEditorFocused(object sender, FocusEventArgs e)
+    {
+        _currentEditor = sender as Editor;
+    }
 }
 

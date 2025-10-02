@@ -45,9 +45,9 @@ namespace KeyCatcher.ViewModels
 
                 Networks.Clear();
                 // Just use the List directly
-                if (svc.Creds != null)
+                if (svc.creds!= null)
                 {
-                    foreach (var n in svc.Creds)
+                    foreach (var n in svc.creds)
                         Networks.Add(n);
                 }
             }
@@ -64,7 +64,7 @@ namespace KeyCatcher.ViewModels
             svc.Password = PrimaryPassword ?? "";
 
             var list = Networks?.ToList() ?? new List<WifiCredential>();
-            svc.Creds = list;// JsonSerializer.Serialize(list);
+            svc.creds = list;// JsonSerializer.Serialize(list);
 
             svc.Save();
         }
