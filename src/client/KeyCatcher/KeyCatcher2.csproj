@@ -55,22 +55,27 @@
 	<ItemGroup>
 	  <Compile Remove="viewmodels\KeyCatcherSettingsViewModel2.cs" />
 	  <Compile Remove="viewmodels\mainviewModel.cs" />
+	  <Compile Remove="viewmodels\tstpagviewModel.cs" />
 	  <Compile Remove="Views\main.xaml.cs" />
+	  <Compile Remove="Views\mainpage - Copy.xaml.cs" />
 	  <Compile Remove="Views\oldMainPage.xaml.cs" />
 	  <Compile Remove="Views\popups\WifiCreds.cs" />
+	  <Compile Remove="Views\tstpag.xaml.cs" />
 	</ItemGroup>
 
 	<ItemGroup>
 	  <MauiXaml Remove="Views\main.xaml" />
+	  <MauiXaml Remove="Views\mainpage - Copy.xaml" />
 	  <MauiXaml Remove="Views\oldMainPage.xaml" />
+	  <MauiXaml Remove="Views\tstpag.xaml" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="CommunityToolkit.Maui" Version="11.2.0" />
+		<PackageReference Include="CommunityToolkit.Maui" Version="12.2.0" />
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
-		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
-		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="$(MauiVersion)" />
-		<PackageReference Include="Microsoft.Maui.Essentials" Version="$(MauiVersion)" />
+		<PackageReference Include="Microsoft.Maui.Controls" Version="9.0.110" />
+		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="9.0.110" />
+		<PackageReference Include="Microsoft.Maui.Essentials" Version="9.0.110" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.1" />
 		<PackageReference Include="Plugin.BLE" Version="3.2.0-beta.1" />
 	</ItemGroup>
@@ -92,10 +97,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <MauiXaml Update="Views\mainpage.xaml">
+	  <MauiXaml Update="Views\header.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\header.xaml">
+	  <MauiXaml Update="Views\mainpage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\popups\BleProgressPopup.xaml">
@@ -105,9 +110,6 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\popups\WifiCreds.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Views\tstpag.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	</ItemGroup>

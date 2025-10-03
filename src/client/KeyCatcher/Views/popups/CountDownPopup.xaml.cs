@@ -26,7 +26,7 @@ public partial class CountdownPopup : Popup
 
         if (_seconds <= 0)
         {
-            Close();
+            CloseAsync();
             return false;
         }
         return true;
@@ -38,7 +38,7 @@ public partial class CountdownPopup : Popup
     private void Stop_Clicked(object sender, EventArgs e)
     {
         _gate.StopBlock();
-        Close();
+        CloseAsync();
     }
 }
 public class SendHealthGate

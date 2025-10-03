@@ -8,9 +8,9 @@
 
     <Grid
         Padding="12,0"
+        BackgroundColor="#22243a"
         ColumnDefinitions="Auto,*,Auto,Auto,Auto"
         HeightRequest="44"
-        BackgroundColor="#22243a"
         VerticalOptions="Center">
         <!--  Placeholder for symmetry (could be a menu/back button in future)  -->
         <BoxView WidthRequest="1" />
@@ -20,8 +20,8 @@
             Grid.Column="1"
             FontAttributes="Bold"
             FontSize="32"
+            Text="{Binding Title, Source={x:Reference headerRoot}}"
             TextColor="SteelBlue"
-            Text="{Binding Title, Source={x:Reference headerRoot}}" 
             VerticalTextAlignment="Center" />
 
         <!--  "{Binding Title, Source={x:Reference headerRoot}}"BLE Icon Button  -->
@@ -29,7 +29,7 @@
             Grid.Column="2"
             BackgroundColor="Transparent"
             Command="{Binding BleCommand, Source={x:Reference headerRoot}}"
-            HeightRequest="24"            
+            HeightRequest="24"
             WidthRequest="24">
             <ImageButton.Source>
                 <FontImageSource

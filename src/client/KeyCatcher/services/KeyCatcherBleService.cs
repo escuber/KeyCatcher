@@ -1,8 +1,10 @@
 ﻿using CommunityToolkit.Maui.Core;
+using CommunityToolkit.Maui.Extensions;
 using CommunityToolkit.Maui.Views;
 using KeyCatcher.Popups;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging;
+using Plugin.BLE;
 using Plugin.BLE.Abstractions;
 using Plugin.BLE.Abstractions.Contracts;
 using Plugin.BLE.Abstractions.EventArgs;
@@ -172,11 +174,11 @@ public sealed class KeyCatcherBleService //: IKeyCatcherCommService
     }
     void Log(string s)
     {
-        MainThread.BeginInvokeOnMainThread(() =>
-        {
+        //MainThread.BeginInvokeOnMainThread(() =>
+        //{
            // LogLabel.Text = $"{DateTime.Now:T} {s}\n{LogLabel.Text}";
             //StatusLabel.Text = s;
-        });
+        //});
         Debug.WriteLine(s);
     }
 
@@ -199,6 +201,18 @@ public sealed class KeyCatcherBleService //: IKeyCatcherCommService
     private readonly StringBuilder _configBuffer = new();
     public async Task<string?> GetConfigAsync()
     {
+
+
+
+        var jcoonfig =await KeyCatcherBleService.FindAndGetConfigAsync(CrossBluetoothLE.Current, CrossBluetoothLE.Current.Adapter);
+       // if (jcoonfig != null)
+            return jcoonfig;        
+
+
+
+
+
+
         ShowBlePopup("Scanning for device...");
         try
         {
@@ -316,6 +330,7 @@ public sealed class KeyCatcherBleService //: IKeyCatcherCommService
     int opTimeoutMs = 12000)
     {
         // UUIDs
+        
         var svcGuid = Guid.Parse("0000AAAA-0000-1000-8000-00805F9B34FB");
         var rxGuid = Guid.Parse("0000BBBB-0000-1000-8000-00805F9B34FB");
         var txGuid = Guid.Parse("0000BBBC-0000-1000-8000-00805F9B34FB");
@@ -445,7 +460,7 @@ public sealed class KeyCatcherBleService //: IKeyCatcherCommService
             if (_popup == null)
             {
                 _popup = new BleProgressPopup { StatusText = status };
-                Application.Current?.MainPage?.ShowPopup(_popup);
+                Application.Current?.MainPage?.ShowPopupAsync(_popup);
             }
             else
             {
@@ -601,7 +616,7 @@ public sealed class KeyCatcherBleService //: IKeyCatcherCommService
     {
         MainThread.BeginInvokeOnMainThread(() =>
         {
-            _popup?.Close();
+            _popup?.CloseAsync();
             _popup = null;
         });
     }

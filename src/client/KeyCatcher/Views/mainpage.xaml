@@ -119,6 +119,13 @@
                 <Button
                     Padding="12,4"
                     BackgroundColor="#3B0CA3"
+                    Command="{Binding ClearCommand}"
+                    CornerRadius="18"
+                    Text="Clear"
+                    TextColor="White" />
+                <Button
+                    Padding="12,4"
+                    BackgroundColor="#3B0CA3"
                     Command="{Binding PasteCommand}"
                     CornerRadius="18"
                     Text="Paste"
@@ -139,6 +146,7 @@
                     CornerRadius="18"
                     Text="Send"
                     TextColor="White" />
+
 
                 <Picker
                     ItemsSource="{Binding PauseOptions}"

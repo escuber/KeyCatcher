@@ -81,15 +81,15 @@ namespace KeyCatcher.services
             //    .ContinueWith(t =>
             //{
             //    if (t.IsFaulted)
-            //        Console.WriteLine($"[WiFi] SendWithAck failed: {t.Exception?.GetBaseException().Message}");
+            //        Log($"[WiFi] SendWithAck failed: {t.Exception?.GetBaseException().Message}");
             //});
             return true;// !string.IsNullOrEmpty(reply);
         }
 
         public async Task<string?> GetConfigAsync()
         {
-            if (!await ConnectAsync())
-                return null;
+           // if (!await ConnectAsync())
+            //    return null;
 
             return await SendAndWaitAsync("get_config", _ipAddress!, DevicePort, 3000);
         }
@@ -175,11 +175,11 @@ namespace KeyCatcher.services
                 {
                     await sock.SendAsync(envBytes, envBytes.Length);
                     acked = await WaitAckAsync(sock, id, index, AckTimeoutPerTryMs);
-                    if (!acked) Console.WriteLine($"retry {index} attempt {attempt + 1}");
+                    if (!acked) Log($"retry {index} attempt {attempt + 1}");
                 }
                 if (!acked) throw new TimeoutException($"No ACK for chunk {index}");
 
-                Console.WriteLine($"ACK {index + 1}/{total}");
+                Log($"ACK {index + 1}/{total}");
                 offset += len;
             }
 
@@ -190,12 +190,20 @@ namespace KeyCatcher.services
                 if (!LooksLikeAck(res.Buffer))
                 {
                     string reply = Encoding.UTF8.GetString(res.Buffer);
-                    Console.WriteLine("Final reply: " + reply);
+                    Log("Final reply: " + reply);
                     return;
                 }
             }
         }
-
+        public static void Log(string s)
+        {
+            //MainThread.BeginInvokeOnMainThread(() =>
+            //{
+            // LogLabel.Text = $"{DateTime.Now:T} {s}\n{LogLabel.Text}";
+            //StatusLabel.Text = s;
+            //});
+            Debug.WriteLine(s);
+        }
 
         static bool IsAckFor(byte[] buf, int id, int index)
         {

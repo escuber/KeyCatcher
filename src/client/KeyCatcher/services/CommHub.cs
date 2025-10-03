@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Maui.Extensions;
 using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -91,7 +92,7 @@ namespace KeyCatcher.services
                 config = await _wifi.GetConfigAsync();
             if (_ble.IsConnected)
                 config = await _ble.GetConfigAsync();
-            ///settings.ApplyDeviceJson(config);
+            //settings.ApplyDeviceJson(config);
 
             return config;
 

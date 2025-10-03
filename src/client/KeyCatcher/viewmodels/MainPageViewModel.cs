@@ -1,9 +1,12 @@
 ﻿//KeyCatcher_acc.services;
+///using Android.Provider;
 using CommunityToolkit.Maui.Core;
+using CommunityToolkit.Maui.Extensions;
 using CommunityToolkit.Maui.Views;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using KeyCatcher.models;
+using KeyCatcher.Popups;
 using KeyCatcher.services;
 
 using Microsoft.Maui.Controls.Shapes;
@@ -51,7 +54,8 @@ public partial class MainPageViewModel : ObservableObject
             if (e.PropertyName == nameof(_hub.IsWifiUp)) WifiUp = _hub.IsWifiUp;
             if (e.PropertyName == nameof(_hub.IsBleUp)) BleUp = _hub.IsBleUp;
         };
-        PauseSeconds = Preferences.Get("pauseSeconds", 0);
+        hub.PauseSeconds= Preferences.Get("pauseSeconds", 0);
+        PauseSeconds = hub.PauseSeconds;
         _ = InitializeAsync(hub, setting);
     }
     [RelayCommand]
@@ -63,7 +67,7 @@ public partial class MainPageViewModel : ObservableObject
     }
     private async Task SendAsync()
     {
-        await Task.Delay(PauseSeconds * 1000);
+      //  await Task.Delay(PauseSeconds * 1000);
 
         // await _ble.SendTextAsync(messageText);
         //return;
@@ -74,7 +78,7 @@ public partial class MainPageViewModel : ObservableObject
         }
         else { MessageText = ""; }
     }
-    //partial void OnPauseSecondsChanged(int value) => Preferences.Set("pauseSeconds", value);
+    partial void OnPauseSecondsChanged(int value) => Preferences.Set("pauseSeconds", value);
     private async Task InitializeAsync(CommHub commman, KeyCatcherSettingsService settings)
     {
         await commman.InitializeAsync();
@@ -96,7 +100,7 @@ public partial class MainPageViewModel : ObservableObject
         if (page is null) return;
 
         // construct popup and pass services
-        var popup = new KeyCatcher.Popups.WifiCreds(_settings, Hub);
+        var popup = new WifiCreds(_settings, Hub);
 
         // await the popup result
         var result = await page.ShowPopupAsync(popup);
@@ -107,13 +111,13 @@ public partial class MainPageViewModel : ObservableObject
 
 
         // if saved/updated, refresh any UI that mirrors settings
-        if (result.ToString() as string == "updated")
-        {
+     //   if (result.ToString() as string == "updated")
+       /// {
             // pull in new settings if your VM mirrors them
             // e.g., if you show a list of creds on this page:
             // Creds = _settings.GetNetworks();  OnPropertyChanged(nameof(Creds));
             // or update any indicator text, etc.
-        }
+        //}
     }
     public LinkState WifiLinkState =>
     !_hub.WifiEnabled ? LinkState.Off :
@@ -137,22 +141,64 @@ public partial class MainPageViewModel : ObservableObject
 
 
     [RelayCommand]
-    private async Task showNetwork()
-    
+    private async Task showNetwork()    
     {
-        MainThread.BeginInvokeOnMainThread(() =>
-        {
-          //  if (_popup == null)
-            //{
-                //_popup = new BleProgressPopup { StatusText = status };
-                var popup = new KeyCatcher.Popups.WifiCreds(_settings, Hub);
-                Application.Current?.MainPage?.ShowPopup(popup);
-            //}
-            //else
-            //{
-                //popup.StatusText = status;
-            //}
-        });
+        //var popup = new CommunityToolkit.Maui.Views.Popup
+        //{
+        //    Content = new Label
+        //    {
+        //        Text = "This is a test popup.",
+        //        BackgroundColor = Colors.White,
+        //        Padding = 40
+        //    }
+        //};
+
+
+        //await Shell.Current.CurrentPage.ShowPopupAsync(popup);
+
+        var conf = "";
+        //   while (true)
+        // {
+        //conf = await _hub.g
+        //await KeyCatcherBleService.FindAndGetConfigAsync(CrossBluetoothLE.Current, CrossBluetoothLE.Current.Adapter);
+        var page = Shell.Current?.CurrentPage ?? Application.Current?.MainPage;
+        if (page is null) return;
+
+        // construct popup and pass services
+        var popup = new KeyCatcher.Popups.WifiCreds(_settings, Hub);//(_settings, Hub);
+
+        // await the popup result
+        var result = await page.ShowPopupAsync(popup);
+        var msg =_settings.MakeMessage();
+        await Hub.SendAsync(msg);
+
+
+        //await showNetwork();
+        return;
+
+        //return;
+        //var popup = new KeyCatcher.Popups.WifiCreds(_settings, Hub);
+
+        ////var popup = new CommunityToolkit.Maui.Views.Popup
+        ////{
+        ////    Content = new Label { Text = "Hello, world!", Padding = 40, BackgroundColor = Colors.White }
+        ////};
+        //await Shell.Current.CurrentPage.ShowPopupAsync(popup);
+        //return;
+        //MainThread.BeginInvokeOnMainThread(() =>
+        //{
+        //    //  if (_popup == null)
+        //    //{
+        //    //_popup = new BleProgressPopup { StatusText = status };
+        //    var popup = new BleProgressPopup();
+        //    //KeyCatcher.Popups.WifiCreds(_settings, Hub);
+        //        Application.Current?.MainPage?.ShowPopup(popup);
+        //    //}
+        //    //else
+        //    //{
+        //        //popup.StatusText = status;
+        //    //}
+        //});
     
 
     //var page = Shell.Current?.CurrentPage ?? Application.Current?.MainPage;
@@ -174,21 +220,39 @@ public partial class MainPageViewModel : ObservableObject
     [RelayCommand]
     private async Task Send()
     {
-        var conf = "";
-        //   while (true)
-        // {
-        //conf = await _hub.g
-        //await KeyCatcherBleService.FindAndGetConfigAsync(CrossBluetoothLE.Current, CrossBluetoothLE.Current.Adapter);
-        
-        var any=Hub.IsAnyUp.ToString();
 
-        var myconf = await ble.GetConfigAsync();
+        //wait ble.SendAsync("hellp  ");
+        //string text = new string('A', 3000);// + "<<END>>";
+        //await wifi.SendTextAsync(text);
+        //return;
+       // messageText = text;
+        var ok = await _sendGate.TrySendAsync(() => _hub.SendAsync(messageText));
+        if (!ok)
+            await App.Current.MainPage.DisplayAlert("Blocked", "Sends are paused", "OK");
 
-        _settings.ApplyDeviceJson(myconf);
-        var msg =_settings.MakeMessage();
+        return;
 
-        _settings.SSID="xDadsCar";
-        _settings.Password="4c4c4c4c";
+      
+
+        //var bconf = await ble.GetConfigAsync();
+        //while(bconf == null)
+        //{
+        //    await Task.Delay(500);
+        //    bconf = await ble.GetConfigAsync();
+        //}   
+
+
+
+
+
+
+        var cconf = await wifi.GetConfigAsync();
+
+        //_settings.ApplyDeviceJson(conf);
+        var msg = _settings.MakeMessage();
+
+        _settings.SSID = "mxxyDadsCar";
+        _settings.Password = "4c4c4c4c";
         //_settings.Creds = "[\"DadsCar\":\"4c4c4c4c\"]";
 
         _settings.creds =
@@ -196,27 +260,117 @@ public partial class MainPageViewModel : ObservableObject
 
         var msg2 = _settings.MakeMessage();
 
-        ble.SendAsync(msg2);
-
-        var x = 100;
+        await ble.SendAsync(msg2);
 
 
+        await wifi.SendTextAsync(msg2);
+
+
+        var blmyconf = await ble.GetConfigAsync();
+         var myconf = await wifi.GetConfigAsync();
+        //Hub.GetConfigAsync();
+
+        //_settings.ApplyDeviceJson(myconf);
+        // var msg =_settings.MakeMessage();
+
+        // _settings.SSID="xDadsCar";
+        // _settings.Password="4c4c4c4c";
+        // //_settings.Creds = "[\"DadsCar\":\"4c4c4c4c\"]";
+
+        // _settings.creds =
+        //        new List<WifiCredential> { new WifiCredential { SSID = "DADNET", Password = "4c4c4c4c" } };
+
+         msg2 = _settings.MakeMessage();
+         await Hub.SendAsync(msg2);
+        //Hub.SendAsync(msg2);
+        //var popup = new CountdownPopup(pauseSeconds, _sendGate);
+        //await Application.Current.MainPage.ShowPopupAsync(popup);
+
+        var mmyconf = await //wifi.GetConfigAsync();
+        Hub.GetConfigAsync();
+
+
+        //// After the countdown is finished (popup auto-closes), send the message
+        //// Optionally check gate if user can stop/abort
+        //var ok = await _sendGate.TrySendAsync(() => _hub.SendAsync(messageText));
+
+        //await Task.Delay(PauseSeconds * 1000);
+
+        //var ok = await _sendGate.TrySendAsync(() => _hub.SendAsync(messageText));
+        //if (!ok)
+        //  await App.Current.MainPage.DisplayAlert("Blocked", "Sends are paused", "OK");
+
+        // await _ble.SendTextAsync(messageText);
+        //return;
+
+        //if (!await _hub.SendAsync(messageText))
+        //{
+        //    await Shell.Current.DisplayAlert("Error", "No link is up", "OK");
+        //}
+        //else {
+        ////    MessageText = ""; 
+        //}
+
+        //return;
+        // var conf = "";
+        // //   while (true)
+        // // {
+        // //conf = await _hub.g
+        // //await KeyCatcherBleService.FindAndGetConfigAsync(CrossBluetoothLE.Current, CrossBluetoothLE.Current.Adapter);
+        // //var page = Shell.Current?.CurrentPage ?? Application.Current?.MainPage;
+        // //if (page is null) return;
+
+        // // construct popup and pass services
+        // var popup = new KeyCatcher.Popups.WifiCreds(_settings, Hub);
+
+        // // await the popup result
+        // var result = await page.ShowPopupAsync(popup);
+        // //page.ShowPopup(popup);
 
 
 
-        var aaa=conf;
-
-       // i//f (conf != null)
-         //       break;
-            Thread.Sleep(500);  
-       // }
-        
+        // //await showNetwork();
+        // return;
 
 
-        _settings.ApplyDeviceJson(conf);
-        var ssid = _settings.SSID;
-        var password = _settings.Password;
-        var amsg = MessageText + "<<END>>";
+
+        // var any=Hub.IsAnyUp.ToString();
+
+        // var myconf = await ble.GetConfigAsync();
+
+        // _settings.ApplyDeviceJson(myconf);
+        // var msg =_settings.MakeMessage();
+
+        // _settings.SSID="xDadsCar";
+        // _settings.Password="4c4c4c4c";
+        // //_settings.Creds = "[\"DadsCar\":\"4c4c4c4c\"]";
+
+        // _settings.creds =
+        //        new List<WifiCredential> { new WifiCredential { SSID = "DADNET", Password = "4c4c4c4c" } };
+
+        // var msg2 = _settings.MakeMessage();
+
+        // ble.SendAsync(msg2);
+
+        // var x = 100;
+
+
+
+
+
+        // var aaa=conf;
+
+        //// i//f (conf != null)
+        //  //       break;
+        //     Thread.Sleep(500);  
+        //// }
+
+
+
+        // _settings.ApplyDeviceJson(conf);
+        // var ssid = _settings.SSID;
+        // var password = _settings.Password;
+        // var amsg = MessageText + "<<END>>";
 
 
 
@@ -230,9 +384,6 @@ public partial class MainPageViewModel : ObservableObject
 
 
 
-        ///var ok = await _sendGate.TrySendAsync(() => _hub.SendAsync("Hello from MainPage"));
-        //if (!ok)
-        //  await App.Current.MainPage.DisplayAlert("Blocked", "Sends are paused", "OK");
     }
 
     [ObservableProperty]
