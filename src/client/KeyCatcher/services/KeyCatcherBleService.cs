@@ -1,9 +1,5 @@
-﻿using CommunityToolkit.Maui.Core;
-using CommunityToolkit.Maui.Extensions;
-using CommunityToolkit.Maui.Views;
+﻿using CommunityToolkit.Maui.Extensions;
 using KeyCatcher.Popups;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging;
 using Plugin.BLE;
 using Plugin.BLE.Abstractions;
 using Plugin.BLE.Abstractions.Contracts;
@@ -67,20 +63,26 @@ public sealed class KeyCatcherBleService //: IKeyCatcherCommService
     {
         try
         {
-            if (_device == null || !_adapter.ConnectedDevices.Any(d => d.Id == _device.Id))
-            {
-                return false; // Not connected
-            }
 
-            // Optionally, do a lightweight write/read to verify it’s still alive
-            var ch = await FindCharacteristicAsync(_device);
-            if (ch == null) return false;
 
-            var payload = Encoding.UTF8.GetBytes("ping");
-            await ch.WriteAsync(payload);
+            return await DoFullCopnnectCheck("");
 
-            // If you want, wait for notification or ignore (depends on firmware)
-            return true;
+
+
+            //if (_device == null || !_adapter.ConnectedDevices.Any(d => d.Id == _device.Id))
+            //{
+            //    return false; // Not connected
+            //}
+
+            //// Optionally, do a lightweight write/read to verify it’s still alive
+            //var ch = await FindCharacteristicAsync(_device);
+            //if (ch == null) return false;
+
+            //var payload = Encoding.UTF8.GetBytes("ping");
+            //await ch.WriteAsync(payload);
+
+            //// If you want, wait for notification or ignore (depends on firmware)
+            //return true;
         }
         catch (Exception ex)
         {
@@ -176,8 +178,8 @@ public sealed class KeyCatcherBleService //: IKeyCatcherCommService
     {
         //MainThread.BeginInvokeOnMainThread(() =>
         //{
-           // LogLabel.Text = $"{DateTime.Now:T} {s}\n{LogLabel.Text}";
-            //StatusLabel.Text = s;
+        // LogLabel.Text = $"{DateTime.Now:T} {s}\n{LogLabel.Text}";
+        //StatusLabel.Text = s;
         //});
         Debug.WriteLine(s);
     }
@@ -192,7 +194,7 @@ public sealed class KeyCatcherBleService //: IKeyCatcherCommService
     //        Application.Current?.MainPage?.ShowPopup(_popup);
     //    });
     //}
-    
+
     public event EventHandler<IDevice>? DeviceDiscovered;
     public event EventHandler<string>? Notified;
     public event EventHandler<string>? ErrorOccurred;
@@ -204,9 +206,9 @@ public sealed class KeyCatcherBleService //: IKeyCatcherCommService
 
 
 
-        var jcoonfig =await KeyCatcherBleService.FindAndGetConfigAsync(CrossBluetoothLE.Current, CrossBluetoothLE.Current.Adapter);
-       // if (jcoonfig != null)
-            return jcoonfig;        
+        var jcoonfig = await KeyCatcherBleService.FindAndGetConfigAsync(CrossBluetoothLE.Current, CrossBluetoothLE.Current.Adapter);
+        // if (jcoonfig != null)
+        return jcoonfig;
 
 
 
@@ -295,7 +297,7 @@ public sealed class KeyCatcherBleService //: IKeyCatcherCommService
 
                 using var cts = new CancellationTokenSource(5000);
                 await using var reg = cts.Token.Register(() => tcs.TrySetResult(null));
-                var rslt =   await tcs.Task.ConfigureAwait(false);
+                var rslt = await tcs.Task.ConfigureAwait(false);
 
                 var v2 = rslt;
                 return v2;
@@ -330,7 +332,7 @@ public sealed class KeyCatcherBleService //: IKeyCatcherCommService
     int opTimeoutMs = 12000)
     {
         // UUIDs
-        
+
         var svcGuid = Guid.Parse("0000AAAA-0000-1000-8000-00805F9B34FB");
         var rxGuid = Guid.Parse("0000BBBB-0000-1000-8000-00805F9B34FB");
         var txGuid = Guid.Parse("0000BBBC-0000-1000-8000-00805F9B34FB");
@@ -613,9 +615,11 @@ public sealed class KeyCatcherBleService //: IKeyCatcherCommService
         Log("BLE send sequence complete.");
     }
 
-
+    public bool runningBleCheck = false;
     public async Task<bool> DoFullCopnnectCheck(string txtMsg)
     {
+        if (runningBleCheck) return false;  
+        runningBleCheck = true;
         ///string text = TextEntry.Text ?? "";
       ////  await Task.Delay(5 * 1000);
         Console.WriteLine("Chunked long...");
@@ -628,7 +632,7 @@ public sealed class KeyCatcherBleService //: IKeyCatcherCommService
         {
             try
             {
-           //     ShowBlePopup(round == 0 ? "Scanning for device…" : $"Retrying BLE round {round + 1}…");
+                //     ShowBlePopup(round == 0 ? "Scanning for device…" : $"Retrying BLE round {round + 1}…");
                 Log(round == 0 ? "Scanning for device..." : $"Retrying BLE round {round + 1}...");
                 _dev = null;
 
@@ -642,26 +646,26 @@ public sealed class KeyCatcherBleService //: IKeyCatcherCommService
                 _adapter.DeviceDiscovered -= Handler;
                 if (_dev == null)
                 {
-  //                  ShowBlePopup("Device not found.");
+                    //                  ShowBlePopup("Device not found.");
                     Log("Device not found.");
                     await Task.Delay(1200);
                     break;
                 }
-     //           ShowBlePopup($"Found device: {_dev.Name}\nConnecting…");
+                //           ShowBlePopup($"Found device: {_dev.Name}\nConnecting…");
                 Log($"Found device: {_dev.Name}");
 
                 await _adapter.ConnectToDeviceAsync(_dev);
                 Log("Connected.");
                 if (_dev.State != DeviceState.Connected)
                 {
-          //          ShowBlePopup("Device not actually connected!");
+                    //          ShowBlePopup("Device not actually connected!");
                     Log("Device not actually connected!");
                     await Task.Delay(900);
                     continue; // Try again
                 }
 
                 // Service and char discovery with retries
-         //       ShowBlePopup("Locating service/characteristics…");
+                //       ShowBlePopup("Locating service/characteristics…");
                 IService? svc = null;
                 ICharacteristic? rx = null;
                 ICharacteristic? tx = null;
@@ -673,7 +677,7 @@ public sealed class KeyCatcherBleService //: IKeyCatcherCommService
                         svc = services.FirstOrDefault(s => s.Id == SVC_UUID);
                         if (svc == null)
                         {
-              //              ShowBlePopup($"Attempt {attempt + 1}: Service not found, retrying…");
+                            //              ShowBlePopup($"Attempt {attempt + 1}: Service not found, retrying…");
                             Log($"Attempt {attempt + 1}: Service not found, retrying...");
                             await Task.Delay(350);
                             continue;
@@ -683,7 +687,7 @@ public sealed class KeyCatcherBleService //: IKeyCatcherCommService
                         tx = chars.FirstOrDefault(c => c.Id == TX_UUID);
                         if (rx == null || tx == null)
                         {
-            //                ShowBlePopup($"Attempt {attempt + 1}: {(rx == null ? "RX" : "TX")} char not found, retrying…");
+                            //                ShowBlePopup($"Attempt {attempt + 1}: {(rx == null ? "RX" : "TX")} char not found, retrying…");
                             Log($"Attempt {attempt + 1}: {(rx == null ? "RX" : "TX")} char not found, retrying...");
                             await Task.Delay(250);
                             continue;
@@ -693,20 +697,20 @@ public sealed class KeyCatcherBleService //: IKeyCatcherCommService
                     }
                     catch (ObjectDisposedException ex)
                     {
-           //             ShowBlePopup($"Attempt {attempt + 1}: Object disposed. Will restart round.");
+                        //             ShowBlePopup($"Attempt {attempt + 1}: Object disposed. Will restart round.");
                         Log($"Attempt {attempt + 1}: Object disposed: {ex.Message}");
                         throw;
                     }
                     catch (Exception ex)
                     {
-         //               ShowBlePopup($"Attempt {attempt + 1}: Discovery error, retrying…");
+                        //               ShowBlePopup($"Attempt {attempt + 1}: Discovery error, retrying…");
                         Log($"Attempt {attempt + 1}: Discovery error: {ex.Message}");
                         await Task.Delay(250);
                     }
                 }
                 if (svc == null || rx == null || tx == null)
                 {
-    //                ShowBlePopup("Service/Char not found after retries. Restarting round…");
+                    //                ShowBlePopup("Service/Char not found after retries. Restarting round…");
                     Log("Service/Char not found after retries in this round, restarting round...");
                     throw new ObjectDisposedException("BLE session invalid, need full reset.");
                 }
@@ -735,9 +739,9 @@ public sealed class KeyCatcherBleService //: IKeyCatcherCommService
                 await Task.Delay(800);
             }
         }
-
+        runningBleCheck = false;
         return success;
-        
+
     }
 
     void DismissBlePopup()
@@ -753,7 +757,7 @@ public sealed class KeyCatcherBleService //: IKeyCatcherCommService
 
         await DoFullSend(text);
         return true;
-        
+
     }
 
     private void StartHealthLoop()
@@ -812,4 +816,3 @@ public sealed class KeyCatcherBleService //: IKeyCatcherCommService
         }
     }
 }
-    

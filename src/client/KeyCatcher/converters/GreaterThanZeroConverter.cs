@@ -1,9 +1,4 @@
-﻿
-using System;
-using System.Globalization;
-using Microsoft.Maui.Controls;
-
-namespace KeyCatcher.converters
+﻿namespace KeyCatcher.converters
 {
     public sealed class LessThanConverter : IValueConverter
     {

@@ -1,5 +1,3 @@
-using CommunityToolkit.Maui.Views;
-using Microsoft.Maui.Controls;
 using System.Windows.Input;
 
 namespace KeyCatcher.Views
@@ -10,7 +8,7 @@ namespace KeyCatcher.Views
         public header()
         {
             InitializeComponent();
-           // headerRoot.BindingContext = this.BindingContext;
+            // headerRoot.BindingContext = this.BindingContext;
         }
         void ShowBlePopup(string status)
         {
@@ -18,14 +16,14 @@ namespace KeyCatcher.Views
             if (page is null) return;
 
             // construct popup and pass services
-           // var popup = new KeyCatcher.Popups.WifiCreds(settings, Hub);
+            // var popup = new KeyCatcher.Popups.WifiCreds(settings, Hub);
 
-          //  // await the popup result
-          //  var result = await page.ShowPopupAsync(popup);
+            //  // await the popup result
+            //  var result = await page.ShowPopupAsync(popup);
 
         }
         public string BleIconColor => IsBleUp ? "DodgerBlue" : "Grey";
-            //Colors.DodgerBlue : Colors.Gray;
+        //Colors.DodgerBlue : Colors.Gray;
         public string WifiIconColor => IsWifiUp ? "LimeGreen" : "Red";
         // Bindable Title
         public static readonly BindableProperty TitleProperty =
@@ -100,6 +98,6 @@ namespace KeyCatcher.Views
             get => (ICommand)GetValue(HelpCommandProperty);
             set => SetValue(HelpCommandProperty, value);
         }
-  
+
     }
 }

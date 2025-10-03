@@ -1,11 +1,7 @@
-﻿using Microsoft.Maui.Storage;
-using System;
-using System.Net;
+﻿using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace KeyCatcher.services
 {
@@ -19,7 +15,7 @@ namespace KeyCatcher.services
 
         public event EventHandler<bool>? ConnectedChanged;
 
-        public bool IsConnected { get;  set; }
+        public bool IsConnected { get; set; }
         public bool IsApMode => _ipAddress == ApIp;
 
         public KeyCatcherWiFiService()
@@ -88,7 +84,7 @@ namespace KeyCatcher.services
 
         public async Task<string?> GetConfigAsync()
         {
-           // if (!await ConnectAsync())
+            // if (!await ConnectAsync())
             //    return null;
 
             return await SendAndWaitAsync("get_config", _ipAddress!, DevicePort, 3000);
@@ -113,7 +109,7 @@ namespace KeyCatcher.services
             ConnectedChanged?.Invoke(this, true);
             System.Diagnostics.Debug.WriteLine($"[WiFi] ✔ Connected @ {ip}");
         }
-        public  async Task<bool> ProbeAsync()
+        public async Task<bool> ProbeAsync()
         {
             var reply = await SendAndWaitAsync("ping", _ipAddress, DevicePort, 1200);
             return !string.IsNullOrEmpty(reply);
@@ -150,7 +146,7 @@ namespace KeyCatcher.services
                 return null;
             }
         }
-       public static async Task SendWithAckAsync(string msg, string host, int port, int finalTimeoutMs)
+        public static async Task SendWithAckAsync(string msg, string host, int port, int finalTimeoutMs)
         {
             using var sock = new UdpClient(AddressFamily.InterNetwork);
             sock.Connect(host, port);

@@ -37,7 +37,6 @@
 
 	<ItemGroup>
 		<!-- App Icon -->
-		<MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />
 
 		<!-- Splash Screen -->
 
@@ -67,6 +66,17 @@
 	  <MauiXaml Remove="Views\mainpage - Copy.xaml" />
 	  <MauiXaml Remove="Views\oldMainPage.xaml" />
 	  <MauiXaml Remove="Views\tstpag.xaml" />
+	</ItemGroup>
+
+	<!--<ItemGroup>
+	  <None Remove="Platforms\Android\Resources\appicon.svg" />
+	  <None Remove="Resources\AppIcon\appicon.svg" />
+	  <None Remove="Resources\AppIcon\appiconfg.svg" />
+	</ItemGroup>-->
+
+	<ItemGroup>
+	  
+	  <MauiIcon Include="Resources\AppIcon\appicon.svg" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -114,6 +124,11 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Folder Include="Platforms\Android\Resources\mipmap-hdpi\" />
+	  <Folder Include="Platforms\Android\Resources\mipmap-mdpi\" />
+	  <Folder Include="Platforms\Android\Resources\mipmap-xhdpi\" />
+	  <Folder Include="Platforms\Android\Resources\mipmap-xxhdpi\" />
+	  <Folder Include="Platforms\Android\Resources\mipmap-xxxhdpi\" />
 	  <Folder Include="Resources\Splash\" />
 	</ItemGroup>
 

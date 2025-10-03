@@ -1,6 +1,4 @@
-﻿using Microsoft.Maui.Controls;
-
-namespace KeyCatcher.Controls;
+﻿namespace KeyCatcher.Controls;
 
 public class CardView : TemplatedView
 {

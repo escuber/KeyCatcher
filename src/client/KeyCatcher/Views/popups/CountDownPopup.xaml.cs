@@ -14,7 +14,7 @@ public partial class CountdownPopup : Popup
         _seconds = seconds;
         _gate = gate;
 
-       // _gate.Block(_seconds);
+        // _gate.Block(_seconds);
         Device.StartTimer(TimeSpan.FromSeconds(1), OnTick);
         UpdateLabel();
     }

@@ -1,11 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using System;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace KeyCatcher.services
+﻿namespace KeyCatcher.services
 {
     public static class perms
     {
@@ -47,12 +40,12 @@ namespace KeyCatcher.services
                 allGranted = false;
             }
 #elif WINDOWS
-        // Do not request runtime permissions on Windows.
-        // Capabilities are declared in Platforms/Windows/Package.appxmanifest.
-        allGranted = true;
+            // Do not request runtime permissions on Windows.
+            // Capabilities are declared in Platforms/Windows/Package.appxmanifest.
+            allGranted = true;
 #else
-        // Other platforms as needed...
-       
+            // Other platforms as needed...
+
 #endif
 
             if (!allGranted)
@@ -68,7 +61,7 @@ namespace KeyCatcher.services
                 var text = Preferences.Get("PendingShareText", "");
                 if (!string.IsNullOrWhiteSpace(text))
                 {
-                   // vm.MessageText = text;
+                    // vm.MessageText = text;
                     Preferences.Remove("PendingShareText");
                 }
             }
@@ -93,7 +86,7 @@ namespace KeyCatcher.services
                 var text = Preferences.Get("PendingShareText", "");
                 if (!string.IsNullOrWhiteSpace(text))
                 {
-                   // vm.MessageText = text;
+                    // vm.MessageText = text;
                     Preferences.Remove("PendingShareText");
                 }
             }

@@ -1,11 +1,9 @@
 ﻿using CommunityToolkit.Maui.Views;
+using CommunityToolkit.Mvvm.Input;
 using KeyCatcher.models; // WifiCredential
 using KeyCatcher.services;
 using KeyCatcher.ViewModels;
-using System.Threading.Tasks;
 using System.Windows.Input;
-using Microsoft.Maui.Controls;
-using CommunityToolkit.Mvvm.Input;
 namespace KeyCatcher.Popups
 {
     public partial class WifiCreds : Popup
@@ -14,7 +12,7 @@ namespace KeyCatcher.Popups
         private readonly CommHub? _hub;
         private bool _isClosed;
         public WifiCredsViewModel VM { get; }
-        
+
         public WifiCreds(KeyCatcherSettingsService settings, CommHub? hub = null)
         {
             InitializeComponent(); // let XAML load first
@@ -23,7 +21,7 @@ namespace KeyCatcher.Popups
             _hub = hub;
             CanBeDismissedByTappingOutsideOfPopup = false;
             // ViewModel
-            VM = new WifiCredsViewModel(_settings,hub);
+            VM = new WifiCredsViewModel(_settings, hub);
             VM.InitFromService(_settings);
 
             // If your XAML binds to VM properties, set BindingContext to VM.
@@ -41,7 +39,7 @@ namespace KeyCatcher.Popups
                     //catch { /* ignore transport error here */ }
                 }
 
-               await CloseAsync();
+                await CloseAsync();
             });
 
             SaveAndCloseCommand = new Command(async () =>
@@ -78,21 +76,21 @@ namespace KeyCatcher.Popups
             //});
 
             //CloseCommand = new Command(async () => await CloseAsync());
-         //   BtnEditorCancel.Command = new Command(() =>
-        //    {
-        //        VM.IsEditing = false;
-       //         VM.EditingNetwork = new WifiCredential();
-        //    });
+            //   BtnEditorCancel.Command = new Command(() =>
+            //    {
+            //        VM.IsEditing = false;
+            //         VM.EditingNetwork = new WifiCredential();
+            //    });
 
             // save the editing network and close the overlay
             //BtnEditorSave.Command = new Command(() =>
-         //   {
-                // use your VM logic
-          //      VM.SaveNetwork(); // calls IsEditing = false inside
-                                  // if you prefer your other flow:
-                                  // VM.ApplyToService(_settings);
-                                  // VM.IsEditing = false;
-         //   });
+            //   {
+            // use your VM logic
+            //      VM.SaveNetwork(); // calls IsEditing = false inside
+            // if you prefer your other flow:
+            // VM.ApplyToService(_settings);
+            // VM.IsEditing = false;
+            //   });
 
 
             CloseCommand = new Command(async () =>
@@ -103,7 +101,7 @@ namespace KeyCatcher.Popups
 
 
 
-          
+
             //BtnSaveAndClose.Command = SaveAndCloseCommand;
 
             //CloseCommand = new Command(async () =>
@@ -121,7 +119,7 @@ namespace KeyCatcher.Popups
                 VM.IsEditing = false;
                 VM.EditingNetwork = new WifiCredential();
             });
-           // BtnClose.Command = CloseCommand;
+            // BtnClose.Command = CloseCommand;
             Closed += (_, __) => _isClosed = true;
         }
 
@@ -136,7 +134,8 @@ namespace KeyCatcher.Popups
             //PopupNotFoundException
         }
         [RelayCommand]
-        public void closeit() {
+        public void closeit()
+        {
 
             CloseAsync().Wait();
         }
@@ -145,7 +144,7 @@ namespace KeyCatcher.Popups
             System.Diagnostics.Debug.WriteLine("OnSaveAndClose fired");
             // do your save/apply logic here (or delegate to VM)
             // Close with a result if you want:
-            CloseAsync().Wait                ();
+            CloseAsync().Wait();
             // or: await CloseAsync(true);  <-- requires `async void OnSaveAndClose(...)`
         }
 
@@ -235,7 +234,7 @@ namespace KeyCatcher.Popups
                 if (_hub is not null)
                 {
                     var payload = _settings.MakeMessage();
-                   // var ok = await _hub.ApplySetupAsync(payload, 20_000);
+                    // var ok = await _hub.ApplySetupAsync(payload, 20_000);
                     // optionally show a toast if !ok
                 }
 

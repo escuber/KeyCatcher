@@ -1,14 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using KeyCatcher.models;
-using KeyCatcher.models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Emit;
 using System.Text;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
-using System.Windows.Input;
 
 namespace KeyCatcher.services
 {
@@ -107,7 +100,7 @@ namespace KeyCatcher.services
                 creds.Clear();
                 foreach (var item in dto.Creds)
                 {
-                    creds.Add(item);    
+                    creds.Add(item);
 
 
                     //creds.Add(new WifiCredential
@@ -141,7 +134,7 @@ namespace KeyCatcher.services
             Preferences.Set("inputType", InputType ?? "WIFI");
             Preferences.Set("outputType", OutputType ?? "USBHID");
             Preferences.Set("Creds", JsonSerializer.Serialize(creds ?? new List<WifiCredential>()));
-            
+
         }
         public List<string> InputSources { get; set; } = new() { "WIFI", "BLE" };
         public List<string> OutputTypes { get; set; } = new() { "BLEHID", "USBHID" };
@@ -164,7 +157,7 @@ namespace KeyCatcher.services
             builder.Append($"input_source:{InputType ?? "WIFI"}\n");
             builder.Append($"output_source:{OutputType ?? "USBHID"} \n");
             builder.Append($"ap_mode:{(ApMode ? "true" : "false")}\n");
-            builder.Append($"creds:{credsJson}\n");            
+            builder.Append($"creds:{credsJson}\n");
             builder.Append($"<endsetup>");
             return builder.ToString();
             //return "";

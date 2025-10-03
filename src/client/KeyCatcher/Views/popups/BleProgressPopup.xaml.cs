@@ -15,7 +15,7 @@ public partial class BleProgressPopup : Popup
     {
         InitializeComponent();
         BindingContext = this;
-       //his.Color = Colors.Transparent;
-       
+        //his.Color = Colors.Transparent;
+
     }
 }

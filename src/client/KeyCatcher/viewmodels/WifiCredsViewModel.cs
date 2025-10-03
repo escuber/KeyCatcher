@@ -2,8 +2,6 @@
 using CommunityToolkit.Mvvm.Input;
 using KeyCatcher.models;
 using KeyCatcher.services;
-using System.Reflection;
-using System.Text.Json;
 
 namespace KeyCatcher.ViewModels
 {
@@ -39,7 +37,7 @@ namespace KeyCatcher.ViewModels
         public CommHub Hub { get; }
         public readonly KeyCatcherSettingsService _settings;
 
-        public WifiCredsViewModel(KeyCatcherSettingsService settings, CommHub hub )
+        public WifiCredsViewModel(KeyCatcherSettingsService settings, CommHub hub)
         {
             Hub = hub;
 
@@ -187,7 +185,7 @@ namespace KeyCatcher.ViewModels
         {
             try
             {
-                
+
                 IsBusy = true;   // show spinner
                                  //VM.ApplyToService(_settings);
 
@@ -216,9 +214,9 @@ namespace KeyCatcher.ViewModels
             finally
             {
                 IsBusy = false;  // hide spinner
-                
-                
-                
+
+
+
             }
         }
 

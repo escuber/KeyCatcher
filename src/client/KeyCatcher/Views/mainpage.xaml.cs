@@ -1,16 +1,10 @@
 ﻿
 
 //using Android.Provider;
-using CommunityToolkit.Maui.Views;
-using KeyCatcher.Popups;
 using CommunityToolkit.Maui.Extensions;
+using KeyCatcher.Popups;
 using KeyCatcher.services;
 using KeyCatcher.ViewModels;
-using Microsoft.Maui;
-using Microsoft.Maui.ApplicationModel;
-using Microsoft.Maui.Storage;
-using Plugin.BLE.Abstractions.Contracts;
-using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace KeyCatcher.Views;
 
@@ -18,12 +12,12 @@ public partial class Mainpage : ContentPage
 {
     private bool _permissionsChecked = false;
     //public string wifiUp { get; set; } = "THE FUCK";
-        //=> vm.Hub.IsWifiUp ? "Wi-Fi: Up" : "Wi-Fi: Down";
+    //=> vm.Hub.IsWifiUp ? "Wi-Fi: Up" : "Wi-Fi: Down";
 
-    public string pauseSeconds{ get; set; }
+    public string pauseSeconds { get; set; }
     private MainPageViewModel vm;
     public KeyCatcherSettingsService _settings;
-    
+
     public CommHub hub;
     private readonly KeyCatcherWiFiService _wifi;
     public bool ShowHelp => !vm.Hub.IsBleUp && !vm.Hub.IsWifiUp;
@@ -31,15 +25,15 @@ public partial class Mainpage : ContentPage
 
     public Mainpage(MainPageViewModel viewModel, CommHub cntl, KeyCatcherWiFiService wifi, KeyCatcherSettingsService sets)
     {
-        
+
         InitializeComponent();
         hub = cntl; _wifi = wifi; _settings = sets;
-        
+
 
         BindingContext = vm = viewModel;
 
 
-      //  headerRoot.BindingContext = this.BindingContext;
+        //  headerRoot.BindingContext = this.BindingContext;
         //(BindingContext is HomePageViewModel vm)
         //_ = vm.ConnectNowCommand; // do not await
 
@@ -50,9 +44,9 @@ public partial class Mainpage : ContentPage
 #endif
     }
 
-    public  async void OnPasteClicked(object sender, EventArgs e)
+    public async void OnPasteClicked(object sender, EventArgs e)
     {
-        
+
         var clipboardText = await Clipboard.Default.GetTextAsync();
         if (!string.IsNullOrEmpty(clipboardText))
             MessageEditor.Text = clipboardText;
@@ -104,7 +98,7 @@ public partial class Mainpage : ContentPage
         allGranted = true;
 #else
         // Other platforms as needed...
-       
+
 #endif
 
         if (!allGranted)

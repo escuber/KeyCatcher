@@ -371,12 +371,24 @@
                     StrokeThickness="1"
                     VerticalOptions="End">
                     <Grid RowDefinitions="*,Auto" RowSpacing="12">
+                        
                         <ScrollView Grid.Row="0">
                             <Grid
-                                ColumnDefinitions="Auto,*"
-                                ColumnSpacing="10"
-                                RowDefinitions="Auto,Auto,Auto"
+
+                                ColumnSpacing="5"
+                               
                                 RowSpacing="10">
+                                <Grid.ColumnDefinitions>
+                                    <!-- Fixed width for label, rest for Entry -->
+                                    <ColumnDefinition Width="95" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
                                 <!--<Label
                                     Grid.ColumnSpan="2"
                                     FontAttributes="Bold"
@@ -384,6 +396,7 @@
                                     Text="Edit Network" />-->
                                 <Border
                                     Grid.Row="0"
+                                     Grid.ColumnSpan="2" 
                                     Padding="16,8"
                                     Background="#2B0B98"
                                     HorizontalOptions="Start"
@@ -406,22 +419,27 @@
 
                                 <Label
                                     Grid.Row="1"
+                                    
                                     Padding="5"
                                     Background="SteelBlue"
                                     Text="SSID"
+                                    WidthRequest="95"
                                     TextColor="Black"
-                                    VerticalTextAlignment="Center" />
+                                    VerticalTextAlignment="Center" 
+                                    HorizontalTextAlignment="Start" HorizontalOptions="Start" />
                                 <Entry
                                     Grid.Row="1"
                                     Grid.Column="1"
                                     Placeholder="SSID"
                                     Text="{Binding EditingNetwork.SSID}" />
                                 <Label
+                                    WidthRequest="95"
                                     Grid.Row="2"
                                     Padding="5"
                                     Background="SteelBlue"
                                     Text="Password"
                                     TextColor="Black"
+                                    HorizontalTextAlignment="Start" HorizontalOptions="Start"
                                     VerticalTextAlignment="Center" />
                                 <Entry
                                     Grid.Row="2"

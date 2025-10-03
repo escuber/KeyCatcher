@@ -1,14 +1,6 @@
 ﻿using Plugin.BLE.Abstractions;
-using Plugin.BLE.Abstractions;
-using Plugin.BLE.Abstractions;                 // ← contains GattStatus enum
 using Plugin.BLE.Abstractions.Contracts;
 using Plugin.BLE.Abstractions.EventArgs;
-using Plugin.BLE.Abstractions.Exceptions;
-using Plugin.BLE.Abstractions.Exceptions;
-using Plugin.BLE.Abstractions.Extensions;
-using System.Text;
-using System.Text.Json;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 using Encoding = System.Text.Encoding;
 public static class KCBle
 {
@@ -223,7 +215,7 @@ public static class KCBle
                 for (int index = 0, offset = 0; offset < payload.Length; index++)
                 {
                     int len = Math.Min(ChunkBudget, payload.Length - offset);
-                    string b64 =Convert.ToBase64String(payload, offset, len);
+                    string b64 = Convert.ToBase64String(payload, offset, len);
                     //string env = $"{{\"t\":\"kc_chunk\",\"v\":1,\"id\":{id},\"n\":{total},\"i\":{index},\"pl\":\"{payload}\"}}";
                     string env = $"{{\"t\":\"kc_chunk\",\"v\":1,\"id\":{id},\"n\":{total},\"i\":{index},\"pl\":\"{b64}\"}}";
                     byte[] bytes = Encoding.UTF8.GetBytes(env);

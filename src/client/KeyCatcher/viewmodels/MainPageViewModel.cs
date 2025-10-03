@@ -1,20 +1,11 @@
 ﻿//KeyCatcher_acc.services;
 ///using Android.Provider;
-using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Maui.Extensions;
-using CommunityToolkit.Maui.Views;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using KeyCatcher.models;
 using KeyCatcher.Popups;
 using KeyCatcher.services;
-
-using Microsoft.Maui.Controls.Shapes;
-using Plugin.BLE;
-using Plugin.BLE.Abstractions;
-using Plugin.BLE.Abstractions.Contracts;
-using Plugin.BLE.Abstractions.EventArgs;
-using System.Windows.Input;
 
 namespace KeyCatcher.ViewModels;
 
@@ -109,7 +100,7 @@ public partial class MainPageViewModel : ObservableObject
         KeyCatcherWiFiService wwifi,
         KeyCatcherBleService bble)
     {
-        ble = bble; wifi = wwifi; _hub = hub; _sendGate = sendGate;_settings = setting;
+        ble = bble; wifi = wwifi; _hub = hub; _sendGate = sendGate; _settings = setting;
 
         _hub.PropertyChanged += (s, e) =>
         {
@@ -166,7 +157,7 @@ public partial class MainPageViewModel : ObservableObject
     }
     private async Task SendAsync()
     {
-      //  await Task.Delay(PauseSeconds * 1000);
+        //  await Task.Delay(PauseSeconds * 1000);
 
         // await _ble.SendTextAsync(messageText);
         //return;
@@ -205,17 +196,17 @@ public partial class MainPageViewModel : ObservableObject
         var result = await page.ShowPopupAsync(popup);
 
 
-        
+
         //var popup = new KeyCatcher.Popups.WifiCreds(_settings, Hub); 
 
 
         // if saved/updated, refresh any UI that mirrors settings
-     //   if (result.ToString() as string == "updated")
-       /// {
-            // pull in new settings if your VM mirrors them
-            // e.g., if you show a list of creds on this page:
-            // Creds = _settings.GetNetworks();  OnPropertyChanged(nameof(Creds));
-            // or update any indicator text, etc.
+        //   if (result.ToString() as string == "updated")
+        /// {
+        // pull in new settings if your VM mirrors them
+        // e.g., if you show a list of creds on this page:
+        // Creds = _settings.GetNetworks();  OnPropertyChanged(nameof(Creds));
+        // or update any indicator text, etc.
         //}
     }
     public LinkState WifiLinkState =>
@@ -240,7 +231,7 @@ public partial class MainPageViewModel : ObservableObject
 
 
     [RelayCommand]
-    private async Task showNetwork()    
+    private async Task showNetwork()
     {
         //var popup = new CommunityToolkit.Maui.Views.Popup
         //{
@@ -298,17 +289,17 @@ public partial class MainPageViewModel : ObservableObject
         //        //popup.StatusText = status;
         //    //}
         //});
-    
-
-    //var page = Shell.Current?.CurrentPage ?? Application.Current?.MainPage;
-    //    if (page is null) return;
-
-    //    // construct popup and pass services
-    //    var popup = new KeyCatcher.Popups.WifiCreds(_settings, Hub);
 
 
-    //    // await the popup result
-    //    var result = await page.ShowPopupAsync(popup);
+        //var page = Shell.Current?.CurrentPage ?? Application.Current?.MainPage;
+        //    if (page is null) return;
+
+        //    // construct popup and pass services
+        //    var popup = new KeyCatcher.Popups.WifiCreds(_settings, Hub);
+
+
+        //    // await the popup result
+        //    var result = await page.ShowPopupAsync(popup);
 
 
 
@@ -317,8 +308,8 @@ public partial class MainPageViewModel : ObservableObject
     [RelayCommand]
     void ToggleWifi()
     {
-        Hub.IsBleUp= !Hub.IsBleUp;
-       // Hub.IsWifiUp = !Hub.IsWifiUp;
+        Hub.IsBleUp = !Hub.IsBleUp;
+        // Hub.IsWifiUp = !Hub.IsWifiUp;
     }
 
     [RelayCommand]
@@ -345,7 +336,7 @@ public partial class MainPageViewModel : ObservableObject
 
         return;
 
-      
+
 
         //var bconf = await ble.GetConfigAsync();
         //while(bconf == null)
@@ -380,7 +371,7 @@ public partial class MainPageViewModel : ObservableObject
 
 
         var blmyconf = await ble.GetConfigAsync();
-         var myconf = await wifi.GetConfigAsync();
+        var myconf = await wifi.GetConfigAsync();
         //Hub.GetConfigAsync();
 
         //_settings.ApplyDeviceJson(myconf);
@@ -393,8 +384,8 @@ public partial class MainPageViewModel : ObservableObject
         // _settings.creds =
         //        new List<WifiCredential> { new WifiCredential { SSID = "DADNET", Password = "4c4c4c4c" } };
 
-         msg2 = _settings.MakeMessage();
-         await Hub.SendAsync(msg2);
+        msg2 = _settings.MakeMessage();
+        await Hub.SendAsync(msg2);
         //Hub.SendAsync(msg2);
         //var popup = new CountdownPopup(pauseSeconds, _sendGate);
         //await Application.Current.MainPage.ShowPopupAsync(popup);
@@ -500,7 +491,7 @@ public partial class MainPageViewModel : ObservableObject
     }
 
     [ObservableProperty]
-    public string wifisUp=> Hub.IsWifiUp ? "Wi-Fi: Up" : "Wi-Fi: Down";
+    public string wifisUp => Hub.IsWifiUp ? "Wi-Fi: Up" : "Wi-Fi: Down";
 
     [RelayCommand]
     private async Task ShowCountdown()

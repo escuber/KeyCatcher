@@ -17,7 +17,26 @@
 
             <local:BothDownToBoolConverter x:Key="BothDownToBool" />
             <local:StringEqualsToBoolConverter x:Key="StringEqualsToBool" />
-
+            <Style x:Key="FooterButtonStyle" TargetType="Button">
+                <Setter Property="BackgroundColor" Value="#3B0CA3" />
+                <Setter Property="TextColor" Value="White" />
+                <Setter Property="CornerRadius" Value="18" />
+                <Setter Property="Padding" Value="12,4" />
+                <Setter Property="VisualStateManager.VisualStateGroups">
+                    <VisualStateGroupList>
+                        <VisualStateGroup Name="CommonStates">
+                            <VisualState Name="Normal" />
+                            <VisualState Name="Pressed">
+                                <VisualState.Setters>
+                                    <Setter Property="BackgroundColor" Value="#5B2CA3" />
+                                    <Setter Property="TextColor" Value="#FFD700" />
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState Name="Disabled" />
+                        </VisualStateGroup>
+                    </VisualStateGroupList>
+                </Setter>
+            </Style>
         </ResourceDictionary>
     </ContentPage.Resources>
 
@@ -51,7 +70,7 @@
                 TextColor="SteelBlue"
                 VerticalTextAlignment="Center" />
 
-            <!--Text="{Binding IsWifiUp, StringFormat='Wi-Fi: {0:Up;Down}'}"  "{Binding Title, Source={x:Reference headerRoot}}"BLE Icon Button  -->
+            <!--  Text="{Binding IsWifiUp, StringFormat='Wi-Fi: {0:Up;Down}'}"  "{Binding Title, Source={x:Reference headerRoot}}"BLE Icon Button  -->
             <ImageButton
                 Grid.Column="2"
                 BackgroundColor="Transparent"
@@ -212,6 +231,7 @@
                     BackgroundColor="#3B0CA3"
                     Command="{Binding ClearCommand}"
                     CornerRadius="18"
+                    Style="{StaticResource FooterButtonStyle}"
                     Text="Clear"
                     TextColor="White" />
                 <Button
@@ -219,6 +239,7 @@
                     BackgroundColor="#3B0CA3"
                     Clicked="OnPasteClicked"
                     CornerRadius="18"
+                    Style="{StaticResource FooterButtonStyle}"
                     Text="Paste"
                     TextColor="White" />
 
@@ -236,14 +257,27 @@
                     BackgroundColor="#3B0CA3"
                     Command="{Binding SendCommand}"
                     CornerRadius="18"
+                    Style="{StaticResource FooterButtonStyle}"
                     Text="Send"
                     TextColor="White" />
 
+                <VerticalStackLayout>
+                    <!--<Label  FontSize="10"
+HorizontalOptions="Center"
+Text="Start"
+TextColor="White"
+VerticalOptions="Center"/>-->
+                    <Label  FontSize="10"
+                    HorizontalOptions="Center"
+                    Text="delay"
+                    TextColor="White"
+                    VerticalOptions="Center"/>
+                    <Picker
+                        ItemsSource="{Binding PauseOptions}"
+                        SelectedItem="{Binding PauseSeconds}"
+                        WidthRequest="80" />
+                </VerticalStackLayout>
 
-                <Picker
-                    ItemsSource="{Binding PauseOptions}"
-                    SelectedItem="{Binding PauseSeconds}"
-                    WidthRequest="80" />
             </HorizontalStackLayout>
 
         </Grid>

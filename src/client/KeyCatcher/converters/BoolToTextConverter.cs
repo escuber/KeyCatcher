@@ -1,8 +1,4 @@
-﻿using System;
-using System.Globalization;
-using Microsoft.Maui.Controls;
-
-namespace KeyCatcher.converters
+﻿namespace KeyCatcher.converters
 {
 
     public class BothDownToBoolConverter : IMultiValueConverter
@@ -132,29 +128,29 @@ namespace KeyCatcher.converters
     //}
 
     public class BoolToTextConverter : IValueConverter
-{
-    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
-        var param = (parameter as string)?.Split(',');
-        if (param?.Length == 2 && value is bool b)
-            return b ? param[0] : param[1];
-        return "";
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var param = (parameter as string)?.Split(',');
+            if (param?.Length == 2 && value is bool b)
+                return b ? param[0] : param[1];
+            return "";
+        }
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => null;
     }
-    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => null;
-}
 
-public class StringEqualsToBoolConverter : IValueConverter
-{
-    // VM → RadioButton-IsChecked
-    public object Convert(object value, Type targetType,
-                          object parameter, CultureInfo culture)
-        => Equals(value?.ToString(), parameter?.ToString());
-
-    // RadioButton back → VM  (only when checked == true)
-    public object ConvertBack(object value, Type targetType,
+    public class StringEqualsToBoolConverter : IValueConverter
+    {
+        // VM → RadioButton-IsChecked
+        public object Convert(object value, Type targetType,
                               object parameter, CultureInfo culture)
-        => (bool)value ? parameter?.ToString() : Binding.DoNothing;
-}
+            => Equals(value?.ToString(), parameter?.ToString());
+
+        // RadioButton back → VM  (only when checked == true)
+        public object ConvertBack(object value, Type targetType,
+                                  object parameter, CultureInfo culture)
+            => (bool)value ? parameter?.ToString() : Binding.DoNothing;
+    }
 }
 //public class StringToBoolConverter : IValueConverter
 //{

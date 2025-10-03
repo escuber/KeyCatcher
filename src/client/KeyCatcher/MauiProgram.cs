@@ -15,12 +15,12 @@ using WinRT.Interop;                 // WindowNative
 #endif
 public static class MauiProgram
 {
-	public static MauiApp CreateMauiApp()
-	{
-		var builder = MauiApp.CreateBuilder();
-		builder
-			.UseMauiApp<App>()
-			.UseMauiCommunityToolkit()
+    public static MauiApp CreateMauiApp()
+    {
+        var builder = MauiApp.CreateBuilder();
+        builder
+            .UseMauiApp<App>()
+            .UseMauiCommunityToolkit()
          .ConfigureFonts(fonts =>
          {
              fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
@@ -33,7 +33,7 @@ public static class MauiProgram
         builder.Services.AddSingleton<IAdapter>(CrossBluetoothLE.Current.Adapter);
 
         // now your service can resolve IBluetoothLE automatically
-       
+
         // Services
         builder.Services.AddSingleton<KeyCatcherSettingsService>();
         builder.Services.AddSingleton<KeyCatcherBleService>();
@@ -49,28 +49,28 @@ public static class MauiProgram
 
         ;
 #if DEBUG
-		builder.Logging.AddDebug();
+        builder.Logging.AddDebug();
 #endif
 
 
         builder.ConfigureLifecycleEvents(events =>
         {
 #if WINDOWS
-    events.AddWindows(windows =>
-    {
-        // Fires once per WinUI window (usually one for a MAUI app)
-        windows.OnWindowCreated(nativeWindow =>
-        {
-            // nativeWindow is Microsoft.UI.Xaml.Window  (no .Handler!)
-            var hWnd     = WindowNative.GetWindowHandle(nativeWindow);
-            var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hWnd);
-            var appWin   = AppWindow.GetFromWindowId(windowId);
+            events.AddWindows(windows =>
+            {
+                // Fires once per WinUI window (usually one for a MAUI app)
+                windows.OnWindowCreated(nativeWindow =>
+                {
+                    // nativeWindow is Microsoft.UI.Xaml.Window  (no .Handler!)
+                    var hWnd = WindowNative.GetWindowHandle(nativeWindow);
+                    var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hWnd);
+                    var appWin = AppWindow.GetFromWindowId(windowId);
 
-            appWin?.Resize(new SizeInt32(672, 1104));   // 900 × 1200 px
-        });
-    });
+                    appWin?.Resize(new SizeInt32(672, 1104));   // 900 × 1200 px
+                });
+            });
 #endif
         });
         return builder.Build();
-	}
+    }
 }

@@ -1,11 +1,4 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Maui.Extensions;
-using System;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace KeyCatcher.services
 {
@@ -63,7 +56,7 @@ namespace KeyCatcher.services
         //private readonly SendHealthGate _gate = new();
         public CommHub(KeyCatcherBleService ble, KeyCatcherWiFiService wifi, KeyCatcherSettingsService ssettings)
         {
-            settings=   ssettings;
+            settings = ssettings;
             _ble = ble;
             _wifi = wifi;
             PauseSeconds = Preferences.Get("pauseSeconds", 0);
@@ -83,7 +76,7 @@ namespace KeyCatcher.services
 
 
 
-            
+
 
             var config = "";
 
@@ -107,11 +100,12 @@ namespace KeyCatcher.services
         public bool IsWifiUp
         {
             get => _isWifiUp;
-             set {
+            set
+            {
 
                 Debug.WriteLine($"[Hub] IsWifiUp set to {value}");
-                if (Set(ref _isWifiUp, value)) RecomputeBest(); 
-            
+                if (Set(ref _isWifiUp, value)) RecomputeBest();
+
             }
         }
 
@@ -119,7 +113,7 @@ namespace KeyCatcher.services
         public bool IsBleUp
         {
             get => _isBleUp;
-             set { if (Set(ref _isBleUp, value)) RecomputeBest(); }
+            set { if (Set(ref _isBleUp, value)) RecomputeBest(); }
         }
 
         public bool IsAnyUp => Best != Transport.None;
@@ -186,7 +180,7 @@ namespace KeyCatcher.services
 
             return result ?? false; // if skipped, treat as failed probe
         }
-     
+
         // --------------------------------------------------------------------
         // Keepalive probes
         // --------------------------------------------------------------------
