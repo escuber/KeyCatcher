@@ -19,7 +19,7 @@ namespace KeyCatcher.services
 
         public event EventHandler<bool>? ConnectedChanged;
 
-        public bool IsConnected { get; private set; }
+        public bool IsConnected { get;  set; }
         public bool IsApMode => _ipAddress == ApIp;
 
         public KeyCatcherWiFiService()

@@ -67,7 +67,7 @@ public sealed class KeyCatcherBleService //: IKeyCatcherCommService
     {
         try
         {
-            if (_device == null || !_adapter.ConnectedDevices.Contains(_device))
+            if (_device == null || !_adapter.ConnectedDevices.Any(d => d.Id == _device.Id))
             {
                 return false; // Not connected
             }
@@ -612,6 +612,134 @@ public sealed class KeyCatcherBleService //: IKeyCatcherCommService
         DismissBlePopup();
         Log("BLE send sequence complete.");
     }
+
+
+    public async Task<bool> DoFullCopnnectCheck(string txtMsg)
+    {
+        ///string text = TextEntry.Text ?? "";
+      ////  await Task.Delay(5 * 1000);
+        Console.WriteLine("Chunked long...");
+        string text = txtMsg;// new string('A', 50);// + "<<END>>";
+        //await SendWithAckAsync(longMsg, ip, port, 8000);
+        const int maxRounds = 3;
+        const int maxAttempts = 5;
+        var success = false;
+        for (int round = 0; round < maxRounds; round++)
+        {
+            try
+            {
+           //     ShowBlePopup(round == 0 ? "Scanning for device…" : $"Retrying BLE round {round + 1}…");
+                Log(round == 0 ? "Scanning for device..." : $"Retrying BLE round {round + 1}...");
+                _dev = null;
+
+                void Handler(object? s, DeviceEventArgs ev)
+                {
+                    if (ev.Device.Name != null && ev.Device.Name.Contains("KeyCatcher", StringComparison.OrdinalIgnoreCase))
+                        _dev ??= ev.Device;
+                }
+                _adapter.DeviceDiscovered += Handler;
+                await _adapter.StartScanningForDevicesAsync();
+                _adapter.DeviceDiscovered -= Handler;
+                if (_dev == null)
+                {
+  //                  ShowBlePopup("Device not found.");
+                    Log("Device not found.");
+                    await Task.Delay(1200);
+                    break;
+                }
+     //           ShowBlePopup($"Found device: {_dev.Name}\nConnecting…");
+                Log($"Found device: {_dev.Name}");
+
+                await _adapter.ConnectToDeviceAsync(_dev);
+                Log("Connected.");
+                if (_dev.State != DeviceState.Connected)
+                {
+          //          ShowBlePopup("Device not actually connected!");
+                    Log("Device not actually connected!");
+                    await Task.Delay(900);
+                    continue; // Try again
+                }
+
+                // Service and char discovery with retries
+         //       ShowBlePopup("Locating service/characteristics…");
+                IService? svc = null;
+                ICharacteristic? rx = null;
+                ICharacteristic? tx = null;
+                for (int attempt = 0; attempt < maxAttempts; attempt++)
+                {
+                    try
+                    {
+                        var services = (await _dev.GetServicesAsync()).ToList();
+                        svc = services.FirstOrDefault(s => s.Id == SVC_UUID);
+                        if (svc == null)
+                        {
+              //              ShowBlePopup($"Attempt {attempt + 1}: Service not found, retrying…");
+                            Log($"Attempt {attempt + 1}: Service not found, retrying...");
+                            await Task.Delay(350);
+                            continue;
+                        }
+                        var chars = (await svc.GetCharacteristicsAsync()).ToList();
+                        rx = chars.FirstOrDefault(c => c.Id == RX_UUID);
+                        tx = chars.FirstOrDefault(c => c.Id == TX_UUID);
+                        if (rx == null || tx == null)
+                        {
+            //                ShowBlePopup($"Attempt {attempt + 1}: {(rx == null ? "RX" : "TX")} char not found, retrying…");
+                            Log($"Attempt {attempt + 1}: {(rx == null ? "RX" : "TX")} char not found, retrying...");
+                            await Task.Delay(250);
+                            continue;
+                        }
+                        success = true;
+                        break; // Success! BOTH found
+                    }
+                    catch (ObjectDisposedException ex)
+                    {
+           //             ShowBlePopup($"Attempt {attempt + 1}: Object disposed. Will restart round.");
+                        Log($"Attempt {attempt + 1}: Object disposed: {ex.Message}");
+                        throw;
+                    }
+                    catch (Exception ex)
+                    {
+         //               ShowBlePopup($"Attempt {attempt + 1}: Discovery error, retrying…");
+                        Log($"Attempt {attempt + 1}: Discovery error: {ex.Message}");
+                        await Task.Delay(250);
+                    }
+                }
+                if (svc == null || rx == null || tx == null)
+                {
+    //                ShowBlePopup("Service/Char not found after retries. Restarting round…");
+                    Log("Service/Char not found after retries in this round, restarting round...");
+                    throw new ObjectDisposedException("BLE session invalid, need full reset.");
+                }
+
+
+
+                await Task.Delay(500);
+                await _adapter.DisconnectDeviceAsync(_dev);
+                Log("Disconnected. Done.");
+                break; // Success!
+            }
+            catch (ObjectDisposedException ex)
+            {
+
+                Log($"BLE round failed (disposed): {ex.Message}. Cleaning up and retrying from top...");
+                try { if (_dev != null) await _adapter.DisconnectDeviceAsync(_dev); } catch { }
+                _dev = null; _rx = null;
+                await Task.Delay(800);
+            }
+            catch (Exception ex)
+            {
+
+                Log($"BLE round failed (other): {ex.Message}");
+                try { if (_dev != null) await _adapter.DisconnectDeviceAsync(_dev); } catch { }
+                _dev = null; _rx = null;
+                await Task.Delay(800);
+            }
+        }
+
+        return success;
+        
+    }
+
     void DismissBlePopup()
     {
         MainThread.BeginInvokeOnMainThread(() =>

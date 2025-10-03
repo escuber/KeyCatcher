@@ -11,8 +11,8 @@ namespace KeyCatcher.models
     public class WifiCredential : ObservableObject, INotifyPropertyChanged
     {
         [JsonPropertyName("ssid")]
-        [ObservableProperty] public string SSID { get; set; }
+         public string SSID { get; set; }
         [JsonPropertyName("password")]
-        [ObservableProperty] public string Password { get; set; }
+        public string Password { get; set; }
     }
 }

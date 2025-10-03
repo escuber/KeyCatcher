@@ -3,8 +3,21 @@
     x:Class="KeyCatcher.Views.header"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:KeyCatcher.converters"
     x:Name="headerRoot">
 
+    <ContentView.Resources>
+        <ResourceDictionary>
+            <local:BoolToColorConverter
+                x:Key="BoolToColor"
+                FalseColor="#EA4335"
+                TrueColor="LimeGreen" />
+
+            <local:BothDownToBoolConverter x:Key="BothDownToBool" />
+            <local:StringEqualsToBoolConverter x:Key="StringEqualsToBool" />
+
+        </ResourceDictionary>
+    </ContentView.Resources>
 
     <Grid
         Padding="12,0"
@@ -20,7 +33,7 @@
             Grid.Column="1"
             FontAttributes="Bold"
             FontSize="32"
-            Text="{Binding Title, Source={x:Reference headerRoot}}"
+            Text="{Binding WifiIconColor, Source={x:Reference headerRoot}}"
             TextColor="SteelBlue"
             VerticalTextAlignment="Center" />
 

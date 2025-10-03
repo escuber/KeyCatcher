@@ -336,7 +336,7 @@
                     Grid.Column="2"
                     Margin="8,0"Clicked="Button_Clicked"
                     Text="Save and Close" />-->
-                <Button Command="{Binding SaveAndCloseCommand}" Text="Save and Close" />
+                <!--<Button Command="{Binding SaveAndCloseCommand}" Text="Save and Close" />-->
                 <Button
                     Grid.Column="2"
                     BackgroundColor="{AppThemeBinding Light=#6366f1,

@@ -107,14 +107,19 @@ namespace KeyCatcher.services
         public bool IsWifiUp
         {
             get => _isWifiUp;
-            private set { if (Set(ref _isWifiUp, value)) RecomputeBest(); }
+             set {
+
+                Debug.WriteLine($"[Hub] IsWifiUp set to {value}");
+                if (Set(ref _isWifiUp, value)) RecomputeBest(); 
+            
+            }
         }
 
         private bool _isBleUp;
         public bool IsBleUp
         {
             get => _isBleUp;
-            private set { if (Set(ref _isBleUp, value)) RecomputeBest(); }
+             set { if (Set(ref _isBleUp, value)) RecomputeBest(); }
         }
 
         public bool IsAnyUp => Best != Transport.None;

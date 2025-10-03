@@ -10,31 +10,36 @@ using Microsoft.Maui;
 using Microsoft.Maui.ApplicationModel;
 using Microsoft.Maui.Storage;
 using Plugin.BLE.Abstractions.Contracts;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace KeyCatcher.Views;
 
-public partial class mainpage : ContentPage
+public partial class Mainpage : ContentPage
 {
     private bool _permissionsChecked = false;
-    public string wifiUp { get; set; } = "THE FUCK";
+    //public string wifiUp { get; set; } = "THE FUCK";
         //=> vm.Hub.IsWifiUp ? "Wi-Fi: Up" : "Wi-Fi: Down";
 
-
+    public string pauseSeconds{ get; set; }
     private MainPageViewModel vm;
     public KeyCatcherSettingsService _settings;
-    public CommHub _cntl;
+    
+    public CommHub hub;
     private readonly KeyCatcherWiFiService _wifi;
     public bool ShowHelp => !vm.Hub.IsBleUp && !vm.Hub.IsWifiUp;
 
 
-    public mainpage(MainPageViewModel viewModel, CommHub cntl, KeyCatcherWiFiService wifi, KeyCatcherSettingsService sets)
+    public Mainpage(MainPageViewModel viewModel, CommHub cntl, KeyCatcherWiFiService wifi, KeyCatcherSettingsService sets)
     {
         
         InitializeComponent();
-        _cntl = cntl; _wifi = wifi; _settings = sets;
+        hub = cntl; _wifi = wifi; _settings = sets;
         
 
         BindingContext = vm = viewModel;
+
+
+      //  headerRoot.BindingContext = this.BindingContext;
         //(BindingContext is HomePageViewModel vm)
         //_ = vm.ConnectNowCommand; // do not await
 
@@ -45,12 +50,12 @@ public partial class mainpage : ContentPage
 #endif
     }
 
-    private async void OnPasteClicked(object sender, EventArgs e)
+    public  async void OnPasteClicked(object sender, EventArgs e)
     {
-
+        
         var clipboardText = await Clipboard.Default.GetTextAsync();
         if (!string.IsNullOrEmpty(clipboardText))
-           MessageEditor.Text = clipboardText;
+            MessageEditor.Text = clipboardText;
 
     }
 
@@ -145,8 +150,8 @@ public partial class mainpage : ContentPage
             }
         }
 
-      //  await _cntl.InitializeAsync();
-      //  await vm.ConnectNowCommand.ExecuteAsync(null);
+        await hub.InitializeAsync();
+        await vm.ConnectNowCommand.ExecuteAsync(null);
 
 
     }
@@ -167,14 +172,9 @@ public partial class mainpage : ContentPage
         Debug.WriteLine("Tapped!");
 
 
-        var popup = new WifiCreds(_settings, _cntl);//(_settings, _cntl); // _settings = KeyCatcherSettingsService, _cntl = CommHub
+        var popup = new WifiCreds(_settings, hub);//(_settings, _cntl); // _settings = KeyCatcherSettingsService, _cntl = CommHub
         await Shell.Current.CurrentPage.ShowPopupAsync(popup);
     }
-    Editor _currentEditor;
 
-    void OnEditorFocused(object sender, FocusEventArgs e)
-    {
-        _currentEditor = sender as Editor;
-    }
 }
 

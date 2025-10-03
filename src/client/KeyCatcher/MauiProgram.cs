@@ -45,7 +45,7 @@ public static class MauiProgram
         builder.Services.AddTransient<MainPageViewModel>();
 
         // Views
-        builder.Services.AddTransient<mainpage>();
+        builder.Services.AddTransient<Mainpage>();
 
         ;
 #if DEBUG

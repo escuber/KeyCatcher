@@ -10,6 +10,7 @@ namespace KeyCatcher.Views
         public header()
         {
             InitializeComponent();
+           // headerRoot.BindingContext = this.BindingContext;
         }
         void ShowBlePopup(string status)
         {
@@ -57,6 +58,7 @@ namespace KeyCatcher.Views
             set
             {
                 SetValue(IsWifiUpProperty, value);
+                Debug.WriteLine($"[Header] IsWifiUp set to {value}");
                 OnPropertyChanged(nameof(WifiIconColor));
             }
         }
@@ -98,12 +100,6 @@ namespace KeyCatcher.Views
             get => (ICommand)GetValue(HelpCommandProperty);
             set => SetValue(HelpCommandProperty, value);
         }
-
-
-  
-
-
-
   
     }
 }

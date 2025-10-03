@@ -1,5 +1,5 @@
 ﻿<ContentPage
-    x:Class="KeyCatcher.Views.mainpage"
+    x:Class="KeyCatcher.Views.Mainpage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:KeyCatcher.converters"
@@ -21,16 +21,106 @@
         </ResourceDictionary>
     </ContentPage.Resources>
 
+
     <Shell.TitleView>
-        <views:header
+        <!--<views:header
+            x:Name="headerRoot"
             Title="KeyCatcher"
             BleCommand="{Binding OnBleIconClickedCommand}"
             HelpCommand="{Binding OnHelpClickedCommand}"
             IsBleUp="{Binding Hub.IsBleUp}"
-            IsWifiUp="{Binding Hub.IsWifiUp}"
+            IsWifiUp="{Binding WifiUp}"
             ShowHelp="{Binding ShowHelp, Source={x:Reference headerRoot}}"
-            WifiCommand="{Binding showNetworkCommand}" />
+            WifiCommand="{Binding showNetworkCommand}" />-->
+
+        <Grid
+            Padding="12,0"
+            BackgroundColor="#22243a"
+            ColumnDefinitions="Auto,*,Auto,Auto,Auto"
+            HeightRequest="44"
+            VerticalOptions="Center">
+            <!--  Placeholder for symmetry (could be a menu/back button in future)  -->
+            <BoxView WidthRequest="1" />
+
+            <!--  Title  -->
+            <Label
+                Grid.Column="1"
+                FontAttributes="Bold"
+                FontSize="32"
+                Text="KeyCatcher"
+                TextColor="SteelBlue"
+                VerticalTextAlignment="Center" />
+
+            <!--Text="{Binding IsWifiUp, StringFormat='Wi-Fi: {0:Up;Down}'}"  "{Binding Title, Source={x:Reference headerRoot}}"BLE Icon Button  -->
+            <ImageButton
+                Grid.Column="2"
+                BackgroundColor="Transparent"
+                Command="{Binding BleCommand}"
+                HeightRequest="24"
+                WidthRequest="24">
+                <ImageButton.Source>
+                    <FontImageSource
+                        FontFamily="FontAwesomeBrands"
+                        Glyph="{StaticResource BrandBluetooth}"
+                        Color="{Binding BleIconColor}" />
+
+                </ImageButton.Source>
+            </ImageButton>
+            <!--<ImageButton
+        Grid.Column="2"
+        BackgroundColor="Transparent"
+        Command="{Binding BleCommand, Source={x:Reference headerRoot}}"
+        HeightRequest="24"
+        WidthRequest="24">
+        <ImageButton.Source>
+            <FontImageSource
+                FontFamily="FontAwesomeBrands"
+                Glyph="{StaticResource BrandBluetooth}"
+                Color="{Binding BleIconColor}" />
+
+        </ImageButton.Source>
+    </ImageButton>-->
+
+            <!--  Wi-Fi Icon Button  -->
+            <ImageButton
+                Grid.Column="3"
+                Margin="6,0,0,0"
+                BackgroundColor="Transparent"
+                Command="{Binding showNetworkCommand}"
+                HeightRequest="14"
+                WidthRequest="15">
+                <ImageButton.Source>
+                    <FontImageSource
+                        FontFamily="FontAwesomeSolid"
+                        Glyph="{StaticResource SolidWifi}"
+                        Color="{Binding WifiIconColor}" />
+                </ImageButton.Source>
+            </ImageButton>
+
+            <!--  Help/Question Icon  Color="{Binding WifiIconColor, Source={x:Reference headerRoot}}" /> (only visible if both are down)  -->
+            <ImageButton
+                Grid.Column="4"
+                BackgroundColor="Transparent"
+                Command="{Binding HelpCommand}"
+                HeightRequest="24"
+                IsVisible="True"
+                WidthRequest="24">
+                <ImageButton.Source>
+                    <FontImageSource
+                        FontFamily="FontAwesomeSolid"
+                        Glyph="{StaticResource SolidCircleQuestion}"
+                        Color="Orange" />
+                </ImageButton.Source>
+            </ImageButton>
+        </Grid>
+
+
+
+
+
     </Shell.TitleView>
+
+
 
 
     <Border
@@ -59,13 +149,14 @@
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
-
+                <!--<Label Text="Send Keys"/>-->
+                <!--  Hub.IsWifiUp, StringFormat='Wi-Fi: {0:Up;Down}'}" />  -->
                 <Label
                     Grid.Column="0"
                     FontAttributes="Bold"
                     FontSize="20"
                     HorizontalOptions="Start"
-                    Text="Throw Keys"
+                    Text="Send Keys"
                     TextColor="White"
                     VerticalOptions="Center" />
 
@@ -75,12 +166,12 @@
                     Style="{StaticResource SlimButton}"
                     Text="SSIDs" />-->
 
-                <ImageButton
+                <!--<ImageButton
                     Grid.Column="1"
                     BackgroundColor="Transparent"
                     Command="{Binding NavigateSettingsCommand}"
                     Source="set100.png"
-                    WidthRequest="32" />
+                    WidthRequest="32" />-->
             </Grid>
 
             <!--  Editor area (scrolls, consumes available vertical space)  -->
@@ -126,7 +217,7 @@
                 <Button
                     Padding="12,4"
                     BackgroundColor="#3B0CA3"
-                    Command="{Binding PasteCommand}"
+                    Clicked="OnPasteClicked"
                     CornerRadius="18"
                     Text="Paste"
                     TextColor="White" />
@@ -138,6 +229,7 @@
              CornerRadius="18"
              Text="Paste"
              TextColor="White" />-->
+                <!--<Button Command="{Binding ToggleWifiCommand}" Text="Toggle ble Status" />-->
 
                 <Button
                     Padding="12,4"

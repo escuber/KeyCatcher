@@ -68,7 +68,7 @@ namespace KeyCatcher.services
         //}
 
 
-        [ObservableProperty] public List<WifiCredential> creds { get; set; } = new List<WifiCredential>();
+        public List<WifiCredential> creds { get; set; } = new List<WifiCredential>();
         //public string OutputType
         //{
         //    get => outputType;
