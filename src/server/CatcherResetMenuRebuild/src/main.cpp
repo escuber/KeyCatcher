@@ -390,7 +390,15 @@ static inline void ArmBlinkWindow()
 
 
 
-
+String kcSerial()
+{
+  uint64_t mac = ESP.getEfuseMac();  // Unique 48-bit factory MAC
+  char buf[20];
+  sprintf(buf, "KC-%02X%02X%02X%02X%02X%02X",
+          (uint8_t)(mac >> 40), (uint8_t)(mac >> 32), (uint8_t)(mac >> 24),
+          (uint8_t)(mac >> 16), (uint8_t)(mac >> 8),  (uint8_t)(mac));
+  return String(buf);
+}
 
 
 
@@ -751,7 +759,8 @@ String getConfig()
          "\"ap\":" + (config.ap_mode ? "true" : "false") + "," +
          "\"creds\":" + config.creds + "," +
          "\"bflag\":\"" + config.blink_flag + "\"" +
-         "}";
+         "\"serial\":\"" +kcSerial() + "\"" +
+            "}";
 }
 
 void bleNotifyConfigChunked(const String &json)
@@ -991,8 +1000,8 @@ void parseAndSaveConfig(String setupMsg)
   int apModeEnd = setupMsg.indexOf("\n", apModeStart);
   String ap_mode_str = setupMsg.substring(apModeStart, apModeEnd);
   bool ap_mode = (ap_mode_str == "true");
-  if (ap_mode != config.ap_mode)
-    reboot_flag = true;
+  //if (ap_mode != config.ap_mode)
+  reboot_flag = true;
   config.ap_mode = ap_mode;
 
   config.ssid = uid;
@@ -1074,7 +1083,7 @@ void processIncoming(const String &raw)
       parseAndSaveConfig(rxBuffer);
       rxBuffer = "";
       inSetup = false;
-      delay(1000); // Wait for 5 seconds
+      //delay(1000); // Wait for 5 seconds
       if (reboot_flag)
       {
         Serial.println("Restarting");
@@ -1097,14 +1106,14 @@ void processIncoming(const String &raw)
       parseAndSaveConfig(rxBuffer);
       rxBuffer = "";
       inSetup = false;
-      delay(1000); // Wait for 5 seconds
+      //delay(1000); // Wait for 5 seconds
       if (reboot_flag)
       {
         Serial.println("Restarting");
         ESP.restart();
       }
       // Serial.println("Restarting");
-      // ESP.restart();
+       ESP.restart();
     }
   }
   else
@@ -2287,7 +2296,11 @@ void setup()
   // {
   //   ; // wait here until Serial is ready
   // }
-  delay(2000);
+  delay(500);
+
+
+
+
   // Serial.begin(115200);
   Serial.printf("Reset reason: %d\n", esp_reset_reason());
   loadConfig();
@@ -2380,7 +2393,9 @@ void setup()
   }
   blinkStartup(); 
   ArmBlinkWindow();
-  
+  Serial.print("KeyCatcher unit starting...");
+  Serial.print("Serial: ");
+  Serial.println(kcSerial()); 
   //UpdateStatusLed();
   //showModeStatus();
 }
