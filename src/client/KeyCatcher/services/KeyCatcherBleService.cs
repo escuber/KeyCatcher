@@ -63,7 +63,7 @@ public sealed class KeyCatcherBleService //: IKeyCatcherCommService
     {
         try
         {
-
+            Log("Probing BLE..");
 
             return await DoFullCopnnectCheck("");
 
@@ -181,7 +181,7 @@ public sealed class KeyCatcherBleService //: IKeyCatcherCommService
         // LogLabel.Text = $"{DateTime.Now:T} {s}\n{LogLabel.Text}";
         //StatusLabel.Text = s;
         //});
-        Debug.WriteLine(s);
+        Debug.WriteLine("[BLEService] "+s);
     }
 
     //void ShowBlePopup(string status)

@@ -8,13 +8,13 @@ public partial class CountdownPopup : Popup
     private int _seconds;
     private readonly SendGate _gate;
 
-    public CountdownPopup(int seconds, SendGate gate)
+    public CountdownPopup(int seconds)
     {
         InitializeComponent();
         _seconds = seconds;
-        _gate = gate;
+        //_gate = gate;
 
-        // _gate.Block(_seconds);
+        //_gate.Block(_seconds);
         Device.StartTimer(TimeSpan.FromSeconds(1), OnTick);
         UpdateLabel();
     }
@@ -37,7 +37,7 @@ public partial class CountdownPopup : Popup
 
     private void Stop_Clicked(object sender, EventArgs e)
     {
-        _gate.StopBlock();
+        //_gate.StopBlock();
         CloseAsync();
     }
 }

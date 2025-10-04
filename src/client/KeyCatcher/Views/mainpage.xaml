@@ -69,7 +69,7 @@
                 Text="KeyCatcher"
                 TextColor="SteelBlue"
                 VerticalTextAlignment="Center" />
-            
+
 
             <!--  Text="{Binding IsWifiUp, StringFormat='Wi-Fi: {0:Up;Down}'}"  "{Binding Title, Source={x:Reference headerRoot}}"BLE Icon Button  -->
             <ImageButton
@@ -107,8 +107,7 @@
                 Margin="6,0,0,0"
                 BackgroundColor="Transparent"
                 Command="{Binding showNetworkCommand}"
-                HeightRequest="14"
-                >
+                HeightRequest="14">
                 <ImageButton.Source>
                     <FontImageSource
                         FontFamily="FontAwesomeSolid"

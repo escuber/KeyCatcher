@@ -60,6 +60,13 @@ public partial class Mainpage : ContentPage
     //        var sent = await _cntl.SendAsync("piaaang");
     //        //ery Debug.WriteLine($"SendText result: {sent}");
     //    }
+
+
+    private async void OnHelpIconClicked(object sender, EventArgs e)
+    {
+        var popup = new KeyCatcher.Help();
+        await Shell.Current.CurrentPage.ShowPopupAsync(popup);
+    }
     protected override async void OnAppearing()
     {
         base.OnAppearing();

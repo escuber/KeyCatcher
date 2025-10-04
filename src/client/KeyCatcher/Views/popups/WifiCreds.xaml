@@ -60,10 +60,10 @@
 
 
     <Border
-        StrokeShape="RoundRectangle 20"
         BackgroundColor="#F3E6CC"
-        StrokeThickness="0"
         HorizontalOptions="Center"
+        StrokeShape="RoundRectangle 20"
+        StrokeThickness="0"
         VerticalOptions="Center">
         <Grid Padding="0,0,0,0" ColumnDefinitions="*,Auto,Auto">
             <Grid.RowDefinitions>
@@ -78,22 +78,22 @@
 
                 <!--  ONE scroller: CollectionView owns it  -->
                 <CollectionView
-                Grid.Row="0"
-                ItemSizingStrategy="MeasureAllItems"
-                ItemsSource="{Binding Networks}"
-                SelectionMode="None">
+                    Grid.Row="0"
+                    ItemSizingStrategy="MeasureAllItems"
+                    ItemsSource="{Binding Networks}"
+                    SelectionMode="None">
 
                     <!--  Everything above the list goes in Header  -->
                     <CollectionView.Header>
                         <VerticalStackLayout Padding="0" Spacing="12">
                             <Border
-                            Grid.Row="0"
-                            Padding="16,8"
-                            Background="#2B0B98"
-                            HorizontalOptions="Start"
-                            StrokeShape="RoundRectangle 40,0,0,40"
-                            StrokeThickness="6"
-                            VerticalOptions="Start">
+                                Grid.Row="0"
+                                Padding="16,8"
+                                Background="#2B0B98"
+                                HorizontalOptions="Start"
+                                StrokeShape="RoundRectangle 40,0,0,40"
+                                StrokeThickness="6"
+                                VerticalOptions="Start">
 
                                 <Border.Stroke>
                                     <LinearGradientBrush EndPoint="0,1">
@@ -102,10 +102,10 @@
                                     </LinearGradientBrush>
                                 </Border.Stroke>
                                 <Label
-                                FontAttributes="Bold"
-                                FontSize="20"
-                                Text="Network Settings"
-                                TextColor="White" />
+                                    FontAttributes="Bold"
+                                    FontSize="20"
+                                    Text="Network Settings"
+                                    TextColor="White" />
                             </Border>
 
                             <!--  Title  -->
@@ -113,68 +113,68 @@
 
                             <!--  Primary  -->
                             <Grid
-                            ColumnDefinitions="Auto,*"
-                            ColumnSpacing="0"
-                            RowDefinitions="Auto,Auto"
-                            RowSpacing="8">
+                                ColumnDefinitions="Auto,*"
+                                ColumnSpacing="0"
+                                RowDefinitions="Auto,Auto"
+                                RowSpacing="8">
                                 <Label
-                                Grid.Row="0"
-                                Grid.Column="0"
-                                Padding="10"
-                                Background="SteelBlue"
-                                Text="Primary SSID"
-                                TextColor="Black"
-                                VerticalTextAlignment="Center" />
+                                    Grid.Row="0"
+                                    Grid.Column="0"
+                                    Padding="10"
+                                    Background="SteelBlue"
+                                    Text="Primary SSID"
+                                    TextColor="Black"
+                                    VerticalTextAlignment="Center" />
                                 <Entry
-                                Grid.Row="0"
-                                Grid.Column="1"
-                                ClearButtonVisibility="WhileEditing"
-                                Placeholder="Your WiFi"
-                                Text="{Binding PrimarySSID}"
-                                TextColor="White" />
+                                    Grid.Row="0"
+                                    Grid.Column="1"
+                                    ClearButtonVisibility="WhileEditing"
+                                    Placeholder="Your WiFi"
+                                    Text="{Binding PrimarySSID}"
+                                    TextColor="White" />
                                 <Label
-                                Grid.Row="1"
-                                Grid.Column="0"
-                                Padding="10"
-                                Background="SteelBlue"
-                                Text="Primary Password  "
-                                TextColor="Black"
-                                VerticalTextAlignment="Center" />
+                                    Grid.Row="1"
+                                    Grid.Column="0"
+                                    Padding="10"
+                                    Background="SteelBlue"
+                                    Text="Primary Password  "
+                                    TextColor="Black"
+                                    VerticalTextAlignment="Center" />
                                 <Entry
-                                Grid.Row="1"
-                                Grid.Column="1"
-                                ClearButtonVisibility="WhileEditing"
-                                IsPassword="True"
-                                Placeholder="password"
-                                Text="{Binding PrimaryPassword}" />
+                                    Grid.Row="1"
+                                    Grid.Column="1"
+                                    ClearButtonVisibility="WhileEditing"
+                                    IsPassword="True"
+                                    Placeholder="password"
+                                    Text="{Binding PrimaryPassword}" />
                             </Grid>
 
                             <!--  Backups header + Add  -->
                             <FlexLayout
-                            Margin="0,4,0,10"
-                            AlignItems="Center"
-                            Direction="Row"
-                            JustifyContent="SpaceBetween">
+                                Margin="0,4,0,10"
+                                AlignItems="Center"
+                                Direction="Row"
+                                JustifyContent="SpaceBetween">
                                 <Label
-                                FlexLayout.Basis="0%"
-                                FlexLayout.Grow="1"
-                                FlexLayout.Shrink="1"
-                                FontAttributes="Bold"
-                                LineBreakMode="TailTruncation"
-                                MaxLines="1"
-                                Text="Other networks(up to 4)"
-                                TextColor="Black" />
+                                    FlexLayout.Basis="0%"
+                                    FlexLayout.Grow="1"
+                                    FlexLayout.Shrink="1"
+                                    FontAttributes="Bold"
+                                    LineBreakMode="TailTruncation"
+                                    MaxLines="1"
+                                    Text="Other networks(up to 4)"
+                                    TextColor="Black" />
                                 <Button
-                                Grid.Column="1"
-                                Margin="8,0"
-                                Padding="12,4"
-                                BackgroundColor="#3B0CA3"
-                                Command="{Binding AddNetworkCommand}"
-                                CornerRadius="18"
-                                IsEnabled="{Binding Networks.Count, Converter={StaticResource LessThanConverter}, ConverterParameter=4}"
-                                Style="{StaticResource FooterButtonStyle}"
-                                Text="Add"
-                                TextColor="White" />
+                                    Grid.Column="1"
+                                    Margin="8,0"
+                                    Padding="12,4"
+                                    BackgroundColor="#3B0CA3"
+                                    Command="{Binding AddNetworkCommand}"
+                                    CornerRadius="18"
+                                    IsEnabled="{Binding Networks.Count, Converter={StaticResource LessThanConverter}, ConverterParameter=4}"
+                                    Style="{StaticResource FooterButtonStyle}"
+                                    Text="Add"
+                                    TextColor="White" />
                                 <!--<Button
                                 BackgroundColor="SteelBlue"
                                 Command="{Binding AddNetworkCommand}"
@@ -189,25 +189,25 @@
                         <!--  turn OFF compiled bindings in the template  -->
                         <DataTemplate x:DataType="{x:Null}">
                             <Grid
-                            Padding="0"
-                            ColumnDefinitions="*,Auto,Auto,Auto"
-                            ColumnSpacing="8">
+                                Padding="0"
+                                ColumnDefinitions="*,Auto,Auto,Auto"
+                                ColumnSpacing="8">
                                 <!--  SSID text  -->
                                 <Label
-                                Grid.Column="0"
-                                Margin="20,6"
-                                Padding="10"
-                                LineBreakMode="TailTruncation"
-                                Text="{Binding SSID}"
-                                TextColor="Black"
-                                VerticalTextAlignment="Center" />
+                                    Grid.Column="0"
+                                    Margin="20,6"
+                                    Padding="10"
+                                    LineBreakMode="TailTruncation"
+                                    Text="{Binding SSID}"
+                                    TextColor="Black"
+                                    VerticalTextAlignment="Center" />
 
                                 <!--  Make Primary  -->
                                 <ContentView
-                                Grid.Column="1"
-                                Padding="6"
-                                HeightRequest="36"
-                                WidthRequest="36">
+                                    Grid.Column="1"
+                                    Padding="6"
+                                    HeightRequest="36"
+                                    WidthRequest="36">
                                     <Image Source="wifi.png" />
                                     <ContentView.GestureRecognizers>
                                         <TapGestureRecognizer Command="{Binding Source={x:Reference RootPopup}, Path=BindingContext.MakePrimaryCommand}" CommandParameter="{Binding}" />
@@ -216,17 +216,17 @@
 
                                 <!--  Edit  -->
                                 <ContentView
-                                Grid.Column="2"
-                                Padding="6"
-                                HeightRequest="30"
-                                WidthRequest="30">
+                                    Grid.Column="2"
+                                    Padding="6"
+                                    HeightRequest="30"
+                                    WidthRequest="30">
                                     <Image>
                                         <Image.Source>
                                             <FontImageSource
-                                            FontFamily="FontAwesomeSolid"
-                                            Glyph="{StaticResource SolidPencil}"
-                                            Size="20"
-                                            Color="Green" />
+                                                FontFamily="FontAwesomeSolid"
+                                                Glyph="{StaticResource SolidPencil}"
+                                                Size="20"
+                                                Color="Green" />
                                         </Image.Source>
                                     </Image>
                                     <ContentView.GestureRecognizers>
@@ -236,17 +236,17 @@
 
                                 <!--  Delete  -->
                                 <ContentView
-                                Grid.Column="3"
-                                Padding="6"
-                                HeightRequest="30"
-                                WidthRequest="30">
+                                    Grid.Column="3"
+                                    Padding="6"
+                                    HeightRequest="30"
+                                    WidthRequest="30">
                                     <Image>
                                         <Image.Source>
                                             <FontImageSource
-                                            FontFamily="FontAwesomeSolid"
-                                            Glyph="{StaticResource SolidTrash}"
-                                            Size="20"
-                                            Color="Green" />
+                                                FontFamily="FontAwesomeSolid"
+                                                Glyph="{StaticResource SolidTrash}"
+                                                Size="20"
+                                                Color="Green" />
                                         </Image.Source>
                                     </Image>
                                     <ContentView.GestureRecognizers>
@@ -273,11 +273,11 @@
 
 
                 <Grid
-                Grid.Row="1"
-                Padding="8,6"
-                BackgroundColor="{AppThemeBinding Light=#ffffff,
-                                                  Dark=#111827}"
-                ColumnDefinitions="*,Auto,Auto">
+                    Grid.Row="1"
+                    Padding="8,6"
+                    BackgroundColor="{AppThemeBinding Light=#ffffff,
+                                                      Dark=#111827}"
+                    ColumnDefinitions="*,Auto,Auto">
                     <Label Text="{Binding Networks.Count, StringFormat='Secondary: {0}/4'}" VerticalTextAlignment="Center" />
                     <!--<Button
                     x:Name="BtnClose"
@@ -288,27 +288,27 @@
 
 
                     <Button
-                    Grid.Column="1"
-                    Margin="8,0"
-                    Padding="12,4"
-                    BackgroundColor="#3B0CA3"
-                    Clicked="BtnClose_Clicked"
-                    CornerRadius="18"
-                    Style="{StaticResource FooterButtonStyle}"
-                    Text="Close"
-                    TextColor="White" />
+                        Grid.Column="1"
+                        Margin="8,0"
+                        Padding="12,4"
+                        BackgroundColor="#3B0CA3"
+                        Clicked="BtnClose_Clicked"
+                        CornerRadius="18"
+                        Style="{StaticResource FooterButtonStyle}"
+                        Text="Close"
+                        TextColor="White" />
 
 
 
 
                     <Button
-                    Grid.Column="2"
-                    Padding="12,4"
-                    BackgroundColor="#3B0CA3"
-                    Command="{Binding SaveAndCloseCommand}"
-                    CornerRadius="18"
-                    Text="Save n' Close"
-                    TextColor="White" />
+                        Grid.Column="2"
+                        Padding="12,4"
+                        BackgroundColor="#3B0CA3"
+                        Command="{Binding SaveAndCloseCommand}"
+                        CornerRadius="18"
+                        Text="Save n' Close"
+                        TextColor="White" />
 
 
                 </Grid>
@@ -317,27 +317,27 @@
                 <!--  Overlay editor stays as top layer; spans both rows  -->
 
                 <Grid
-                Grid.RowSpan="2"
-                BackgroundColor="#80000000"
-                InputTransparent="False"
-                IsVisible="{Binding IsEditing}"
-                ZIndex="10">
+                    Grid.RowSpan="2"
+                    BackgroundColor="#80000000"
+                    InputTransparent="False"
+                    IsVisible="{Binding IsEditing}"
+                    ZIndex="10">
 
                     <!--  use the sticky editor overlay we already built  -->
 
                     <Border
-                    x:Name="EditorCard"
-                    Margin="12"
-                    Padding="16"
-                    BackgroundColor="{AppThemeBinding Light=#ffffff,
-                                                      Dark=#1f2937}"
-                    HorizontalOptions="Fill"
-                    MaximumHeightRequest="300"
-                    Stroke="{AppThemeBinding Light=#e5e7eb,
-                                             Dark=#374151}"
-                    StrokeShape="RoundRectangle 28,28,28,28"
-                    StrokeThickness="1"
-                    VerticalOptions="Center">
+                        x:Name="EditorCard"
+                        Margin="12"
+                        Padding="16"
+                        BackgroundColor="{AppThemeBinding Light=#ffffff,
+                                                          Dark=#1f2937}"
+                        HorizontalOptions="Fill"
+                        MaximumHeightRequest="300"
+                        Stroke="{AppThemeBinding Light=#e5e7eb,
+                                                 Dark=#374151}"
+                        StrokeShape="RoundRectangle 28,28,28,28"
+                        StrokeThickness="1"
+                        VerticalOptions="Center">
                         <Grid RowDefinitions="*,Auto" RowSpacing="12">
                             <ScrollView Grid.Row="0">
                                 <Grid ColumnSpacing="5" RowSpacing="10">
@@ -358,14 +358,14 @@
                                     FontSize="20"
                                     Text="Edit Network" />-->
                                     <Border
-                                    Grid.Row="0"
-                                    Grid.ColumnSpan="2"
-                                    Padding="16,5"
-                                    Background="#2B0B98"
-                                    HorizontalOptions="Start"
-                                    StrokeShape="RoundRectangle 40,0,0,40"
-                                    StrokeThickness="6"
-                                    VerticalOptions="Start">
+                                        Grid.Row="0"
+                                        Grid.ColumnSpan="2"
+                                        Padding="16,5"
+                                        Background="#2B0B98"
+                                        HorizontalOptions="Start"
+                                        StrokeShape="RoundRectangle 40,0,0,40"
+                                        StrokeThickness="6"
+                                        VerticalOptions="Start">
 
                                         <Border.Stroke>
                                             <LinearGradientBrush EndPoint="0,1">
@@ -374,50 +374,50 @@
                                             </LinearGradientBrush>
                                         </Border.Stroke>
                                         <Label
-                                        FontAttributes="Bold"
-                                        FontSize="20"
-                                        Text="Edit Network"
-                                        TextColor="White" />
+                                            FontAttributes="Bold"
+                                            FontSize="20"
+                                            Text="Edit Network"
+                                            TextColor="White" />
                                     </Border>
 
                                     <Label
-                                    Grid.Row="1"
-                                    Padding="5"
-                                    Background="SteelBlue"
-                                    HorizontalOptions="Start"
-                                    HorizontalTextAlignment="Start"
-                                    Text="SSID"
-                                    TextColor="Black"
-                                    VerticalTextAlignment="Center"
-                                    WidthRequest="95" />
+                                        Grid.Row="1"
+                                        Padding="5"
+                                        Background="SteelBlue"
+                                        HorizontalOptions="Start"
+                                        HorizontalTextAlignment="Start"
+                                        Text="SSID"
+                                        TextColor="Black"
+                                        VerticalTextAlignment="Center"
+                                        WidthRequest="95" />
                                     <Entry
-                                    Grid.Row="1"
-                                    Grid.Column="1"
-                                    Placeholder="SSID"
-                                    Text="{Binding EditingNetwork.SSID}" />
+                                        Grid.Row="1"
+                                        Grid.Column="1"
+                                        Placeholder="SSID"
+                                        Text="{Binding EditingNetwork.SSID}" />
                                     <Label
-                                    Grid.Row="2"
-                                    Padding="5"
-                                    Background="SteelBlue"
-                                    HorizontalOptions="Start"
-                                    HorizontalTextAlignment="Start"
-                                    Text="Password"
-                                    TextColor="Black"
-                                    VerticalTextAlignment="Center"
-                                    WidthRequest="95" />
+                                        Grid.Row="2"
+                                        Padding="5"
+                                        Background="SteelBlue"
+                                        HorizontalOptions="Start"
+                                        HorizontalTextAlignment="Start"
+                                        Text="Password"
+                                        TextColor="Black"
+                                        VerticalTextAlignment="Center"
+                                        WidthRequest="95" />
                                     <Entry
-                                    Grid.Row="2"
-                                    Grid.Column="1"
-                                    IsPassword="True"
-                                    Placeholder="password"
-                                    Text="{Binding EditingNetwork.Password}" />
+                                        Grid.Row="2"
+                                        Grid.Column="1"
+                                        IsPassword="True"
+                                        Placeholder="password"
+                                        Text="{Binding EditingNetwork.Password}" />
                                 </Grid>
                             </ScrollView>
                             <Grid
-                            Grid.Row="1"
-                            ColumnDefinitions="Auto,Auto"
-                            ColumnSpacing="12"
-                            HorizontalOptions="End">
+                                Grid.Row="1"
+                                ColumnDefinitions="Auto,Auto"
+                                ColumnSpacing="12"
+                                HorizontalOptions="End">
 
                                 <!--  Command="{Binding Source={x:Reference RootPopup}, Path=CancelEditCommand}"  -->
                                 <!--<Button
@@ -426,13 +426,13 @@
                                 Clicked="OnInnerCancel"
                                 Text="Cancel" />-->
                                 <Button
-                                Grid.Column="0"
-                                Padding="12,4"
-                                BackgroundColor="#3B0CA3"
-                                Clicked="OnInnerCancel"
-                                CornerRadius="18"
-                                Text="Cancel"
-                                TextColor="White" />
+                                    Grid.Column="0"
+                                    Padding="12,4"
+                                    BackgroundColor="#3B0CA3"
+                                    Clicked="OnInnerCancel"
+                                    CornerRadius="18"
+                                    Text="Cancel"
+                                    TextColor="White" />
 
                                 <!--<Button
                                 x:Name="BtnEditorSave"
@@ -443,13 +443,13 @@
                                 Text="Add"
                                 TextColor="White" />-->
                                 <Button
-                                Grid.Column="2"
-                                Padding="12,4"
-                                BackgroundColor="#3B0CA3"
-                                Command="{Binding SaveNetworkCommand}"
-                                CornerRadius="18"
-                                Text="Add"
-                                TextColor="White" />
+                                    Grid.Column="2"
+                                    Padding="12,4"
+                                    BackgroundColor="#3B0CA3"
+                                    Command="{Binding SaveNetworkCommand}"
+                                    CornerRadius="18"
+                                    Text="Add"
+                                    TextColor="White" />
                             </Grid>
                         </Grid>
                     </Border>
@@ -458,19 +458,19 @@
 
             </Grid>
             <Grid
-            BackgroundColor="#80000000"
-            HorizontalOptions="Fill"
-            IsVisible="{Binding IsBusy}"
-            VerticalOptions="Fill"
-            ZIndex="10">
+                BackgroundColor="#80000000"
+                HorizontalOptions="Fill"
+                IsVisible="{Binding IsBusy}"
+                VerticalOptions="Fill"
+                ZIndex="10">
 
                 <ActivityIndicator
-                HeightRequest="60"
-                HorizontalOptions="Center"
-                IsRunning="True"
-                VerticalOptions="Center"
-                WidthRequest="60"
-                Color="White" />
+                    HeightRequest="60"
+                    HorizontalOptions="Center"
+                    IsRunning="True"
+                    VerticalOptions="Center"
+                    WidthRequest="60"
+                    Color="White" />
             </Grid>
         </Grid>
 

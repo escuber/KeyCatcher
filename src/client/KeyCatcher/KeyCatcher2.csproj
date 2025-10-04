@@ -103,6 +103,9 @@
 	  <Compile Update="Views\popups\CountDownPopup.xaml.cs">
 	    <DependentUpon>CountDownPopup.xaml</DependentUpon>
 	  </Compile>
+	  <Compile Update="Views\popups\help.xaml.cs">
+	    <DependentUpon>Help.xaml</DependentUpon>
+	  </Compile>
 	</ItemGroup>
 
 	<ItemGroup>
@@ -116,6 +119,9 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\popups\CountDownPopup.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\popups\Help.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\popups\WifiCreds.xaml">

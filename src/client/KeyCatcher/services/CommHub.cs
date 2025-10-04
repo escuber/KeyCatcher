@@ -153,33 +153,76 @@ namespace KeyCatcher.services
         private static string Finish(string s) =>
             s.EndsWith("<<END>>", StringComparison.Ordinal) ? s : s + "<<END>>";
 
-        private readonly SendHealthGate _gate = new();
-
+        private readonly SendHealthGate _sendGate = new();   // Used for real sends (SendAsync)
+        private readonly SendHealthGate _probeGate = new();
+        void Log(string s)
+        {
+            //MainThread.BeginInvokeOnMainThread(() =>
+            //{
+            // LogLabel.Text = $"{DateTime.Now:T} {s}\n{LogLabel.Text}";
+            //StatusLabel.Text = s;
+            //});
+            Debug.WriteLine("[CommHub] "+s);
+        }
         public async Task<bool> SendAsync(string text)
         {
-            return await _gate.RunSendAsync(async () =>
+
+            return await _sendGate.RunSendAsync(async () =>
             {
-                if (PauseSeconds > 0)
-                    await Task.Delay(PauseSeconds * 1000);
+                //if (PauseSeconds > 0)
+                //    await Task.Delay(PauseSeconds * 1000);
 
                 // Use WiFi if connected, else BLE
                 if (_wifi.IsConnected)
+                {
+                    Log("sending wifi");
                     return await _wifi.SendTextAsync(text);
+                }
                 if (_ble.IsConnected)
+                {
+                    Log("sending BLE");
                     return await _ble.SendAsync(text);
+                }
 
                 return false;
             });
         }
-        public async Task<bool> ProbeAsync()
-        {
-            bool? result = await _gate.TryRunHealthCheckAsync(async () =>
-            {
-                return await _wifi.PingAsync();
-            });
 
-            return result ?? false; // if skipped, treat as failed probe
-        }
+            //return await _gate.RunSendAsync(async () =>
+            //{
+            //    if (PauseSeconds > 0)
+            //        await Task.Delay(PauseSeconds * 1000);
+
+            //    // Use WiFi if connected, else BLE
+            //    if (_wifi.IsConnected)
+            //    {
+            //        Log("sending wifi");
+            //        return await _wifi.SendTextAsync(text);
+            //    }
+            //    if (_ble.IsConnected)
+            //    {
+            //        Log("sending BLE");
+            //        return await _ble.SendAsync(text);
+            //    }
+
+            //    return false;
+            //});
+        //}
+        //public async Task<bool> ProbeAsync()
+        //{
+
+        //    bool? result = await _probeGate.TryRunHealthCheckAsync(async () =>
+        //    {
+        //        return await _wifi.PingAsync();
+        //    });
+
+        //    //bool? result = await _gate.TryRunHealthCheckAsync(async () =>
+        //    //{
+        //    //    return await _wifi.PingAsync();
+        //    //});
+
+        //    return result ?? false; // if skipped, treat as failed probe
+        //}
 
         // --------------------------------------------------------------------
         // Keepalive probes
@@ -211,7 +254,7 @@ namespace KeyCatcher.services
                 }
                 catch { IsBleUp = false; }
 
-                await Task.Delay(5000);
+                await Task.Delay(20000);
             }
         }
 

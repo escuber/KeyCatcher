@@ -6,6 +6,7 @@ using CommunityToolkit.Mvvm.Input;
 using KeyCatcher.models;
 using KeyCatcher.Popups;
 using KeyCatcher.services;
+using System.Windows.Input;
 
 namespace KeyCatcher.ViewModels;
 
@@ -311,7 +312,15 @@ public partial class MainPageViewModel : ObservableObject
         Hub.IsBleUp = !Hub.IsBleUp;
         // Hub.IsWifiUp = !Hub.IsWifiUp;
     }
-
+    void Log(string s)
+    {
+        //MainThread.BeginInvokeOnMainThread(() =>
+        //{
+        // LogLabel.Text = $"{DateTime.Now:T} {s}\n{LogLabel.Text}";
+        //StatusLabel.Text = s;
+        //});
+        Debug.WriteLine("[MainiPageVM] "+s);
+    }
     [RelayCommand]
     private async Task Send()
     {
@@ -330,6 +339,12 @@ public partial class MainPageViewModel : ObservableObject
 
         //return;
         // messageText = text;
+        Log("send clicked");
+        await ShowCountdown();
+        
+        //await Task.Delay(PauseSeconds * 1000);
+
+
         var ok = await _sendGate.TrySendAsync(() => _hub.SendAsync(messageText));
         if (!ok)
             await App.Current.MainPage.DisplayAlert("Blocked", "Sends are paused", "OK");
@@ -387,9 +402,7 @@ public partial class MainPageViewModel : ObservableObject
         msg2 = _settings.MakeMessage();
         await Hub.SendAsync(msg2);
         //Hub.SendAsync(msg2);
-        //var popup = new CountdownPopup(pauseSeconds, _sendGate);
-        //await Application.Current.MainPage.ShowPopupAsync(popup);
-
+        
         var mmyconf = await //wifi.GetConfigAsync();
         Hub.GetConfigAsync();
 
@@ -496,7 +509,7 @@ public partial class MainPageViewModel : ObservableObject
     [RelayCommand]
     private async Task ShowCountdown()
     {
-        var popup = new Popups.CountdownPopup(10, _sendGate);
+        var popup = new Popups.CountdownPopup(pauseSeconds);
         await App.Current.MainPage.ShowPopupAsync(popup);
     }
 
@@ -505,7 +518,11 @@ public partial class MainPageViewModel : ObservableObject
     {
         // TODO: Navigate to settings page
     }
-
+    public ICommand HelpCommand => new Command(async () =>
+    {
+        var popup = new KeyCatcher.Help();
+        await Shell.Current.CurrentPage.ShowPopupAsync(popup);
+    });
 
     [RelayCommand]
     private async Task ConnectNow()
