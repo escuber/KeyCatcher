@@ -59,7 +59,7 @@
             HeightRequest="44"
             VerticalOptions="Center">
             <!--  Placeholder for symmetry (could be a menu/back button in future)  -->
-            <BoxView WidthRequest="1" />
+            <!--<BoxView WidthRequest="1" />-->
 
             <!--  Title  -->
             <Label
@@ -69,6 +69,7 @@
                 Text="KeyCatcher"
                 TextColor="SteelBlue"
                 VerticalTextAlignment="Center" />
+            
 
             <!--  Text="{Binding IsWifiUp, StringFormat='Wi-Fi: {0:Up;Down}'}"  "{Binding Title, Source={x:Reference headerRoot}}"BLE Icon Button  -->
             <ImageButton
@@ -107,7 +108,7 @@
                 BackgroundColor="Transparent"
                 Command="{Binding showNetworkCommand}"
                 HeightRequest="14"
-                WidthRequest="15">
+                >
                 <ImageButton.Source>
                     <FontImageSource
                         FontFamily="FontAwesomeSolid"
@@ -267,11 +268,12 @@ HorizontalOptions="Center"
 Text="Start"
 TextColor="White"
 VerticalOptions="Center"/>-->
-                    <Label  FontSize="10"
-                    HorizontalOptions="Center"
-                    Text="delay"
-                    TextColor="White"
-                    VerticalOptions="Center"/>
+                    <Label
+                        FontSize="10"
+                        HorizontalOptions="Center"
+                        Text="delay"
+                        TextColor="White"
+                        VerticalOptions="Center" />
                     <Picker
                         ItemsSource="{Binding PauseOptions}"
                         SelectedItem="{Binding PauseSeconds}"

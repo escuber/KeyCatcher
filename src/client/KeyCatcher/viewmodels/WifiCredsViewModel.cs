@@ -156,6 +156,15 @@ namespace KeyCatcher.ViewModels
             EditingNetwork = new WifiCredential { SSID = network.SSID, Password = network.Password };
             IsEditing = true;
         }
+        [RelayCommand]
+        public void RemoveNetwork(WifiCredential network)
+        {
+            if (network == null) return;
+            Networks.Remove(network);
+
+            //EditingNetwork = new WifiCredential { SSID = network.SSID, Password = network.Password };
+            //IsEditing = true;
+        }
 
         [RelayCommand]
         public void SaveNetwork()

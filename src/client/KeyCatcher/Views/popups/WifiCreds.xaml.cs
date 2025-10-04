@@ -41,6 +41,18 @@ namespace KeyCatcher.Popups
 
                 await CloseAsync();
             });
+            CancelEditCommand = new Command(() =>
+                       {
+                           VM.IsEditing = false;
+                           VM.EditingNetwork = new WifiCredential();
+                       });
+
+
+
+            RemoveNetworkCommand = new Command(async () =>
+            {
+                await CloseAsync();
+            });
 
             SaveAndCloseCommand = new Command(async () =>
             {
@@ -252,6 +264,14 @@ namespace KeyCatcher.Popups
         {
             await CloseAsync();// ("cancel");        // <-- MAUI Controls Popup
         }
+
+        private  void OnInnerCancel(object? sender, EventArgs e)
+        {
+            VM.IsEditing = false;
+            //await CloseAsync();// ("cancel");        // <-- MAUI Controls Popup
+        }
+
+
         //SaveAndCloseCommand = new Command(async () =>
         //    {
         //        // Persist and optionally push to device
@@ -316,6 +336,7 @@ namespace KeyCatcher.Popups
         // Exposed to XAML
         public ICommand CancelEditCommand { get; }
         public ICommand CloseCommand { get; }
+        public ICommand RemoveNetworkCommand{ get; }
         public ICommand SaveAndCloseCommand { get; }
         public ICommand credSaveAndCloseCommand { get; }
 
