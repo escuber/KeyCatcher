@@ -93,7 +93,14 @@ public partial class MainPageViewModel : ObservableObject
     partial void OnBleUpChanged(bool value) => OnPropertyChanged(nameof(BleIconColor));
 
     // ... other properties/ctor ...
-
+    [RelayCommand]
+    private async Task ShowMacros()
+    {
+        var page = Shell.Current?.CurrentPage ?? Application.Current?.MainPage;
+        if (page is null) return;
+        var popup = new KeyCatcher.Popups.MacroManager(_settings);
+        await page.ShowPopupAsync(popup);
+    }
     public MainPageViewModel(
         CommHub hub,
         SendGate sendGate,

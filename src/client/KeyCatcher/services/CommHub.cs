@@ -48,6 +48,8 @@ namespace KeyCatcher.services
     }
     public partial class CommHub : ObservableObject, INotifyPropertyChanged
     {
+
+        private bool readConfig = false;
         private readonly KeyCatcherBleService _ble;
         private readonly KeyCatcherWiFiService _wifi;
         private readonly KeyCatcherSettingsService settings;
@@ -74,10 +76,6 @@ namespace KeyCatcher.services
         public async Task<string?> GetConfigAsync()
         {
 
-
-
-
-
             var config = "";
 
             // Use WiFi if connected, else BLE
@@ -85,12 +83,10 @@ namespace KeyCatcher.services
                 config = await _wifi.GetConfigAsync();
             if (_ble.IsConnected)
                 config = await _ble.GetConfigAsync();
-            //settings.ApplyDeviceJson(config);
+            Log(config);
+            settings.ApplyDeviceJson(config);
 
             return config;
-
-
-
         }
         public LinkMode Mode { get; private set; } = LinkMode.Auto;
         public bool WifiEnabled { get; private set; } = true;
@@ -257,7 +253,7 @@ namespace KeyCatcher.services
                 await Task.Delay(20000);
             }
         }
-
+        private bool _wasDisconnected = true;
         // --------------------------------------------------------------------
         // Helpers
         // --------------------------------------------------------------------
@@ -272,7 +268,19 @@ namespace KeyCatcher.services
             {
                 Best = newBest;
                 TransportChanged?.Invoke(newBest);
+                //if (!readConfig && newBest != Transport.None)
+                //{
+                //    readConfig= true;
+                //    // Fire and forget, no await (or use Task.Run if not allowed)
+                //    _ = GetConfigAsync();
+                //}
             }
+            bool nowConnected = newBest != Transport.None;
+            if (_wasDisconnected && nowConnected)
+            {
+                _ = GetConfigAsync();
+            }
+            _wasDisconnected = !nowConnected; // Track for next 
         }
 
         private bool Set<T>(ref T field, T value, [CallerMemberName] string? name = null)

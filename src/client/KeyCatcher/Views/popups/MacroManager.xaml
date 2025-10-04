@@ -1,0 +1,73 @@
+﻿<toolkit:Popup
+    x:Class="KeyCatcher.Popups.MacroManager"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:vm="clr-namespace:KeyCatcher.ViewModels"
+    x:Name="RootPopup"
+    BackgroundColor="#F3E6CC"
+    CanBeDismissedByTappingOutsideOfPopup="False">
+    <!--  Size="500,600"  -->
+    <VerticalStackLayout Padding="20" Spacing="12">
+        <ActivityIndicator
+            HorizontalOptions="Center"
+            IsRunning="{Binding IsBusy}"
+            IsVisible="{Binding IsBusy}"
+            VerticalOptions="Center"
+            Color="Blue" />
+        <Label
+            FontAttributes="Bold"
+            FontSize="22"
+            Text="Macros" />
+
+        <CollectionView ItemsSource="{Binding Macros}" SelectionMode="None">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Grid Padding="6,4" ColumnDefinitions="*,Auto,Auto">
+                        <Label Text="{Binding Name}" VerticalOptions="Center" />
+                        <Button
+                            Grid.Column="1"
+                            Command="{Binding Source={x:Reference RootPopup}, Path=BindingContext.EditMacroCommand}"
+                            CommandParameter="{Binding}"
+                            Text="✎" />
+                        <Button
+                            Grid.Column="2"
+                            Command="{Binding Source={x:Reference RootPopup}, Path=BindingContext.RemoveMacroCommand}"
+                            CommandParameter="{Binding}"
+                            Text="🗑" />
+                    </Grid>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <Button Command="{Binding AddMacroCommand}" Text="Add Macro" />
+
+        <Button
+            BackgroundColor="#802b0b98"
+            Command="{Binding CloseCommand}"
+            Text="Close"
+            TextColor="White" />
+
+        <!--  Inner editor  -->
+        <Border
+            Margin="0,10,0,0"
+            Padding="12"
+            BackgroundColor="White"
+            IsVisible="{Binding IsEditing}"
+            Stroke="Black"
+            StrokeShape="RoundRectangle 8"
+            StrokeThickness="2">
+            <VerticalStackLayout>
+                <Entry Placeholder="Name" Text="{Binding EditingMacro.Name}" />
+                <Editor
+                    AutoSize="TextChanges"
+                    Placeholder="Content"
+                    Text="{Binding EditingMacro.Content}" />
+                <HorizontalStackLayout HorizontalOptions="End" Spacing="10">
+                    <Button Command="{Binding SaveMacroCommand}" Text="Save" />
+                    <Button Command="{Binding CancelEditCommand}" Text="Cancel" />
+                </HorizontalStackLayout>
+            </VerticalStackLayout>
+        </Border>
+    </VerticalStackLayout>
+</toolkit:Popup>

@@ -43,14 +43,14 @@
 
     <Shell.TitleView>
         <!--<views:header
-            x:Name="headerRoot"
-            Title="KeyCatcher"
-            BleCommand="{Binding OnBleIconClickedCommand}"
-            HelpCommand="{Binding OnHelpClickedCommand}"
-            IsBleUp="{Binding Hub.IsBleUp}"
-            IsWifiUp="{Binding WifiUp}"
-            ShowHelp="{Binding ShowHelp, Source={x:Reference headerRoot}}"
-            WifiCommand="{Binding showNetworkCommand}" />-->
+        x:Name="headerRoot"
+        Title="KeyCatcher"
+        BleCommand="{Binding OnBleIconClickedCommand}"
+        HelpCommand="{Binding OnHelpClickedCommand}"
+        IsBleUp="{Binding Hub.IsBleUp}"
+        IsWifiUp="{Binding WifiUp}"
+        ShowHelp="{Binding ShowHelp, Source={x:Reference headerRoot}}"
+        WifiCommand="{Binding showNetworkCommand}" />-->
 
         <Grid
             Padding="12,0"
@@ -87,19 +87,19 @@
                 </ImageButton.Source>
             </ImageButton>
             <!--<ImageButton
-        Grid.Column="2"
-        BackgroundColor="Transparent"
-        Command="{Binding BleCommand, Source={x:Reference headerRoot}}"
-        HeightRequest="24"
-        WidthRequest="24">
-        <ImageButton.Source>
+            Grid.Column="2"
+            BackgroundColor="Transparent"
+            Command="{Binding BleCommand, Source={x:Reference headerRoot}}"
+            HeightRequest="24"
+            WidthRequest="24">
+            <ImageButton.Source>
             <FontImageSource
-                FontFamily="FontAwesomeBrands"
-                Glyph="{StaticResource BrandBluetooth}"
-                Color="{Binding BleIconColor}" />
+            FontFamily="FontAwesomeBrands"
+            Glyph="{StaticResource BrandBluetooth}"
+            Color="{Binding BleIconColor}" />
 
-        </ImageButton.Source>
-    </ImageButton>-->
+            </ImageButton.Source>
+            </ImageButton>-->
 
             <!--  Wi-Fi Icon Button  -->
             <ImageButton
@@ -178,19 +178,50 @@
                     Text="Send Keys"
                     TextColor="White"
                     VerticalOptions="Center" />
+                <HorizontalStackLayout
+                    Grid.Row="2"
+                    Padding="12,8"
+                    BackgroundColor="#3B0CA3"
+                    HorizontalOptions="End"
+                    Spacing="8">
+
+
+
+                    <!--<Button
+                    Padding="12,4"
+                    BackgroundColor="#3B0CA3"
+                    Clicked="{Binding OnPasteClicked}"
+                    CornerRadius="18"
+                    Text="Paste"
+                    TextColor="White" />-->
+                    <!--<Button Command="{Binding ToggleWifiCommand}" Text="Toggle ble Status" />-->
+
+                    <Button
+                        Padding="12,4"
+
+                        BackgroundColor="#2C2C3E"
+                        Command="{Binding ShowMacrosCommand}"
+                        CornerRadius="18"
+                        Style="{StaticResource FooterButtonStyle}"
+                        Text="Edit Macros"
+                        TextColor="White" />
+
+
+
+                </HorizontalStackLayout>
 
                 <!--<Button
-                    Grid.Column="1"
-                    Command="{Binding ShowSsidsCommand}"
-                    Style="{StaticResource SlimButton}"
-                    Text="SSIDs" />-->
+                Grid.Column="1"
+                Command="{Binding ShowSsidsCommand}"
+                Style="{StaticResource SlimButton}"
+                Text="SSIDs" />-->
 
                 <!--<ImageButton
-                    Grid.Column="1"
-                    BackgroundColor="Transparent"
-                    Command="{Binding NavigateSettingsCommand}"
-                    Source="set100.png"
-                    WidthRequest="32" />-->
+                Grid.Column="1"
+                BackgroundColor="Transparent"
+                Command="{Binding NavigateSettingsCommand}"
+                Source="set100.png"
+                WidthRequest="32" />-->
             </Grid>
 
             <!--  Editor area (scrolls, consumes available vertical space)  -->
@@ -244,12 +275,12 @@
                     TextColor="White" />
 
                 <!--<Button
-             Padding="12,4"
-             BackgroundColor="#3B0CA3"
-             Clicked="{Binding OnPasteClicked}"
-             CornerRadius="18"
-             Text="Paste"
-             TextColor="White" />-->
+                Padding="12,4"
+                BackgroundColor="#3B0CA3"
+                Clicked="{Binding OnPasteClicked}"
+                CornerRadius="18"
+                Text="Paste"
+                TextColor="White" />-->
                 <!--<Button Command="{Binding ToggleWifiCommand}" Text="Toggle ble Status" />-->
 
                 <Button
@@ -263,10 +294,10 @@
 
                 <VerticalStackLayout>
                     <!--<Label  FontSize="10"
-HorizontalOptions="Center"
-Text="Start"
-TextColor="White"
-VerticalOptions="Center"/>-->
+                    HorizontalOptions="Center"
+                    Text="Start"
+                    TextColor="White"
+                    VerticalOptions="Center"/>-->
                     <Label
                         FontSize="10"
                         HorizontalOptions="Center"
@@ -286,16 +317,16 @@ VerticalOptions="Center"/>-->
 
     <!--<VerticalStackLayout Padding="20">
 
-        <Label Text="Is  wifi up"
+    <Label Text="Is  wifi up"
     VerticalOptions="Center"
     HorizontalOptions="CenterAndExpand" />
 
-        <Label Text="{Binding Hub.IsWifiUp, StringFormat='Wi-Fi: {0:Up;Down}'}"
-        VerticalOptions="Center"
-            HorizontalOptions="CenterAndExpand" />
+    <Label Text="{Binding Hub.IsWifiUp, StringFormat='Wi-Fi: {0:Up;Down}'}"
+    VerticalOptions="Center"
+    HorizontalOptions="CenterAndExpand" />
 
 
-        <Button Command="{Binding SendCommand}" Text="Send Message" />
-        <Button Command="{Binding ShowCountdownCommand}" Text="Pause" />
+    <Button Command="{Binding SendCommand}" Text="Send Message" />
+    <Button Command="{Binding ShowCountdownCommand}" Text="Pause" />
     </VerticalStackLayout>-->
 </ContentPage>

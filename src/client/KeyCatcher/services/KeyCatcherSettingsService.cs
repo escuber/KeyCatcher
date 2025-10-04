@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using KeyCatcher.models;
+using Microsoft.Maui.Controls.PlatformConfiguration;
 using System.Text;
 using System.Text.Json.Serialization;
 
@@ -15,7 +16,13 @@ namespace KeyCatcher.services
         [JsonPropertyName("ap")] public bool Ap { get; set; }
         //[JsonPropertyName("creds")] public List<string>? Creds { get; set; }
         [JsonPropertyName("creds")]
+
         public List<WifiCredential>? Creds { get; set; }
+
+     //   [JsonPropertyName("macros")]
+        [JsonPropertyName("macros")]
+        public Dictionary<string, string>? Macros { get; set; }
+
         [JsonPropertyName("bflag")] public string? Bflag { get; set; }
     }
     public partial class KeyCatcherSettingsService : ObservableObject, INotifyPropertyChanged
@@ -68,9 +75,94 @@ namespace KeyCatcher.services
         //    set { outputType = value; OnPropertyChanged(); }
         //}
 
-
-
         public void ApplyDeviceJson(string json)
+        {
+            if (string.IsNullOrWhiteSpace(json)) return;
+
+            // --- try normal DTO parse first (may still fail) ---
+            DeviceConfigDto? dto = null;
+            try
+            {
+                dto = JsonSerializer.Deserialize<DeviceConfigDto>(
+                    json,
+                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+                );
+            }
+            catch { /* ignore, we’ll use manual parse next */ }
+
+            if (dto != null)
+            {
+                if (!string.IsNullOrWhiteSpace(dto.Ssid)) SSID = dto.Ssid!;
+                if (!string.IsNullOrWhiteSpace(dto.Password)) Password = dto.Password!;
+                if (!string.IsNullOrWhiteSpace(dto.In)) InputType = dto.In!;
+                if (!string.IsNullOrWhiteSpace(dto.Out)) OutputType = dto.Out!;
+                ApMode = dto.Ap;
+                if (dto.Creds != null && dto.Creds.Any())
+                {
+                    creds.Clear();
+                    creds.AddRange(dto.Creds);
+                }
+
+                if (dto.Macros != null && dto.Macros.Count > 0)
+                {
+                    Macros.Clear();
+                    foreach (var kvp in dto.Macros)
+                        Macros.Add(new MacroItem { Name = kvp.Key, Content = kvp.Value });
+                    Save();
+                    return;        // ✅ done
+                }
+            }
+
+            // --- manual extraction if macros not parsed ---
+            Macros.Clear();
+
+            try
+            {
+                int start = json.IndexOf("\"macros\"");
+                if (start >= 0)
+                {
+                    start = json.IndexOf('{', start);
+                    if (start >= 0)
+                    {
+                        int depth = 0;
+                        int end = -1;
+                        for (int i = start; i < json.Length; i++)
+                        {
+                            if (json[i] == '{') depth++;
+                            else if (json[i] == '}')
+                            {
+                                depth--;
+                                if (depth == 0)
+                                {
+                                    end = i;
+                                    break;
+                                }
+                            }
+                        }
+                        if (end > start)
+                        {
+                            string macroJson = json.Substring(start, end - start + 1);
+                            var dict = JsonSerializer.Deserialize<Dictionary<string, string>>(macroJson);
+                            if (dict != null)
+                            {
+                                foreach (var kvp in dict)
+                                    Macros.Add(new MacroItem { Name = kvp.Key, Content = kvp.Value });
+                                Debug.WriteLine($"[ApplyDeviceJson] Manually recovered {Macros.Count} macros.");
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[ApplyDeviceJson] manual macro parse failed: {ex.Message}");
+            }
+
+            Save();
+        }
+
+
+        public void xApplyDeviceJson(string json)
         {
             if (string.IsNullOrWhiteSpace(json)) return;
 
@@ -113,6 +205,8 @@ namespace KeyCatcher.services
 
             Save();
         }
+        public List<MacroItem> Macros { get; set; } = new();
+
         public void Load()
         {
             SSID = Preferences.Get("wifi_ssid", "");
@@ -122,6 +216,8 @@ namespace KeyCatcher.services
             OutputType = Preferences.Get("outputType", "USBHID");
             string credsJson = Preferences.Get("Creds", "[]");
             creds = JsonSerializer.Deserialize<List<WifiCredential>>(credsJson) ?? new List<WifiCredential>();
+            string macroJson = Preferences.Get("Macros", "[]");
+            Macros = JsonSerializer.Deserialize<List<MacroItem>>(macroJson) ?? new List<MacroItem>();
 
 
         }
@@ -134,6 +230,7 @@ namespace KeyCatcher.services
             Preferences.Set("inputType", InputType ?? "WIFI");
             Preferences.Set("outputType", OutputType ?? "USBHID");
             Preferences.Set("Creds", JsonSerializer.Serialize(creds ?? new List<WifiCredential>()));
+            Preferences.Set("Macros", JsonSerializer.Serialize(Macros ?? new List<MacroItem>())); // ✅ new
 
         }
         public List<string> InputSources { get; set; } = new() { "WIFI", "BLE" };
@@ -158,6 +255,10 @@ namespace KeyCatcher.services
             builder.Append($"output_source:{OutputType ?? "USBHID"} \n");
             builder.Append($"ap_mode:{(ApMode ? "true" : "false")}\n");
             builder.Append($"creds:{credsJson}\n");
+            string macrosJson = JsonSerializer.Serialize(Macros);
+            builder.Append($"macros:{macrosJson}\n");
+
+
             builder.Append($"<endsetup>");
             return builder.ToString();
             //return "";
