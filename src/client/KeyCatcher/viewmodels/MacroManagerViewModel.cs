@@ -65,6 +65,46 @@ public partial class MacroManagerViewModel : ObservableObject
     }
 
     [RelayCommand]
+    public async Task SaveAndClose()
+    {
+        try
+        {
+
+            IsBusy = true;   // show spinner
+                             //VM.ApplyToService(_settings);
+
+
+            ApplyToService(_settings);
+            _settings.Save();
+            if (Hub != null && Hub.IsAnyUp)
+            {
+                var payload = _settings.MakeMessage();
+                await Hub.SendAsync(payload);
+            }
+            //await close();
+
+
+            //IsEditing = false;
+
+            //if (Hub is not null)
+            //{
+            //    var payload = _settings.MakeMessage();
+            //    //try { 
+            //    //await Hub.ap(payload, 20000);
+            //    //}
+            //    //catch { /* ignore transport error here */ }
+            //}
+        }
+        finally
+        {
+            IsBusy = false;  // hide spinner
+
+
+
+        }
+    }
+
+    [RelayCommand]
     private async Task SaveMacroAsync()
     {
         if (string.IsNullOrWhiteSpace(EditingMacro?.Name))

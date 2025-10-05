@@ -342,7 +342,7 @@ namespace KeyCatcher.Popups
 
 
         private void BtnClose_Clicked(object sender, EventArgs e)
-        {
+        {// real close
             _settings.Save();
             CloseAsync().Wait();
         }

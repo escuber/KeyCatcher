@@ -198,7 +198,6 @@
 
                     <Button
                         Padding="12,4"
-
                         BackgroundColor="#2C2C3E"
                         Command="{Binding ShowMacrosCommand}"
                         CornerRadius="18"

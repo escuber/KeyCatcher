@@ -65,6 +65,7 @@
 	  <MauiXaml Remove="Views\main.xaml" />
 	  <MauiXaml Remove="Views\mainpage - Copy.xaml" />
 	  <MauiXaml Remove="Views\oldMainPage.xaml" />
+	  <MauiXaml Remove="Views\popups\WifiCreds - Copy.xaml" />
 	  <MauiXaml Remove="Views\tstpag.xaml" />
 	</ItemGroup>
 
