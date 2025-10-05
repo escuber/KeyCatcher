@@ -1,6 +1,8 @@
 #include <ESPAsyncWebServer.h>
 #include <Preferences.h>
 void TypeTextPaced(const String& msg);
+
+String getConfig();
 AsyncWebServer server(80); // HTTP, but upgrade to HTTPS if you want
 
 Preferences prefs;
@@ -28,6 +30,7 @@ String loadMacro(const String& name) {
   prefs.begin("macros", true);
   String val = prefs.getString(name.c_str(), "");
   prefs.end();
+  Serial.println("Loaded macro " + name + ": " + val);
   return val;
 }
 String listMacrosHTML() {
@@ -99,6 +102,13 @@ void setupWeb() {
       request->send(400, "text/plain", "Missing params");
     }
   });
+
+   // Save macro handler
+  server.on("/getconfig", HTTP_POST, [](AsyncWebServerRequest *request){
+      String text =getConfig();
+      request->send(200, "text/plain", "Config: " + text);
+  });
+
 
   // Type macro handler
   server.on("/type", HTTP_POST, [](AsyncWebServerRequest *request){

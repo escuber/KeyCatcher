@@ -11,7 +11,6 @@
 #include <WiFi.h>
 #include <WiFiUdp.h>
 
-
 #include <WiFi.h>
 #include <WiFiUdp.h>
 #include "USB.h"
@@ -34,13 +33,15 @@ Preferences preferences;
 
 // your existing things…
 extern WiFiUDP Udp;
-//extern const uint16_t localUdpPort;
+// extern const uint16_t localUdpPort;
 
-struct WifiCred { String ssid; String pass; };
-//void LoadCredList(std::vector<WifiCred>& out);
+struct WifiCred
+{
+    String ssid;
+    String pass;
+};
+// void LoadCredList(std::vector<WifiCred>& out);
 void saveconfig();
-
-
 
 // status flags you already use
 volatile bool gApUp = false;
@@ -49,23 +50,23 @@ volatile bool gStaConnected = false;
 // task handle so we can see/stop the task if needed
 static TaskHandle_t s_staTask = nullptr;
 
-
-
-
-static String apNameFromMac(const char* base = "KeyCatcher") {
-    uint8_t mac[6]; esp_read_mac(mac, ESP_MAC_WIFI_SOFTAP);
+static String apNameFromMac(const char *base = "KeyCatcher")
+{
+    uint8_t mac[6];
+    esp_read_mac(mac, ESP_MAC_WIFI_SOFTAP);
     char buf[32];
     snprintf(buf, sizeof(buf), "%s-%02X%02X", base, mac[4], mac[5]);
     return String(buf);
 }
 
-static void startSoftAP(const String& ssid) {
-    WiFi.mode(WIFI_AP_STA);               // allows STA trials later
-    bool ok = WiFi.softAP(ssid.c_str());  // (open AP) add password if desired
+static void startSoftAP(const String &ssid)
+{
+    WiFi.mode(WIFI_AP_STA);              // allows STA trials later
+    bool ok = WiFi.softAP(ssid.c_str()); // (open AP) add password if desired
     IPAddress ip = WiFi.softAPIP();
     Serial.printf("Soft-AP %s: %s, IP=%s\n",
-        ssid.c_str(), ok ? "ENABLED" : "FAILED",
-        ip.toString().c_str());
+                  ssid.c_str(), ok ? "ENABLED" : "FAILED",
+                  ip.toString().c_str());
     gApUp = ok;
 }
 
@@ -97,11 +98,11 @@ ResetMenu menu(BTN_BOOT, pixels);
 
 static std::deque<std::string> gBleRxQ;
 class BLEServerCallbacks; // from the BLE headers
-BLEServerCallbacks* MakeKCServerCallbacks();
+BLEServerCallbacks *MakeKCServerCallbacks();
 // ==== KC protocol knobs ====
 static const uint16_t KC_JSON_CAP = 384;         // enough for small envelopes
 static const uint32_t KC_CHUNK_TIMEOUTMS = 5000; // drop half messages after this idle
-static const uint16_t KC_MAX_ACCUM = 6143; //4096;       // max assembled msg bytes, tune as needed
+static const uint16_t KC_MAX_ACCUM = 6143;       // 4096;       // max assembled msg bytes, tune as needed
 enum class KCTransport
 {
     Udp,
@@ -121,65 +122,64 @@ const int buttonPin = 5;
 #define SETUP_PIN 1
 #define CHARACTERISTIC_UUID "0000bbbb-0000-1000-8000-00805f9b34fb"
 #define TX_CHARACTERISTIC_UUID "0000bbbc-0000-1000-8000-00805f9b34fb"
-static const char* SERVICE_UUID = "0000aaaa-0000-1000-8000-00805f9b34fb";
-static const char* RX_CHARACTERISTIC = "0000bbbb-0000-1000-8000-00805f9b34fb"; // write from app
-static const char* TX_CHARACTERISTIC = "0000bbbc-0000-1000-8000-00805f9b34fb"; // notify to app
+static const char *SERVICE_UUID = "0000aaaa-0000-1000-8000-00805f9b34fb";
+static const char *RX_CHARACTERISTIC = "0000bbbb-0000-1000-8000-00805f9b34fb"; // write from app
+static const char *TX_CHARACTERISTIC = "0000bbbc-0000-1000-8000-00805f9b34fb"; // notify to app
 static const uint16_t KC_UDP_PORT = 4210;
 
-//static bool gStaConnected = false;   // true when WiFi.status()==WL_CONNECTED
-//static bool gApUp         = false;   // true when AP is running
-static bool gBleEnabled = false;   // true when BLE input is enabled (BOTH or BLE)
+// static bool gStaConnected = false;   // true when WiFi.status()==WL_CONNECTED
+// static bool gApUp         = false;   // true when AP is running
+static bool gBleEnabled = false; // true when BLE input is enabled (BOTH or BLE)
 
 // Tunables for LED look
-static const uint8_t LED_R = 40;     // red channel intensity
-static const uint8_t LED_B = 40;     // blue channel intensity
-
+static const uint8_t LED_R = 40; // red channel intensity
+static const uint8_t LED_B = 40; // blue channel intensity
 
 static const uint32_t BLINK_WINDOW_MS = 30000; // 30s max "find me"
 
-
-
-
-
-static const uint32_t BLINK_MS = 800;          // blink period
-//static const uint32_t BLINK_WINDOW_MS = 30000; // "find me" timeout
+static const uint32_t BLINK_MS = 800; // blink period
+// static const uint32_t BLINK_WINDOW_MS = 30000; // "find me" timeout
 
 static bool gBlinkNeeded = true;
 static uint32_t gBlinkDeadlineMs = 0;
 
-//static inline void ArmBlinkWindow()    { gBlinkNeeded = true;  gBlinkDeadlineMs = millis() + BLINK_WINDOW_MS; }
-//static inline void MarkReachable()     { gBlinkNeeded = false; }
+// static inline void ArmBlinkWindow()    { gBlinkNeeded = true;  gBlinkDeadlineMs = millis() + BLINK_WINDOW_MS; }
+// static inline void MarkReachable()     { gBlinkNeeded = false; }
 static inline bool InBlinkWindow() { return gBlinkNeeded && (int32_t)(gBlinkDeadlineMs - millis()) > 0; }
 
-static void LedOff() { pixels.setPixelColor(0, 0); pixels.show(); }
-static void SetLed(uint8_t r, uint8_t g, uint8_t b) { pixels.setPixelColor(0, pixels.Color(g, r, b)); pixels.show(); }
+static void LedOff()
+{
+    pixels.setPixelColor(0, 0);
+    pixels.show();
+}
+static void SetLed(uint8_t r, uint8_t g, uint8_t b)
+{
+    pixels.setPixelColor(0, pixels.Color(g, r, b));
+    pixels.show();
+}
 
-
-
-
-
-BLECharacteristic* gTxChar = nullptr;      // notify
+BLECharacteristic *gTxChar = nullptr;      // notify
 const uint16_t DISCOVER_REPLY_PORT = 4211; // WinUI listens here after broadcast
 // Adafruit_NeoPixel pixels(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
-BLEServer* gServer = nullptr;
+BLEServer *gServer = nullptr;
 bool bleConnected = false;
 unsigned long lastBleActivity = 0;
 const unsigned long BLE_INACTIVITY_TIMEOUT = 60000; // 10 seconds (tweak as needed)
 USBHIDKeyboard Keyboard;
 BleKeyboard bleKeyboard("KeyCatcher", "KeyCatcher Inc.", 100);
-BLECharacteristic* pTxCharacteristic = nullptr;
+BLECharacteristic *pTxCharacteristic = nullptr;
 static uint16_t gConnId = 0;
 WiFiUDP Udp;
 // Preferences preferences;
-//unsigned int localUdpPort = 4210;
+// unsigned int localUdpPort = 4210;
 
-//static bool gBlinkNeeded = true;       // start true on boot
-//static uint32_t gBlinkDeadlineMs = 0;  // stop blinking after window
-///static const uint32_t BLINK_WINDOW_MS = 30000; // 30s "find me" max
+// static bool gBlinkNeeded = true;       // start true on boot
+// static uint32_t gBlinkDeadlineMs = 0;  // stop blinking after window
+/// static const uint32_t BLINK_WINDOW_MS = 30000; // 30s "find me" max
 
 static inline void MarkReachable()
 {
-    gBlinkNeeded = false;                 // stop blinking after we know the app found us
+    gBlinkNeeded = false; // stop blinking after we know the app found us
 }
 
 static inline void ArmBlinkWindow()
@@ -188,22 +188,15 @@ static inline void ArmBlinkWindow()
     gBlinkDeadlineMs = millis() + BLINK_WINDOW_MS;
 }
 
-
-
 String kcSerial()
 {
-    uint64_t mac = ESP.getEfuseMac();  // Unique 48-bit factory MAC
+    uint64_t mac = ESP.getEfuseMac(); // Unique 48-bit factory MAC
     char buf[20];
     sprintf(buf, "KC-%02X%02X%02X%02X%02X%02X",
-        (uint8_t)(mac >> 40), (uint8_t)(mac >> 32), (uint8_t)(mac >> 24),
-        (uint8_t)(mac >> 16), (uint8_t)(mac >> 8), (uint8_t)(mac));
+            (uint8_t)(mac >> 40), (uint8_t)(mac >> 32), (uint8_t)(mac >> 24),
+            (uint8_t)(mac >> 16), (uint8_t)(mac >> 8), (uint8_t)(mac));
     return String(buf);
 }
-
-
-
-
-
 
 struct KC_Config
 {
@@ -255,10 +248,10 @@ extern "C"
 
 // BLE
 // BLEServer*        gServer  = nullptr;
-BLEService* gSvc = nullptr;
-BLECharacteristic* gRxChar = nullptr; // write
+BLEService *gSvc = nullptr;
+BLECharacteristic *gRxChar = nullptr; // write
 // BLECharacteristic* gTxChar = nullptr;  // notify
-static void StripDiscoveryTokens(String& s)
+static void StripDiscoveryTokens(String &s)
 {
     s.replace("KC:DISCOVER?", "");
     s.replace("KC:DISCOVERY", "");
@@ -273,34 +266,10 @@ static inline bool IsBleInputEnabled()
     return config.input_source == "BLE" || config.input_source == "BOTH";
 }
 
-// static inline void LedOff()
-// {
-//   pixels.setPixelColor(0, 0);
-//   pixels.show();
-// }
-
-
-
-
-// static inline bool InBlinkWindow() {
-//   return gBlinkNeeded && (int32_t)(gBlinkDeadlineMs - millis()) > 0;
-// }
-
-// Simple helpers; use your existing LED color function
-//static void LedOff() { pixels.setPixelColor(0, 0); pixels.show(); }
-
-// static void SetLed(uint8_t r, uint8_t g, uint8_t b) {
-//   pixels.setPixelColor(0, pixels.Color(r, g, b));
-//   pixels.show();
-// }
-
-// apOnly = true when running only Soft-AP (no STA link)
-// staUp  = true when STA is connected to a network
-// bleOn  = true when BLE input is enabled/advertising (or connected)
-// Colors per your plan: purple = BLE+STA, red = STA w/o BLE, blue = AP (w/ BLE) else red for AP w/o BLE
 void UpdateStatusLed()
 {
-    if (menu.led() != ResetMenu::Led::Off) return;
+    if (menu.led() != ResetMenu::Led::Off)
+        return;
     bool staUp = (WiFi.status() == WL_CONNECTED);
     bool apUp = (WiFi.getMode() & WIFI_MODE_AP) != 0;
     bool apOnly = apUp && !staUp; // AP up, STA not connected
@@ -308,21 +277,49 @@ void UpdateStatusLed()
 
     uint8_t r = 0, g = 0, b = 0;
 
-    if (staUp) {
-        if (bleOn) { r = 40; g = 0;  b = 40; } // purple
-        else { r = 40; g = 0;  b = 0; } // red
+    if (staUp)
+    {
+        if (bleOn)
+        {
+            r = 40;
+            g = 0;
+            b = 40;
+        } // purple
+        else
+        {
+            r = 40;
+            g = 0;
+            b = 0;
+        } // red
     }
-    else { // AP-only
-        if (bleOn) { r = 0;  g = 0;  b = 40; } // blue
-        else { r = 40; g = 0;  b = 0; } // red
+    else
+    { // AP-only
+        if (bleOn)
+        {
+            r = 0;
+            g = 0;
+            b = 40;
+        } // blue
+        else
+        {
+            r = 40;
+            g = 0;
+            b = 0;
+        } // red
     }
 
     // blink only in AP-only "find me" window
-    if (apOnly && InBlinkWindow()) {
+    if (apOnly && InBlinkWindow())
+    {
         bool on = ((millis() / (BLINK_MS / 2)) % 2) == 0;
-        if (!on) { LedOff(); return; }
+        if (!on)
+        {
+            LedOff();
+            return;
+        }
     }
-    else {
+    else
+    {
         gBlinkNeeded = false; // once contacted or timeout → steady
     }
 
@@ -330,7 +327,7 @@ void UpdateStatusLed()
 }
 
 // Call this often; it handles blink timing & menu override.
-//void xUpdateStatusLed()
+// void xUpdateStatusLed()
 //{
 //  // Don't fight the reset menu animation
 //  if (menu.led() != ResetMenu::Led::Off) return;
@@ -362,7 +359,6 @@ void UpdateStatusLed()
 //  pixels.setPixelColor(0, pixels.Color(g, r, b));
 //  pixels.show();
 //}
-
 
 struct KCInflight
 {
@@ -406,10 +402,10 @@ const uint32_t MENU_HOLD_MS = 5000;     // enter menu
 const uint32_t FACTORY_EXTRA_MS = 3000; // extra hold to arm red
 const uint32_t DOUBLE_TAP_MAX_MS = 600;
 const uint32_t ARM_WINDOW_MS = 3000; // time to double-tap after release
-static void kcSendAckUdp(const IPAddress& ip, uint16_t port, uint32_t id, uint16_t idx);
+static void kcSendAckUdp(const IPAddress &ip, uint16_t port, uint32_t id, uint16_t idx);
 static void kcSendAckBle(uint32_t id, uint16_t idx);
-static void kcSendFinalUdp(const IPAddress& ip, uint16_t port, const uint8_t* p, size_t n);
-static void kcSendFinalBle(const uint8_t* p, size_t n);
+static void kcSendFinalUdp(const IPAddress &ip, uint16_t port, const uint8_t *p, size_t n);
+static void kcSendFinalBle(const uint8_t *p, size_t n);
 
 static const uint16_t KC_TYPE_MS = 14;        // per printable char
 static const uint16_t KC_AFTER_ENTER_MS = 80; // after Enter/Tab
@@ -451,22 +447,38 @@ void BLEtypeShiftEnter()
 }
 static volatile bool gTypingBusy = false;
 
-static uint32_t Hash32(const String& s) {
+static uint32_t Hash32(const String &s)
+{
     // very small CRC32-ish; replace with your CRC if you have one
     uint32_t h = 2166136261u;
-    for (size_t i = 0; i < s.length(); ++i) { h ^= (uint8_t)s[i]; h *= 16777619u; }
+    for (size_t i = 0; i < s.length(); ++i)
+    {
+        h ^= (uint8_t)s[i];
+        h *= 16777619u;
+    }
     return h ? h : 1;
 }
 
-
-
-struct RecentMsg { uint32_t hash; uint32_t seenAt; };
+struct RecentMsg
+{
+    uint32_t hash;
+    uint32_t seenAt;
+};
 static RecentMsg gRecent[4]; // tiny LRU
-static bool SeenRecently(uint32_t h, uint32_t now, uint32_t windowMs = 15000) {
-    for (auto& r : gRecent) if (r.hash == h && (now - r.seenAt) < windowMs) return true;
+static bool SeenRecently(uint32_t h, uint32_t now, uint32_t windowMs = 15000)
+{
+    for (auto &r : gRecent)
+        if (r.hash == h && (now - r.seenAt) < windowMs)
+            return true;
     // insert/rotate
-    for (auto& r : gRecent) if (r.hash == 0) { r.hash = h; r.seenAt = now; return false; }
-    gRecent[0] = { h, now };
+    for (auto &r : gRecent)
+        if (r.hash == 0)
+        {
+            r.hash = h;
+            r.seenAt = now;
+            return false;
+        }
+    gRecent[0] = {h, now};
     return false;
 }
 
@@ -550,19 +562,23 @@ void LEDoff(int times)
         delay(150);
     }
 }
-String getMacrosJSON() {
+String getMacrosJSON()
+{
     Preferences prefs;
     prefs.begin("macros", true);
     String macroList = prefs.getString("macro_list", "");
     String json = "{";
     int start = 0;
     bool first = true;
-    while (start < macroList.length()) {
+    while (start < macroList.length())
+    {
         int comma = macroList.indexOf(',', start);
-        if (comma == -1) break;
+        if (comma == -1)
+            break;
         String name = macroList.substring(start, comma);
         String value = prefs.getString(name.c_str(), "");
-        if (!first) json += ",";
+        if (!first)
+            json += ",";
         json += "\"" + name + "\":\"" + value + "\"";
         first = false;
         start = comma + 1;
@@ -571,24 +587,54 @@ String getMacrosJSON() {
     prefs.end();
     return json;
 }
+String expandMacros(const String& msg)
+{
+    String out = msg;
+    Preferences prefs;
+    prefs.begin("macros", true);
+    int start = out.indexOf('<');
+    while (start != -1)
+    {
+        int end = out.indexOf('>', start + 1);
+        if (end == -1)
+            break; // unmatched <
+        String macroName = out.substring(start + 1, end);
+        String macroVal = prefs.getString(macroName.c_str(), "");
+        // Replace <macroname> with macroVal
+
+        out = out.substring(0, start) + macroVal + out.substring(end + 1);
+        start = out.indexOf('<', start + macroVal.length());
+    }
+    prefs.end();
+    return out;
+}
+void printMacs()
+{
+
+    Preferences prefs;
+    prefs.begin("macros", true);
+    String macroList = prefs.getString("macro_list", "");
+    Serial.println("Macro List fromPrefs: " + macroList);
+    prefs.end();
+}
 
 String getConfig()
 {
 
     return String("{") +
-        "\"ssid\":\"" + config.ssid + "\"," +
-        "\"pss\":\"" + config.password + "\"," +
-        "\"in\":\"" + config.input_source + "\"," +
-        "\"out\":\"" + config.output_source + "\"," +
-        "\"ap\":" + (config.ap_mode ? "true" : "false") + "," +
-        "\"creds\":" + config.creds + "," +
-          "\"macros\":" + getMacrosJSON() + "," +
-        "\"bflag\":\"" + config.blink_flag + "\"" +
-        "\"serial\":\"" + kcSerial() + "\"" +
-        "}";
+           "\"ssid\":\"" + config.ssid + "\"," +
+           "\"pss\":\"" + config.password + "\"," +
+           "\"in\":\"" + config.input_source + "\"," +
+           "\"out\":\"" + config.output_source + "\"," +
+           "\"ap\":" + (config.ap_mode ? "true" : "false") + "," +
+           "\"creds\":" + config.creds + "," +
+           "\"macros\":" + getMacrosJSON() + "," +
+           "\"bflag\":\"" + config.blink_flag + "\"," +
+           "\"serial\":\"" + kcSerial() + "\"" +
+           "}";
 }
 
-void bleNotifyConfigChunked(const String& json)
+void bleNotifyConfigChunked(const String &json)
 {
     Serial.println("msg:" + json);
     if (!gTxChar)
@@ -596,7 +642,7 @@ void bleNotifyConfigChunked(const String& json)
     constexpr size_t PAYLOAD = 16;
     uint8_t buf[PAYLOAD + 4];
 
-    gTxChar->setValue((uint8_t*)"CONFIG_START:", 13);
+    gTxChar->setValue((uint8_t *)"CONFIG_START:", 13);
     gTxChar->notify();
     delay(8);
     for (size_t i = 0; i < json.length(); i += PAYLOAD)
@@ -609,7 +655,7 @@ void bleNotifyConfigChunked(const String& json)
         Serial.printf("Sent chunk: %d-%d\n", i, i + n);
         delay(8);
     }
-    gTxChar->setValue((uint8_t*)"CONFIG_END", 10);
+    gTxChar->setValue((uint8_t *)"CONFIG_END", 10);
     gTxChar->notify();
 }
 String SanitizeForHid(String s)
@@ -649,25 +695,8 @@ String SanitizeForHid(String s)
     }
     return out;
 }
-String expandMacros(const String& msg) {
-    String out = msg;
-    Preferences prefs;
-    prefs.begin("macros", true);
-    int start = out.indexOf('<');
-    while (start != -1) {
-        int end = out.indexOf('>', start + 1);
-        if (end == -1) break; // unmatched <
-        String macroName = out.substring(start + 1, end);
-        String macroVal = prefs.getString(macroName.c_str(), "");
-        // Replace <macroname> with macroVal
-        
-       out = out.substring(0, start) + macroVal + out.substring(end + 1);
-        start = out.indexOf('<', start + macroVal.length());
-    }
-    prefs.end();
-    return out;
-}
-static void dumpHex(const uint8_t* p, size_t n)
+
+static void dumpHex(const uint8_t *p, size_t n)
 {
     return;
     for (size_t i = 0; i < n; ++i)
@@ -678,7 +707,7 @@ static void dumpHex(const uint8_t* p, size_t n)
     }
     Serial.println();
 }
-static void dumpAscii(const uint8_t* p, size_t n)
+static void dumpAscii(const uint8_t *p, size_t n)
 {
     return;
     for (size_t i = 0; i < n; ++i)
@@ -688,7 +717,7 @@ static void dumpAscii(const uint8_t* p, size_t n)
     }
     Serial.println();
 }
-void TypeTextPaced(const String& msg)
+void TypeTextPaced(const String &msg)
 {
     // 1) Sanitize to ASCII (keep your SanitizeForHid)
     String safe = SanitizeForHid(msg);
@@ -798,21 +827,13 @@ void saveConfig()
 }
 bool reboot_flag = false;
 
-void printMacs(){
 
-Preferences prefs;
-prefs.begin("macros", true);
-String macroList = prefs.getString("macro_list", "");
-Serial.println("Macro List: " + macroList);
-prefs.end();
-
-}
 // ----- CONFIG MESSAGE PARSER -----
 void parseAndSaveConfig(String setupMsg)
 {
 
     Serial.print("Config with:");
-    // Serial.println(setupMsg);
+    Serial.println(setupMsg);
 
     // pixels.setPixelColor(0, pixels.Color(40, 40, 0)); // Yellow
     int uidStart = setupMsg.indexOf("ssid:") + 5;
@@ -853,10 +874,7 @@ void parseAndSaveConfig(String setupMsg)
     String ap_mode_str = setupMsg.substring(apModeStart, apModeEnd);
     bool ap_mode = (ap_mode_str == "true");
 
-
-
-    
-    //if (ap_mode != config.ap_mode)
+    // if (ap_mode != config.ap_mode)
     reboot_flag = true;
     config.ap_mode = ap_mode;
 
@@ -883,48 +901,52 @@ void parseAndSaveConfig(String setupMsg)
     Serial.print(" blink flag=");
     Serial.print(config.blink_flag);
 
-
-// --- MACROS BLOCK ---
+    // --- MACROS BLOCK ---
+   // --- MACROS BLOCK (JSON array from <setup>) ---
 int macrosStart = setupMsg.indexOf("macros:");
-if (macrosStart != -1) {
-    int macrosBlockStart = macrosStart + 7;
-    int macrosBlockEnd = setupMsg.indexOf("<endmacros>", macrosBlockStart);
-    if (macrosBlockEnd != -1) {
-        String macrosBlock = setupMsg.substring(macrosBlockStart, macrosBlockEnd);
-        Preferences prefs;
-        prefs.begin("macros", false);
+if (macrosStart != -1)
+{
+    int macrosEnd = setupMsg.indexOf("\n", macrosStart);
+    if (macrosEnd == -1)
+        macrosEnd = setupMsg.length();
 
-        // We'll build a new macro_list as we parse
-        String macroList = "";
+    String macrosJson = setupMsg.substring(macrosStart + 7, macrosEnd);
+    macrosJson.trim();
 
-        int lineStart = 0;
-        while (lineStart < macrosBlock.length()) {
-            int lineEnd = macrosBlock.indexOf('\n', lineStart);
-            if (lineEnd == -1) lineEnd = macrosBlock.length();
-            String line = macrosBlock.substring(lineStart, lineEnd);
-            line.trim();
-            // Only process lines that look like macro_name:value
-            int colonIdx = line.indexOf(':');
-            if (colonIdx > 0) {
-                String name = line.substring(0, colonIdx);
-                String value = line.substring(colonIdx + 1);
-                value.trim();
-                if (name.length() > 0) {
-                    prefs.putString(name.c_str(), value);
-                    // Add to macro list index (comma-delimited)
-                    macroList += name + ",";
-                }
+    Preferences prefs;
+    prefs.begin("macros", false);
+
+    // Clear previous macros
+    prefs.clear();
+
+    DynamicJsonDocument doc(2048);
+    DeserializationError err = deserializeJson(doc, macrosJson);
+    if (!err && doc.is<JsonArray>())
+    {
+        String macroList;
+        for (JsonObject m : doc.as<JsonArray>())
+        {
+            const char *name = m["Name"];
+            const char *content = m["Content"];
+            if (name && content)
+            {
+                prefs.putString(name, content);
+                macroList += String(name) + ",";
             }
-            lineStart = lineEnd + 1;
         }
-        // Save the macro_list index
         prefs.putString("macro_list", macroList);
-        prefs.end();
-        Serial.println("Macros parsed and saved.");
+        Serial.println("Macros parsed and saved (JSON array).");
     }
+    else
+    {
+        Serial.print("Macro JSON parse error: ");
+        Serial.println(err.c_str());
+    }
+    prefs.end();
 }
-printMacs();
 
+    
+    printMacs();
 
     int blinkStart = setupMsg.indexOf("blink:") + 6;
     int blinkEnd = setupMsg.indexOf("\n", blinkStart);
@@ -957,7 +979,7 @@ static inline String TrimEndToken(String s)
     s.trim();
     return s;
 }
-static inline bool isGetConfigCmd(const String& s)
+static inline bool isGetConfigCmd(const String &s)
 {
     String t = s;
     t.trim();
@@ -965,12 +987,12 @@ static inline bool isGetConfigCmd(const String& s)
         t.remove(t.length() - 7);
     return t == "get_config" || t.startsWith("get_config ");
 }
-void processIncoming(const String& raw)
+void processIncoming(const String &raw)
 {
     IPAddress rip = Udp.remoteIP();
     uint16_t rport = Udp.remotePort();
     String msg = raw;
-    //Serial.println("processIncomming:" + msg);
+    Serial.println("processIncomming:" + msg);
     /* 1. Setup block unchanged … */
     if (raw.startsWith("<setup>"))
     {
@@ -983,7 +1005,7 @@ void processIncoming(const String& raw)
             parseAndSaveConfig(rxBuffer);
             rxBuffer = "";
             inSetup = false;
-            //delay(1000); // Wait for 5 seconds
+            // delay(1000); // Wait for 5 seconds
             if (reboot_flag)
             {
                 Serial.println("Restarting");
@@ -1006,7 +1028,7 @@ void processIncoming(const String& raw)
             parseAndSaveConfig(rxBuffer);
             rxBuffer = "";
             inSetup = false;
-            //delay(1000); // Wait for 5 seconds
+            // delay(1000); // Wait for 5 seconds
             if (reboot_flag)
             {
                 Serial.println("Restarting");
@@ -1040,8 +1062,8 @@ void processIncoming(const String& raw)
         if (msg.endsWith("<<END>>"))
             msg.remove(msg.length() - 7);
 
-        //Serial.print("Processing message: ");
-        //Serial.println(msg);
+        // Serial.print("Processing message: ");
+        // Serial.println(msg);
 
         String clean = msg;
         if (clean.endsWith("<<END>>"))
@@ -1051,30 +1073,30 @@ void processIncoming(const String& raw)
         if (config.output_source == "USBHID")
         {
             String expanded = expandMacros(msg);
-            String safe = SanitizeForHid(msg);
+            String safe = SanitizeForHid(expanded);
 
-            Serial.println("Typing (USBHID): " + msg);
+            Serial.println("Typing (USBHID): " + expanded);
 
-            TypeTextPaced(msg);
+            TypeTextPaced(expanded);
             uint8_t burst = 0;
         }
         else if (config.output_source == "BLEHID" && bleKeyboard.isConnected())
         {
             String expanded = expandMacros(msg);
-            Serial.println("Typing (BLEHID): " + msg);
+            Serial.println("Typing (BLEHID): " + expanded);
 
-            TypeTextPaced(msg); // this routes to bleKeyboard via KC_IsBLE()
+            TypeTextPaced(expanded); // this routes to bleKeyboard via KC_IsBLE()
 
             //     bleKeyboard.print(msg.c_str());
-            Serial.println("Typed (BLEHID): " + msg);
+            Serial.println("Typed (BLEHID): " + expanded);
         }
     }
 }
 
-static std::string kcProcessFullMessage(const uint8_t* data, size_t len)
+static std::string kcProcessFullMessage(const uint8_t *data, size_t len)
 {
     // Assemble -> hand to normal handler
-    String msg((const char*)data, len);
+    String msg((const char *)data, len);
     processIncoming(msg);
 
     // Short OK reply
@@ -1085,41 +1107,42 @@ static std::string kcProcessFullMessage(const uint8_t* data, size_t len)
     return out;
 }
 
-static void StartTypingJob(const String& msg) {
-    if (gTypingBusy) return;         // already typing, ignore
+static void StartTypingJob(const String &msg)
+{
+    if (gTypingBusy)
+        return; // already typing, ignore
     gTypingBusy = true;
-    processIncoming(msg);            // this does the slow typing
+    processIncoming(msg); // this does the slow typing
     gTypingBusy = false;
 }
 
-static void kcHandleEnvelope(const uint8_t* data, size_t len,
-    KCTransport tr,
-    const IPAddress& ip = IPAddress(), uint16_t port = 0)
+static void kcHandleEnvelope(const uint8_t *data, size_t len,
+                             KCTransport tr,
+                             const IPAddress &ip = IPAddress(), uint16_t port = 0)
 {
     kcMaybeTimeout();
-    //Serial.println("kcHandleEnvelope");
-
-    //Serial.printf("Raw [%d]: ", (int)len);
-    //Serial.write(data, len);
-    //Serial.println();
+     Serial.println("kcHandleEnvelope");
+ Serial.printf("Raw [%d]: ", (int)len);
+    // Serial.write(data, len);
+    // Serial.println();
     StaticJsonDocument<KC_JSON_CAP> doc;
     if (deserializeJson(doc, data, len))
     {
         Serial.println(".1");
         return;
     }
-    //Serial.println(".2");
-    const char* t = doc["t"] | "";
+    // Serial.println(".2");
+    const char *t = doc["t"] | "";
     if (strcmp(t, "kc_chunk") != 0)
         return;
-    //Serial.println("2");
+    // Serial.println("2");
     uint32_t id = doc["id"] | 0U;
     uint16_t n = doc["n"] | 0U;
     uint16_t idx = doc["i"] | 0U;
-    const char* plB64 = doc["pl"] | "";
+    const char *plB64 = doc["pl"] | "";
     if (!id || !n || idx >= n)
         return;
-    //Serial.println("3");
+    // Serial.println("3");
     if (kc.id == 0)
     {
         kc.id = id;
@@ -1131,15 +1154,15 @@ static void kcHandleEnvelope(const uint8_t* data, size_t len,
         kc.udpIp = ip;
         kc.udpPort = port;
     }
-    //Serial.println("4");
+    // Serial.println("4");
     if (id != kc.id || n != kc.total)
         return;
     if (idx != kc.next)
         return;
-    //Serial.println("5");
+    // Serial.println("5");
     size_t srcLen = strlen(plB64);
     size_t needLen = 0;
-    mbedtls_base64_decode(nullptr, 0, &needLen, (const unsigned char*)plB64, srcLen);
+    mbedtls_base64_decode(nullptr, 0, &needLen, (const unsigned char *)plB64, srcLen);
     if (needLen == 0)
         return;
 
@@ -1148,23 +1171,23 @@ static void kcHandleEnvelope(const uint8_t* data, size_t len,
         kc.reset();
         return;
     }
-    //Serial.println("6");
+    // Serial.println("6");
     size_t old = kc.buf.size();
     kc.buf.resize(old + needLen);
     size_t outLen = 0;
-    int rc = mbedtls_base64_decode((unsigned char*)&kc.buf[old], needLen, &outLen,
-        (const unsigned char*)plB64, srcLen);
+    int rc = mbedtls_base64_decode((unsigned char *)&kc.buf[old], needLen, &outLen,
+                                   (const unsigned char *)plB64, srcLen);
     if (rc != 0 || outLen != needLen)
     {
         kc.reset();
         return;
     }
-    //Serial.println("7");
+    // Serial.println("7");
     kc.lastMs = millis();
     kc.next = idx + 1;
 
     // (optional) visibility while testing
-    //Serial.printf("[KC] chunk %u/%u, acc=%u\n", (unsigned)(idx + 1), (unsigned)n, (unsigned)kc.buf.size());
+    // Serial.printf("[KC] chunk %u/%u, acc=%u\n", (unsigned)(idx + 1), (unsigned)n, (unsigned)kc.buf.size());
 
     if (kc.fromUdp)
         kcSendAckUdp(kc.udpIp, kc.udpPort, kc.id, idx);
@@ -1176,26 +1199,31 @@ static void kcHandleEnvelope(const uint8_t* data, size_t len,
     {
         // small guard so the client can process the last ACK cleanly
         delay(20);
-        String msg((const char*)kc.buf.data(), kc.buf.size());
+        String msg((const char *)kc.buf.data(), kc.buf.size());
         Serial.println('msg:' + msg);
 
         // Optional special handling
         bool handled = false;
-        if (msg == "get_config" || msg.startsWith("get_config")) {
+        if (msg == "get_config" || msg.startsWith("get_config"))
+        {
             bleNotifyConfigChunked(getConfig()); // or UDP path if it arrived via UDP
             handled = true;
         }
 
         // Always send final OK immediately so the client completes
-        StaticJsonDocument<32> ok; ok["t"] = "kc_ok";
-        char out[32]; size_t m = serializeJson(ok, out, sizeof(out));
-        if (kc.fromUdp) {
+        StaticJsonDocument<32> ok;
+        ok["t"] = "kc_ok";
+        char out[32];
+        size_t m = serializeJson(ok, out, sizeof(out));
+        if (kc.fromUdp)
+        {
             Udp.beginPacket(kc.udpIp, kc.udpPort);
-            Udp.write((const uint8_t*)out, m);
+            Udp.write((const uint8_t *)out, m);
             Udp.endPacket();
         }
-        else if (gTxChar) {
-            gTxChar->setValue((uint8_t*)out, m);
+        else if (gTxChar)
+        {
+            gTxChar->setValue((uint8_t *)out, m);
             gTxChar->notify();
         }
 
@@ -1203,18 +1231,18 @@ static void kcHandleEnvelope(const uint8_t* data, size_t len,
         kc.reset();
 
         // If get_config already replied, we are done
-        if (handled) return;
+        if (handled)
+            return;
 
         // Dedupe and start the typing job
         uint32_t h = Hash32(msg);
         uint32_t now = millis();
-        if (SeenRecently(h, now)) {
+        if (SeenRecently(h, now))
+        {
             return; // identical recent message; ignore
         }
         StartTypingJob(msg);
-        
     }
-   
 }
 
 // enum class KCTransport { Udp, Ble };
@@ -1240,7 +1268,7 @@ void pollUdpKcAndLegacy()
         StaticJsonDocument<96> jd;
         if (deserializeJson(jd, rx.data(), n) == DeserializationError::Ok)
         {
-            const char* t = jd["t"] | "";
+            const char *t = jd["t"] | "";
             if (t && strcmp(t, "kc_chunk") == 0)
             {
                 kcHandleEnvelope(rx.data(), n, KCTransport::Udp, Udp.remoteIP(), Udp.remotePort());
@@ -1252,7 +1280,7 @@ void pollUdpKcAndLegacy()
         return;
 
     // Legacy text path
-    String msg((const char*)rx.data());
+    String msg((const char *)rx.data());
 
     IPAddress rip = Udp.remoteIP();
     uint16_t rport = Udp.remotePort();
@@ -1314,7 +1342,7 @@ void pollUdpKcAndLegacy()
         String json = getConfig();
         Serial.println(json);
         Udp.beginPacket(rip, rport);
-        Udp.write((const uint8_t*)json.c_str(), json.length());
+        Udp.write((const uint8_t *)json.c_str(), json.length());
         Udp.endPacket();
         return;
     }
@@ -1326,7 +1354,6 @@ void pollUdpKcAndLegacy()
 
     processIncoming(msg);
 }
-
 
 void pollUdpKc()
 {
@@ -1346,7 +1373,7 @@ void pollUdpKc()
     kcHandleEnvelope(rx.data(), n, KCTransport::Udp, Udp.remoteIP(), Udp.remotePort());
 }
 
-static void kcSendAckUdp(const IPAddress& ip, uint16_t port, uint32_t id, uint16_t idx)
+static void kcSendAckUdp(const IPAddress &ip, uint16_t port, uint32_t id, uint16_t idx)
 {
     StaticJsonDocument<96> doc;
     doc["t"] = "kc_ack";
@@ -1357,11 +1384,11 @@ static void kcSendAckUdp(const IPAddress& ip, uint16_t port, uint32_t id, uint16
     char out[96];
     size_t m = serializeJson(doc, out, sizeof(out));
     Udp.beginPacket(ip, port);
-    Udp.write((const uint8_t*)out, m);
+    Udp.write((const uint8_t *)out, m);
     Udp.endPacket();
 }
 
-static void kcSendFinalUdp(const IPAddress& ip, uint16_t port, const uint8_t* p, size_t n)
+static void kcSendFinalUdp(const IPAddress &ip, uint16_t port, const uint8_t *p, size_t n)
 {
     // Your normal reply format. If you also want to chunk replies, we can mirror the same protocol.
     Udp.beginPacket(ip, port);
@@ -1380,40 +1407,40 @@ static void kcSendAckBle(uint32_t id, uint16_t idx)
     doc["i"] = idx;
     char out[96];
     size_t m = serializeJson(doc, out, sizeof(out));
-    gTxChar->setValue((uint8_t*)out, m);
+    gTxChar->setValue((uint8_t *)out, m);
     gTxChar->notify();
 }
-void bleNotify(const String& s)
+void bleNotify(const String &s)
 {
     Serial.printf("[bleNotify] %s\n", s.c_str());
 
-    dumpAscii((const uint8_t*)s.c_str(), s.length());
+    dumpAscii((const uint8_t *)s.c_str(), s.length());
     lastBleActivity = millis();
     if (!gTxChar)
         return;
-    gTxChar->setValue((uint8_t*)s.c_str(), s.length());
+    gTxChar->setValue((uint8_t *)s.c_str(), s.length());
     gTxChar->notify();
 }
 
-static void kcSendFinalBle(const uint8_t* p, size_t n)
+static void kcSendFinalBle(const uint8_t *p, size_t n)
 {
     lastBleActivity = millis();
     // If reply may exceed MTU, either chunk here or keep replies small
     if (!gTxChar)
         return;
     // Keep reply short or add chunking here as a v2
-    gTxChar->setValue((uint8_t*)p, n);
+    gTxChar->setValue((uint8_t *)p, n);
     gTxChar->notify();
 }
 
 class KC_OnWrite : public BLECharacteristicCallbacks
 {
-    void onWrite(BLECharacteristic* pChr) override
+    void onWrite(BLECharacteristic *pChr) override
     {
 
         lastBleActivity = millis();
         auto v = pChr->getValue();
-        String value = String((const char*)pChr->getValue().c_str());
+        String value = String((const char *)pChr->getValue().c_str());
         if (v.empty())
             return;
         String cmd = TrimPingCmd(value);
@@ -1426,8 +1453,8 @@ class KC_OnWrite : public BLECharacteristicCallbacks
         }
 
         // Serial.printf("[BLE onWrite] len=%u\n", (unsigned)v.size());
-        dumpAscii((const uint8_t*)v.data(), v.size());
-        dumpHex((const uint8_t*)v.data(), v.size());
+        dumpAscii((const uint8_t *)v.data(), v.size());
+        dumpHex((const uint8_t *)v.data(), v.size());
         if (v.empty())
             return;
 
@@ -1464,7 +1491,8 @@ class KC_OnWrite : public BLECharacteristicCallbacks
 
         uint32_t h = Hash32(s);
         uint32_t now = millis();
-        if (SeenRecently(h, now)) {
+        if (SeenRecently(h, now))
+        {
             // duplicate of a just-typed message; ignore
             return;
         }
@@ -1474,16 +1502,16 @@ class KC_OnWrite : public BLECharacteristicCallbacks
 
 class KeyCatcherServerCallbacks : public BLEServerCallbacks
 {
-    void onConnect(BLEServer* pServer) override
+    void onConnect(BLEServer *pServer) override
     {
         bleConnected = true;
         lastBleActivity = millis();
-   //     Serial.printf("[BLE] Connected. connId=%d\n", 0);
+        //     Serial.printf("[BLE] Connected. connId=%d\n", 0);
     }
-    void onDisconnect(BLEServer* pServer) override
+    void onDisconnect(BLEServer *pServer) override
     {
         bleConnected = false;
-       // Serial.println("[BLE] Disconnected. Restarting advertising.");
+        // Serial.println("[BLE] Disconnected. Restarting advertising.");
         delay(50);                            // give stack a breath
         BLEDevice::getAdvertising()->start(); // <<< use the advertising object
     }
@@ -1503,7 +1531,7 @@ void initBle()
     gTxChar->addDescriptor(new BLE2902());
 
     gRxChar = gSvc->createCharacteristic(RX_CHARACTERISTIC,
-        BLECharacteristic::PROPERTY_WRITE_NR | BLECharacteristic::PROPERTY_WRITE);
+                                         BLECharacteristic::PROPERTY_WRITE_NR | BLECharacteristic::PROPERTY_WRITE);
     gRxChar->setCallbacks(new KC_OnWrite());
 
     gSvc->start();
@@ -1513,9 +1541,7 @@ void initBle()
     adv->setScanResponse(true);
     adv->start();
 
-
-
-    gBleEnabled = true;              // <— add this
+    gBleEnabled = true; // <— add this
     Serial.println("Starting BLE");
 }
 
@@ -1545,7 +1571,7 @@ void typeAscii(char c)
 
 static const char NL_VISIBLE[] = u8"⏎"; // must match sender. If you chose control byte, use "\x1E".
 
-BLEServerCallbacks* MakeKCServerCallbacks()
+BLEServerCallbacks *MakeKCServerCallbacks()
 {
     return new KeyCatcherServerCallbacks();
 }
@@ -1556,9 +1582,9 @@ void blinkStartup()
     for (int j = 0; j < 256; j += 32)
     {
         pixels.setPixelColor(0, pixels.Color(
-            (uint8_t)(sin(j * 3.14 / 128.0) * 127 + 128),
-            (uint8_t)(sin((j + 85) * 3.14 / 128.0) * 127 + 128),
-            (uint8_t)(sin((j + 170) * 3.14 / 128.0) * 127 + 128)));
+                                    (uint8_t)(sin(j * 3.14 / 128.0) * 127 + 128),
+                                    (uint8_t)(sin((j + 85) * 3.14 / 128.0) * 127 + 128),
+                                    (uint8_t)(sin((j + 170) * 3.14 / 128.0) * 127 + 128)));
         pixels.show();
         delay(60);
     }
@@ -1597,28 +1623,31 @@ void showModeStatus()
     pixels.show();
 }
 
-
-static void StaTrialTask(void* param) {
+static void StaTrialTask(void *param)
+{
     // take ownership of the heap-copy we passed in
-    std::unique_ptr<std::vector<WifiCred>> creds((std::vector<WifiCred>*)param);
+    std::unique_ptr<std::vector<WifiCred>> creds((std::vector<WifiCred> *)param);
 
     bool connected = false;
 
-    for (auto& c : *creds) {
+    for (auto &c : *creds)
+    {
         Serial.printf("Trying STA → %s\n", c.ssid.c_str());
         WiFi.begin(c.ssid.c_str(), c.pass.c_str());
 
         // wait up to ~6s (20 * 300ms)
-        for (int t = 0; t < 20 && WiFi.status() != WL_CONNECTED; ++t) {
+        for (int t = 0; t < 20 && WiFi.status() != WL_CONNECTED; ++t)
+        {
             vTaskDelay(pdMS_TO_TICKS(300));
             Serial.print('.');
         }
         Serial.println();
 
-        if (WiFi.status() == WL_CONNECTED) {
+        if (WiFi.status() == WL_CONNECTED)
+        {
             connected = true;
             Serial.printf("STA connected (IP=%s) on %s\n",
-                WiFi.localIP().toString().c_str(), c.ssid.c_str());
+                          WiFi.localIP().toString().c_str(), c.ssid.c_str());
 
             // promote working pair so next boot is quick
             config.ssid = c.ssid;
@@ -1626,35 +1655,39 @@ static void StaTrialTask(void* param) {
             saveConfig();
             break;
         }
-        else {
+        else
+        {
             Serial.println("…failed, trying next");
         }
     }
 
     // post-connect policy
-    if (connected) {
+    if (connected)
+    {
         gStaConnected = true;
 
-        if (!config.ap_mode) {
+        if (!config.ap_mode)
+        {
             // STA-only requested → shut down AP
             WiFi.softAPdisconnect(true);
             WiFi.mode(WIFI_STA);
             gApUp = false;
             Serial.println("AP disabled (STA is up)");
         }
-        else {
+        else
+        {
             Serial.println("AP kept up (ap_mode = true)");
         }
     }
-    else {
+    else
+    {
         gStaConnected = false;
         Serial.println("No STA link established.");
     }
 
     s_staTask = nullptr;
-    vTaskDelete(nullptr);   // terminate this task
+    vTaskDelete(nullptr); // terminate this task
 }
-
 
 void loadConfig()
 {
@@ -1682,7 +1715,11 @@ void loadConfig()
     Serial.print(" blink flag=");
     Serial.print(config.blink_flag);
     Serial.print(" creds=");
-    Serial.print(config.creds);
+    Serial.println(config.creds);
+
+ Serial.println("Macro Json: "+getMacrosJSON());
+        //printMacs();
+
 
     preferences.end();
 }
@@ -1690,12 +1727,12 @@ static const uint16_t localUdpPort = KC_UDP_PORT;
 
 class MyServerCallbacks : public BLEServerCallbacks
 {
-    void onConnect(BLEServer* pServer) override
+    void onConnect(BLEServer *pServer) override
     {
         Serial.println("[BLE] Client connected!");
         // Optional: Set a flag or timer here if needed.
     }
-    void onDisconnect(BLEServer* pServer) override
+    void onDisconnect(BLEServer *pServer) override
     {
         Serial.println("[BLE] Client disconnected, restarting advertising...");
         BLEDevice::startAdvertising(); // Allow reconnection!
@@ -1706,10 +1743,10 @@ class MyServerCallbacks : public BLEServerCallbacks
 // ----- BLE Mailbox -----
 class MailboxCallbacks : public BLECharacteristicCallbacks
 {
-    void onWrite(BLECharacteristic* pCharacteristic) override
+    void onWrite(BLECharacteristic *pCharacteristic) override
     {
         lastBleActivity = millis();
-        String value = String((const char*)pCharacteristic->getValue().c_str());
+        String value = String((const char *)pCharacteristic->getValue().c_str());
         if (value == "ping")
         {
             MarkReachable();
@@ -1730,50 +1767,63 @@ class MailboxCallbacks : public BLECharacteristicCallbacks
     }
 };
 
-
-static void LoadCredList(std::vector<WifiCred>& out)
+static void LoadCredList(std::vector<WifiCred> &out)
 {
     out.clear();
 
     // legacy primary pair (keep first)
-    if (!config.ssid.isEmpty()) out.push_back({ config.ssid, config.password });
+    if (!config.ssid.isEmpty())
+        out.push_back({config.ssid, config.password});
 
-    if (config.creds.isEmpty()) return;
+    if (config.creds.isEmpty())
+        return;
 
     // adjust capacity if you expect many networks
     StaticJsonDocument<1536> doc;
-    if (deserializeJson(doc, config.creds) != DeserializationError::Ok) return;
-    if (!doc.is<JsonArray>()) return;
+    if (deserializeJson(doc, config.creds) != DeserializationError::Ok)
+        return;
+    if (!doc.is<JsonArray>())
+        return;
 
     for (JsonVariant v : doc.as<JsonArray>())
     {
         if (v.is<JsonObject>())
         {
-            const char* ss = v["ssid"] | "";
-            const char* pw = v["password"] | "";
-            if (ss && *ss) out.push_back({ String(ss), String(pw) });
+            const char *ss = v["ssid"] | "";
+            const char *pw = v["password"] | "";
+            if (ss && *ss)
+                out.push_back({String(ss), String(pw)});
         }
-        else if (v.is<const char*>())
+        else if (v.is<const char *>())
         {
-            const char* ss = v.as<const char*>();
-            if (ss && *ss) out.push_back({ String(ss), String() });
+            const char *ss = v.as<const char *>();
+            if (ss && *ss)
+                out.push_back({String(ss), String()});
         }
     }
 
     // de-dupe by SSID, keep the first seen
     std::vector<WifiCred> dedup;
-    for (auto& c : out) {
+    for (auto &c : out)
+    {
         bool seen = false;
-        for (auto& d : dedup) if (d.ssid.equalsIgnoreCase(c.ssid)) { seen = true; break; }
-        if (!seen) dedup.push_back(c);
+        for (auto &d : dedup)
+            if (d.ssid.equalsIgnoreCase(c.ssid))
+            {
+                seen = true;
+                break;
+            }
+        if (!seen)
+            dedup.push_back(c);
     }
     out.swap(dedup);
 }
 
-void startWiFiAndUDP() {
+void startWiFiAndUDP()
+{
     // good hygiene when bouncing WiFi
     WiFi.persistent(false);
-    WiFi.disconnect(true, true);  // drop and clear
+    WiFi.disconnect(true, true); // drop and clear
     delay(50);
 
     // 1) Always bring AP up first (instant control / recovery)
@@ -1781,10 +1831,12 @@ void startWiFiAndUDP() {
     startSoftAP(apSsid);
 
     // 2) Spin up UDP right away (binds to ANY; will work as interfaces come up)
-    if (Udp.begin(localUdpPort)) {
+    if (Udp.begin(localUdpPort))
+    {
         Serial.printf("UDP listening on %u\n", localUdpPort);
     }
-    else {
+    else
+    {
         Serial.println("UDP begin() failed");
     }
 
@@ -1792,15 +1844,18 @@ void startWiFiAndUDP() {
     std::vector<WifiCred> candidates;
     LoadCredList(candidates);
 
-    if (candidates.empty()) {
+    if (candidates.empty())
+    {
         // Factory fresh: no Wi-Fi known → keep AP only and return
         Serial.println("No SSIDs configured → staying in AP (setup) mode.");
         gStaConnected = false;
 
-        if (!config.ap_mode) {
+        if (!config.ap_mode)
+        {
             // In “STA-only” preference but nothing to join → make AP name explicit
             String rec = apNameFromMac("KeyCatcher-SETUP");
-            if (rec != apSsid) {
+            if (rec != apSsid)
+            {
                 WiFi.softAPdisconnect(true);
                 startSoftAP(rec);
             }
@@ -1809,25 +1864,24 @@ void startWiFiAndUDP() {
     }
 
     // 4) If we have candidates, launch a background task to try them
-    if (!s_staTask) {
-        auto* heapCopy = new std::vector<WifiCred>(std::move(candidates));
+    if (!s_staTask)
+    {
+        auto *heapCopy = new std::vector<WifiCred>(std::move(candidates));
         xTaskCreate(
             StaTrialTask,
             "StaTrialTask",
-            4096,               // stack
-            heapCopy,           // parameter (freed inside the task)
-            1,                  // priority (low)
-            &s_staTask
-        );
+            4096,     // stack
+            heapCopy, // parameter (freed inside the task)
+            1,        // priority (low)
+            &s_staTask);
     }
 
     // Status snapshot at exit
     wifi_mode_t mode = WiFi.getMode();
     Serial.printf("Mode now: AP=%d, STA=%d\n",
-        (mode & WIFI_MODE_AP) != 0,
-        (mode & WIFI_MODE_STA) != 0);
+                  (mode & WIFI_MODE_AP) != 0,
+                  (mode & WIFI_MODE_STA) != 0);
 }
-
 
 void setupWeb();
 
@@ -1835,17 +1889,19 @@ void setup()
 {
     Serial.begin(115200);
     pinMode(buttonPin, INPUT_PULLUP);
-    // while (!Serial)
-    // {
-    //   ; // wait here until Serial is ready
-    // }
-    delay(500);
+     //while (!Serial)
+     //{
+//       ; // wait here until Serial is ready
+//     }
+    delay(2000);
 
-    //setupWeb();
+    // setupWeb();
 
-
-      // Serial.begin(115200);
+    // Serial.begin(115200);
     Serial.printf("Reset reason: %d\n", esp_reset_reason());
+    
+    printMacs();
+
     loadConfig();
     menu.begin();
     menu.doubleTapMaxMs = 1000;   // easier double-tap
@@ -1853,22 +1909,22 @@ void setup()
 
     // Hook the actions (return true if you reboot inside)
     menu.onSoftReset = []() -> bool
-        {
-            SoftResetKeepWifi();
-            Serial.println("[RST] soft reset");
-            delay(150); // let BlueBlink flash once
-            ESP.restart();
-            return true; // we rebooted
-        };
+    {
+        SoftResetKeepWifi();
+        Serial.println("[RST] soft reset");
+        delay(150); // let BlueBlink flash once
+        ESP.restart();
+        return true; // we rebooted
+    };
 
     menu.onFactoryReset = []() -> bool
-        {
-            FactoryResetEraseAll();
-            Serial.println("[RST] FACTORY RESET");
-            delay(150); // let RedBlue blink once
-            ESP.restart();
-            return true; // we rebooted
-        };
+    {
+        FactoryResetEraseAll();
+        Serial.println("[RST] FACTORY RESET");
+        delay(150); // let RedBlue blink once
+        ESP.restart();
+        return true; // we rebooted
+    };
     // if (config.input_source != "BOTH")
     // {
     //   config.input_source = "BOTH";
@@ -1944,8 +2000,9 @@ void setup()
 
     Serial.println("Starting web!");
     setupWeb();
-    //UpdateStatusLed();
-    //showModeStatus();
+    
+    // UpdateStatusLed();
+    // showModeStatus();
 }
 
 /* ───────────- top of file (or above loop) ──────────── */
@@ -1968,8 +2025,8 @@ void loop()
 
         if (!v.empty() && v[0] == '{')
         {
-            kcHandleEnvelope(reinterpret_cast<const uint8_t*>(v.data()),
-                v.size(), KCTransport::Ble);
+            kcHandleEnvelope(reinterpret_cast<const uint8_t *>(v.data()),
+                             v.size(), KCTransport::Ble);
         }
         else
         {
@@ -2017,15 +2074,15 @@ void loop()
         Serial.println("Button pressed: performing connection reset...");
         config.input_source = "BOTH";
         config.output_source = "USBHID";
-        config.password = "";
-        config.ssid = "";
+        config.password = "4c4c4c4c";
+        config.ssid = "DADNET";
 
         config.creds = "[]";
         config.ap_mode = false;
 
         saveConfig();
 
-        Serial.print("Config:" + getConfig());
+        Serial.println("New Config: " + getConfig());
 
         delay(2000); // Wait for 5 seconds
 
@@ -2047,8 +2104,9 @@ void loop()
         BLEDevice::getAdvertising()->start(); // <<< restart the right advertiser
     }
 
-    //showModeStatus();
-    if (gBlinkNeeded && (int32_t)(millis() - gBlinkDeadlineMs) > 0) gBlinkNeeded = false;
+    // showModeStatus();
+    if (gBlinkNeeded && (int32_t)(millis() - gBlinkDeadlineMs) > 0)
+        gBlinkNeeded = false;
 
     UpdateStatusLed();
     if (config.input_source == "WIFI" || config.input_source == "BOTH")

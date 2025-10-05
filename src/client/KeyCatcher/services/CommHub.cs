@@ -174,7 +174,8 @@ namespace KeyCatcher.services
                     Log("sending wifi");
                     return await _wifi.SendTextAsync(text);
                 }
-                if (_ble.IsConnected)
+                if (IsBleUp)
+                //_ble.IsConnected)
                 {
                     Log("sending BLE");
                     return await _ble.SendAsync(text);
@@ -257,7 +258,7 @@ namespace KeyCatcher.services
         // --------------------------------------------------------------------
         // Helpers
         // --------------------------------------------------------------------
-        private void RecomputeBest()
+        private async void RecomputeBest()
         {
             var newBest =
                 (IsWifiUp && WifiEnabled) ? Transport.Wifi :
@@ -268,21 +269,42 @@ namespace KeyCatcher.services
             {
                 Best = newBest;
                 TransportChanged?.Invoke(newBest);
-                //if (!readConfig && newBest != Transport.None)
-                //{
-                //    readConfig= true;
-                //    // Fire and forget, no await (or use Task.Run if not allowed)
-                //    _ = GetConfigAsync();
-                //}
             }
+
             bool nowConnected = newBest != Transport.None;
+
+            // Only trigger GetConfig once both layer 1 and 2 are confirmed ready
             if (_wasDisconnected && nowConnected)
             {
+                await WaitForTransportReadyAsync(newBest);
                 _ = GetConfigAsync();
             }
-            _wasDisconnected = !nowConnected; // Track for next 
+
+            _wasDisconnected = !nowConnected;
         }
 
+        private async Task WaitForTransportReadyAsync(Transport t)
+        {
+            const int maxWait = 1000;
+            const int step = 100;
+            int waited = 0;
+
+            while (waited < maxWait)
+            {
+                bool ready = t switch
+                {
+                    Transport.Wifi => _wifi?.IsConnected == true,
+                    Transport.Ble => _ble?.IsConnected == true,
+                    _ => false
+                };
+                if (ready) return;
+
+                await Task.Delay(step);
+                waited += step;
+            }
+
+            Debug.WriteLine($"[CommHub] WaitForTransportReady timed out after {waited}ms");
+        }
         private bool Set<T>(ref T field, T value, [CallerMemberName] string? name = null)
         {
             if (Equals(field, value)) return false;

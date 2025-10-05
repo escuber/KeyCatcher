@@ -221,7 +221,15 @@ namespace KeyCatcher.services
 
 
         }
-
+        void Log(string s)
+        {
+            //MainThread.BeginInvokeOnMainThread(() =>
+            //{
+            // LogLabel.Text = $"{DateTime.Now:T} {s}\n{LogLabel.Text}";
+            //StatusLabel.Text = s;
+            //});
+            Debug.WriteLine("[settings] " + s);
+        }
         public void Save()
         {
             Preferences.Set("wifi_ssid", SSID ?? "");
@@ -238,6 +246,33 @@ namespace KeyCatcher.services
         // protected void OnPropertyChanged([CallerMemberName] string prop = "") =>
         //   PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
 
+        public string xMakeMessage()
+        {
+
+            string credsJson = JsonSerializer.Serialize(creds);
+            var builder = new StringBuilder();
+
+
+            Debug.WriteLine(JsonSerializer.Serialize(creds));
+
+
+            builder.Append($"<setup>\n");
+            builder.Append($"ssid:{SSID ?? "DADNET"}\n");
+            builder.Append($"password:{Password ?? "4c4c4c4c"}\n");
+            builder.Append($"input_source:{InputType ?? "WIFI"}\n");
+            builder.Append($"output_source:{OutputType ?? "USBHID"} \n");
+            builder.Append($"ap_mode:{(ApMode ? "true" : "false")}\n");
+            builder.Append($"creds:{credsJson}\n");
+ //           string macrosJson = JsonSerializer.Serialize(Macros);
+   //         builder.Append($"macros:{macrosJson}\n");
+
+
+            builder.Append($"<endsetup>");
+            var cfg= builder.ToString();
+            Log("cfg:" + cfg);
+            return cfg;
+            //return "";
+        }
         public string MakeMessage()
         {
 
@@ -260,7 +295,8 @@ namespace KeyCatcher.services
 
 
             builder.Append($"<endsetup>");
-            return builder.ToString();
+            var rslt= builder.ToString();
+            return rslt;
             //return "";
         }
         public void SendUpdatedConfig()

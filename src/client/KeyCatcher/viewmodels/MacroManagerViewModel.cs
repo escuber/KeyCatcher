@@ -79,7 +79,7 @@ public partial class MacroManagerViewModel : ObservableObject
             if (_hub != null && _hub.IsAnyUp)
             {
                 var payload = _settings.MakeMessage();
-                await _hub.SendAsync(payload);
+                //await _hub.SendAsync(payload);
             }
             //await close();
 
@@ -136,13 +136,13 @@ public partial class MacroManagerViewModel : ObservableObject
         _settings.Macros = Macros.ToList();
         _settings.Save();
 
-        await TryPushConfigAsync();
+       // await TryPushConfigAsync();
 
         IsEditing = false;
         EditingMacro = new MacroItem();
     }
 
-    private async Task TryPushConfigAsync()
+    public  async Task TryPushConfigAsync()
     {
         if (_hub == null || !_hub.IsAnyUp) return;
 

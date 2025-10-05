@@ -71,6 +71,7 @@ public partial class MacroManager : Popup
         // do your save/apply logic here (or delegate to vm)
         // close with a result if you want:
         ///this.CloseAsync
+        VM.TryPushConfigAsync();
         await CloseAsync();
         // or: await closeasync(true);  <-- requires `async void onsaveandclose(...)`
     }

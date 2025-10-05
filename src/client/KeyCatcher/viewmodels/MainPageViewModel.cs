@@ -333,6 +333,25 @@ public partial class MainPageViewModel : ObservableObject
     private async Task Send()
     {
 
+
+        //var cfg = "{\"ssid\":\"DADNET\",\"pss\":\"4c4c4c4c\",\"in\":\"BOTH\",\"out\":\"USBHID\",\"ap\":false,\"creds\":[],\"macros\":{\"j1\":\"jimmy is the name\"},\"bflag\":\"\"\"serial\":\"KC-0480187D7850\"}";
+        //_settings.ApplyDeviceJson(cfg);
+
+//        var x = 0;
+
+        //var cconf = await wifi.GetConfigAsync();
+        //Log("config was:" + cconf);
+        //_settings.ApplyDeviceJson(conf);
+       // var msg = _settings.MakeMessage();
+       // Log("Make msg:" + msg);
+
+//        msg = _settings.MakeMessageMacro();
+//        Log("Make msg:" + msg);
+//await Hub.SendAsync(msg);
+
+//        //
+//        return;
+
         //wait ble.SendAsync("hellp  ");
         //string text = new string('A', 3000);// + "<<END>>";
         //var connn = wifi.IsConnected;
@@ -347,15 +366,15 @@ public partial class MainPageViewModel : ObservableObject
 
         //return;
         // messageText = text;
-        Log("send clicked");
-        await ShowCountdown();
-        
+        //Log("send clicked");
+       await ShowCountdown();
+
         //await Task.Delay(PauseSeconds * 1000);
 
-
-        var ok = await _sendGate.TrySendAsync(() => _hub.SendAsync(messageText));
-        if (!ok)
-            await App.Current.MainPage.DisplayAlert("Blocked", "Sends are paused", "OK");
+        _hub.SendAsync(messageText);
+//        var ok = await _sendGate.TrySendAsync(() => _hub.SendAsync(messageText));
+  //      if (!ok)
+    //        await App.Current.MainPage.DisplayAlert("Blocked", "Sends are paused", "OK");
 
         return;
 
@@ -373,10 +392,10 @@ public partial class MainPageViewModel : ObservableObject
 
 
 
-        var cconf = await wifi.GetConfigAsync();
 
-        //_settings.ApplyDeviceJson(conf);
-        var msg = _settings.MakeMessage();
+
+
+
 
         _settings.SSID = "mxxyDadsCar";
         _settings.Password = "4c4c4c4c";
