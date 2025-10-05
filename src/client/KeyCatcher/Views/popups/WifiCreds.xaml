@@ -305,7 +305,8 @@
                         Grid.Column="2"
                         Padding="12,4"
                         BackgroundColor="#3B0CA3"
-                        Command="{Binding SaveAndCloseCommand}"
+                        
+                        Clicked="onsaveandclose2"
                         CornerRadius="18"
                         Text="Save n' Close"
                         TextColor="White" />

@@ -73,13 +73,13 @@ public partial class MacroManagerViewModel : ObservableObject
             IsBusy = true;   // show spinner
                              //VM.ApplyToService(_settings);
 
-
-            ApplyToService(_settings);
+            await SaveMacroAsync();
+            ///ApplyToService(_settings);
             _settings.Save();
-            if (Hub != null && Hub.IsAnyUp)
+            if (_hub != null && _hub.IsAnyUp)
             {
                 var payload = _settings.MakeMessage();
-                await Hub.SendAsync(payload);
+                await _hub.SendAsync(payload);
             }
             //await close();
 

@@ -1,5 +1,6 @@
 ﻿
 using KeyCatcher;
+using KeyCatcher.Popups;
 using KeyCatcher.services;
 using KeyCatcher.ViewModels;
 using KeyCatcher.Views;
@@ -40,6 +41,8 @@ public static class MauiProgram
         builder.Services.AddSingleton<KeyCatcherWiFiService>();
         builder.Services.AddSingleton<CommHub>();
         builder.Services.AddSingleton<SendGate>();
+        builder.Services.AddSingleton<MacroManager>();
+        builder.Services.AddSingleton<MacroManagerViewModel>();
 
         // ViewModels
         builder.Services.AddTransient<MainPageViewModel>();

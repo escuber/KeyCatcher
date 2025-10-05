@@ -98,7 +98,8 @@ public partial class MainPageViewModel : ObservableObject
     {
         var page = Shell.Current?.CurrentPage ?? Application.Current?.MainPage;
         if (page is null) return;
-        var popup = new KeyCatcher.Popups.MacroManager(_settings);
+        
+        var popup = new KeyCatcher.Popups.MacroManager(_settings,_hub);
         await page.ShowPopupAsync(popup);
     }
     public MainPageViewModel(

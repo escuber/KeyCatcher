@@ -42,7 +42,7 @@ namespace KeyCatcher.ViewModels
             Hub = hub;
 
             _settings = settings;
-            SaveCommand = new AsyncRelayCommand(SaveAsync);
+            //SaveCommand = new AsyncRelayCommand(SaveAsync);
 
         }
 
@@ -51,11 +51,11 @@ namespace KeyCatcher.ViewModels
         // Raise an event so the view can close itself
         public event EventHandler? SaveSucceeded;
 
-        public async Task SaveAsync()
-        {
-            _settings.Save();
-            SaveSucceeded?.Invoke(this, EventArgs.Empty);
-        }
+        //public async Task SaveAsync()
+        //{
+        //    _settings.Save();
+        //    SaveSucceeded?.Invoke(this, EventArgs.Empty);
+        //}
 
         // Load current settings into the VM
 
@@ -131,14 +131,6 @@ namespace KeyCatcher.ViewModels
 
             var list = Networks?.ToList() ?? new List<WifiCredential>();
             svc.creds = list;
-
-
-            //// Save with a predictable naming policy (and our loader is case-insensitive anyway)
-            //svc.creds = JsonSerializer.Serialize(list, new JsonSerializerOptions
-            //{
-            //    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-            //});
-
             svc.Save();
         }
         // Commands
@@ -191,7 +183,7 @@ namespace KeyCatcher.ViewModels
 
         [RelayCommand]
         public async Task SaveAndClose()
-        {
+        {// true real called
             try
             {
 
@@ -204,7 +196,17 @@ namespace KeyCatcher.ViewModels
                 if (Hub != null && Hub.IsAnyUp)
                 {
                     var payload = _settings.MakeMessage();
-                    await Hub.SendAsync(payload);
+
+
+                    try
+                    {
+                        await Hub.SendAsync(payload);
+                    }
+                    catch { 
+                    
+                    
+                    
+                    }
                 }
                 //await close();
 

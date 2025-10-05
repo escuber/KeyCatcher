@@ -172,9 +172,15 @@ public partial class Mainpage : ContentPage
     {
         Debug.WriteLine("Tapped!");
 
-
-        var popup = new WifiCreds(_settings, hub);//(_settings, _cntl); // _settings = KeyCatcherSettingsService, _cntl = CommHub
-        await Shell.Current.CurrentPage.ShowPopupAsync(popup);
+        try
+        {
+            var popup = new WifiCreds(_settings, hub);//(_settings, _cntl); // _settings = KeyCatcherSettingsService, _cntl = CommHub
+            await Shell.Current.CurrentPage.ShowPopupAsync(popup);
+        }
+        catch
+        {
+          await   SafeAlert("Alert", "Could not save settings no connection to device.");
+        }
     }
 
 }
