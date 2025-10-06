@@ -2,6 +2,7 @@
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text;
+//using static CoreFoundation.DispatchSource;
 
 namespace KeyCatcher.services
 {
@@ -9,6 +10,8 @@ namespace KeyCatcher.services
     {
         private const int DevicePort = 4210;
         private const string ApIp = "192.168.4.1";
+        private static UdpClient? _sharedSock = null;
+private static int _sharedPort = 0;
 
         private string? _ipAddress;
         private readonly CancellationTokenSource _cts = new();
@@ -20,9 +23,56 @@ namespace KeyCatcher.services
 
         public KeyCatcherWiFiService()
         {
-            _ipAddress = IpCache.Load()?.ToString();
+            //_ipAddress = IpCache.Load()?.ToString();
         }
+        // DiscoverDeviceIpAsync.cs
+        //private async Task<IPAddress?> DiscoverDeviceIpAsync(int port, int timeoutMs)
+        //{
+        //    using var udp = new UdpClient();
+        //    udp.EnableBroadcast = true;
 
+        //    // Get your local IPv4 subnet
+        //    var local = Dns.GetHostEntry(Dns.GetHostName()).AddressList
+        //        .FirstOrDefault(ip => ip.AddressFamily == AddressFamily.InterNetwork);
+        //    if (local == null) return null;
+
+        //    // Compute subnet broadcast address (assume /24)
+        //    var bytes = local.GetAddressBytes();
+        //   // bytes[0] = 255; // replace last octet with 255
+
+
+        //   // bytes[1] = 255; // replace last octet with 255
+
+        //  //  bytes[2] = 255; // replace last octet with 255
+
+        //    bytes[3] = 255; // replace last octet with 255
+
+
+
+
+        //    var broadcast = new IPAddress(bytes);
+
+
+
+        //    var discover = Encoding.UTF8.GetBytes("DISCOVER_KEYCATCHER");
+        //    //await udp.SendAsync(discover, discover.Length, new IPEndPoint(broadcast, 4210));
+        //    udp.EnableBroadcast = true;
+        //    await udp.SendAsync(discover, discover.Length, new IPEndPoint(IPAddress.Parse("255.255.255.255"), 4210));
+        //    var start = Environment.TickCount;
+        //    while (Environment.TickCount - start < timeoutMs)
+        //    {
+        //        if (udp.Available > 0)
+        //        {
+        //            var result = await udp.ReceiveAsync();
+        //            var msg = Encoding.UTF8.GetString(result.Buffer);
+        //            if (msg.StartsWith("PONG") || msg.StartsWith("KC:HELLO"))
+        //                return result.RemoteEndPoint.Address;
+        //        }
+        //        await Task.Delay(50);
+        //    }
+
+        //    return null; // timeout
+        //}
         public async Task<bool> ConnectAsync()
         {
             if (IsConnected && !string.IsNullOrEmpty(_ipAddress))
@@ -39,8 +89,10 @@ namespace KeyCatcher.services
             }
 
             // 2) discovery
-            var found = await DiscoverDeviceIpAsync(DevicePort, 2000, _cts.Token);
-            if (!string.IsNullOrEmpty(found))
+            //var found = await DiscoverDeviceIpAsync(DevicePort, 2000, _cts.Token);
+            var found = await DiscoverDeviceIpAsync(DevicePort, 2000);
+            //if (!string.IsNullOrEmpty(found))
+            if (found is not null)
             {
                 MarkConnected(found);
                 return true;
@@ -146,13 +198,18 @@ namespace KeyCatcher.services
                 return null;
             }
         }
+
         public static async Task SendWithAckAsync(string msg, string host, int port, int finalTimeoutMs)
         {
-            using var sock = new UdpClient(AddressFamily.InterNetwork);
-            sock.Connect(host, port);
+            // Bind to an available UDP port for both send and receive
+            using var sock = new UdpClient(0);
+
+            // Diagnostic: Show which local port is in use
+            var localEP = (IPEndPoint)sock.Client.LocalEndPoint;
+            Log($"UDP local bind: {localEP.Address}:{localEP.Port}");
 
             const int ChunkBudget = 200;
-            const int AckTimeoutPerTryMs = 800;
+            const int AckTimeoutPerTryMs = 2000;
             const int MaxRetries = 4;
 
             var payload = Encoding.UTF8.GetBytes(msg);
@@ -169,7 +226,10 @@ namespace KeyCatcher.services
                 bool acked = false;
                 for (int attempt = 0; attempt < MaxRetries && !acked; attempt++)
                 {
-                    await sock.SendAsync(envBytes, envBytes.Length);
+                    var mylocalEP = (IPEndPoint)sock.Client.LocalEndPoint;
+                    Log($"UDP local bind: {mylocalEP.Address}:{localEP.Port}");
+
+                    await sock.SendAsync(envBytes, envBytes.Length, host, port);
                     acked = await WaitAckAsync(sock, id, index, AckTimeoutPerTryMs);
                     if (!acked) Log($"retry {index} attempt {attempt + 1}");
                 }
@@ -191,6 +251,52 @@ namespace KeyCatcher.services
                 }
             }
         }
+
+        //public static async Task SendWithAckAsync(string msg, string host, int port, int finalTimeoutMs)
+        //{
+        //    using var sock = new UdpClient(AddressFamily.InterNetwork);
+        //    sock.Connect(host, port);
+
+        //    const int ChunkBudget = 200;
+        //    const int AckTimeoutPerTryMs = 2000;
+        //    const int MaxRetries = 4;
+
+        //    var payload = Encoding.UTF8.GetBytes(msg);
+        //    int id = Random.Shared.Next(1, int.MaxValue);
+        //    int total = (payload.Length + ChunkBudget - 1) / ChunkBudget;
+
+        //    for (int index = 0, offset = 0; offset < payload.Length; index++)
+        //    {
+        //        int len = Math.Min(ChunkBudget, payload.Length - offset);
+        //        string b64 = Convert.ToBase64String(payload, offset, len);
+        //        string env = $"{{\"t\":\"kc_chunk\",\"v\":1,\"id\":{id},\"n\":{total},\"i\":{index},\"pl\":\"{b64}\"}}";
+        //        byte[] envBytes = Encoding.UTF8.GetBytes(env);
+
+        //        bool acked = false;
+        //        for (int attempt = 0; attempt < MaxRetries && !acked; attempt++)
+        //        {
+        //            await sock.SendAsync(envBytes, envBytes.Length);
+        //            acked = await WaitAckAsync(sock, id, index, AckTimeoutPerTryMs);
+        //            if (!acked) Log($"retry {index} attempt {attempt + 1}");
+        //        }
+        //        if (!acked) throw new TimeoutException($"No ACK for chunk {index}");
+
+        //        Log($"ACK {index + 1}/{total}");
+        //        offset += len;
+        //    }
+
+        //    using var cts = new CancellationTokenSource(finalTimeoutMs);
+        //    while (true)
+        //    {
+        //        var res = await sock.ReceiveAsync(cts.Token);
+        //        if (!LooksLikeAck(res.Buffer))
+        //        {
+        //            string reply = Encoding.UTF8.GetString(res.Buffer);
+        //            Log("Final reply: " + reply);
+        //            return;
+        //        }
+        //    }
+        //}
         public static void Log(string s)
         {
             //MainThread.BeginInvokeOnMainThread(() =>
@@ -237,7 +343,7 @@ namespace KeyCatcher.services
             catch (OperationCanceledException) { return false; }
         }
 
-        private static async Task<string?> DiscoverDeviceIpAsync(int port, int timeoutMs, CancellationToken ct)
+        private async Task<string?> DiscoverDeviceIpAsync(int port, int timeoutMs)
         {
             foreach (var ni in NetworkInterface.GetAllNetworkInterfaces())
             {
@@ -247,20 +353,20 @@ namespace KeyCatcher.services
                 foreach (var ua in ni.GetIPProperties().UnicastAddresses)
                 {
                     if (ua.Address.AddressFamily != AddressFamily.InterNetwork) continue;
-
                     var local = ua.Address;
                     var mask = ua.IPv4Mask;
                     if (mask == null) continue;
 
                     var bcast = GetBroadcast(local, mask);
-                    var ip = await BroadcastProbeAsync(local, bcast, port, timeoutMs, ct);
-                    if (!string.IsNullOrEmpty(ip)) return ip;
+                    var ip = await BroadcastProbeAsync(local, bcast, port, timeoutMs);
+                    if (!string.IsNullOrEmpty(ip))
+                        return ip;
                 }
             }
             return null;
         }
 
-        private static async Task<string?> BroadcastProbeAsync(IPAddress localIp, IPAddress targetBroadcast, int port, int timeoutMs, CancellationToken ct)
+        private static async Task<string?> BroadcastProbeAsync(IPAddress localIp, IPAddress targetBroadcast, int port, int timeoutMs)
         {
             try
             {
@@ -273,13 +379,14 @@ namespace KeyCatcher.services
                 var probe = Encoding.UTF8.GetBytes("KC:DISCOVER?");
                 await sock.SendAsync(probe, probe.Length, new IPEndPoint(targetBroadcast, port));
 
-                using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
-                cts.CancelAfter(timeoutMs);
-
+                using var cts = new CancellationTokenSource(timeoutMs);
                 var res = await sock.ReceiveAsync(cts.Token);
                 return res.RemoteEndPoint.Address.ToString();
             }
-            catch { return null; }
+            catch
+            {
+                return null;
+            }
         }
 
         private static IPAddress GetBroadcast(IPAddress addr, IPAddress mask)
@@ -287,9 +394,11 @@ namespace KeyCatcher.services
             var a = addr.GetAddressBytes();
             var m = mask.GetAddressBytes();
             var b = new byte[4];
-            for (int i = 0; i < 4; i++) b[i] = (byte)(a[i] | ~m[i]);
+            for (int i = 0; i < 4; i++)
+                b[i] = (byte)(a[i] | ~m[i]);
             return new IPAddress(b);
         }
+
     }
 
     public static class IpCache

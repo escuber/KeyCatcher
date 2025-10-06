@@ -154,12 +154,14 @@ namespace KeyCatcher.Popups
         }
         async void onsaveandclose2(object sender, EventArgs e)
         {
-            await VM.SaveAndClose();
+            await SaveAndCloseAsync();
+
+            //await VM.SaveAndClose();
             //system.diagnostics.debug.writeline("onsaveandclose fired");
             // do your save/apply logic here (or delegate to vm)
             // close with a result if you want:
             ///this.CloseAsync
-            await CloseAsync();
+            //await CloseAsync();
             // or: await closeasync(true);  <-- requires `async void onsaveandclose(...)`
         }
 

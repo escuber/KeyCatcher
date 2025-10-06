@@ -21,7 +21,8 @@ namespace KeyCatcher.ViewModels
 
         [ObservableProperty]
         private bool isEditing = false;
-
+        [ObservableProperty]
+        private bool isApModeEnabled;
 
         bool _isBusy;
         public bool IsBusy
@@ -63,7 +64,7 @@ namespace KeyCatcher.ViewModels
         {
             PrimarySSID = svc.SSID ?? "";
             PrimaryPassword = svc.Password ?? "";
-
+            isApModeEnabled = svc.apMode;
             Networks.Clear();
             if (svc.creds != null)
             {
@@ -127,6 +128,7 @@ namespace KeyCatcher.ViewModels
         public void ApplyToService(KeyCatcherSettingsService svc)
         {
             svc.SSID = PrimarySSID ?? "";
+            svc.apMode = isApModeEnabled ;
             svc.Password = PrimaryPassword ?? "";
 
             var list = Networks?.ToList() ?? new List<WifiCredential>();

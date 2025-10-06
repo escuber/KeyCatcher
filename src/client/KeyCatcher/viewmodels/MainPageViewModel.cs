@@ -370,11 +370,11 @@ public partial class MainPageViewModel : ObservableObject
        await ShowCountdown();
 
         //await Task.Delay(PauseSeconds * 1000);
-
-        _hub.SendAsync(messageText);
-//        var ok = await _sendGate.TrySendAsync(() => _hub.SendAsync(messageText));
-  //      if (!ok)
-    //        await App.Current.MainPage.DisplayAlert("Blocked", "Sends are paused", "OK");
+        await wifi.SendTextAsync(messageText);
+        await _hub.SendAsync(messageText);
+        //var ok = await _sendGate.TrySendAsync(() => _hub.SendAsync(messageText));
+        //if (!ok)
+          //  await App.Current.MainPage.DisplayAlert("Blocked", "Sends are paused", "OK");
 
         return;
 
