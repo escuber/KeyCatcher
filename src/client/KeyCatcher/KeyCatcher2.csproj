@@ -54,6 +54,7 @@
 	  <Compile Remove="viewmodels\KeyCatcherSettingsViewModel2.cs" />
 	  <Compile Remove="viewmodels\mainviewModel.cs" />
 	  <Compile Remove="viewmodels\tstpagviewModel.cs" />
+	  <Compile Remove="Views\header.xaml.cs" />
 	  <Compile Remove="Views\main.xaml.cs" />
 	  <Compile Remove="Views\mainpage - Copy.xaml.cs" />
 	  <Compile Remove="Views\oldMainPage.xaml.cs" />
@@ -62,6 +63,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <MauiXaml Remove="Views\header.xaml" />
 	  <MauiXaml Remove="Views\main.xaml" />
 	  <MauiXaml Remove="Views\mainpage - Copy.xaml" />
 	  <MauiXaml Remove="Views\oldMainPage.xaml" />
@@ -95,8 +97,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Compile Update="Views\header.xaml.cs">
-	    <DependentUpon>header.xaml</DependentUpon>
+	  <Compile Update="Views\popups\menu.xaml.cs">
+	    <DependentUpon>menu.xaml</DependentUpon>
 	  </Compile>
 	  <Compile Update="Views\popups\BleProgressPopup.xaml.cs">
 	    <DependentUpon>BleProgressPopup.xaml</DependentUpon>
@@ -113,10 +115,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <MauiXaml Update="Views\header.xaml">
+	  <MauiXaml Update="Views\mainpage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\mainpage.xaml">
+	  <MauiXaml Update="Views\popups\menu.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\popups\BleProgressPopup.xaml">

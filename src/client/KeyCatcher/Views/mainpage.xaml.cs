@@ -5,6 +5,7 @@ using CommunityToolkit.Maui.Extensions;
 using KeyCatcher.Popups;
 using KeyCatcher.services;
 using KeyCatcher.ViewModels;
+using KeyCatcher.Views.popups;
 
 namespace KeyCatcher.Views;
 
@@ -52,7 +53,11 @@ public partial class Mainpage : ContentPage
             MessageEditor.Text = clipboardText;
 
     }
-
+    private async void OnMoreClicked(object sender, EventArgs e)
+    {
+        var popup = new menu();
+        await this.ShowPopupAsync(popup);
+    }
     //    private async void TestSend_Clicked(object sender, EventArgs e)
     //    {
     ////        var ok = await cntlr.ConnectAsync();
@@ -67,45 +72,29 @@ public partial class Mainpage : ContentPage
         var popup = new KeyCatcher.Help();
         await Shell.Current.CurrentPage.ShowPopupAsync(popup);
     }
+
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        // _ = _cntl.ConnectAsync();
-
         if (_permissionsChecked) return;
         _permissionsChecked = true;
+
         var allGranted = true;
 
-
-        var win = Application.Current.Windows.First();
-        double width = win.Width;   // logical units (DIP)
-        double height = win.Height;
-        Debug.WriteLine($"Page sees {width} × {height}");
-
-
 #if ANDROID
-        try
-        {
-            var statusScan = await Permissions.RequestAsync<BluetoothScanPermission>();
-            var statusConn = await Permissions.RequestAsync<BluetoothConnectPermission>();
-            var statusLoc = await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
-
-            allGranted = statusScan == PermissionStatus.Granted
-                         && statusConn == PermissionStatus.Granted
-                         && statusLoc == PermissionStatus.Granted;
-        }
-        catch (Exception ex)
-        {
-            await SafeAlert("Error", $"Failed to request Android BLE permissions: {ex.Message}");
-            allGranted = false;
-        }
-#elif WINDOWS
-        // Do not request runtime permissions on Windows.
-        // Capabilities are declared in Platforms/Windows/Package.appxmanifest.
-        allGranted = true;
+    try {
+        var statusScan = await Permissions.RequestAsync<BluetoothScanPermission>();
+        var statusConn = await Permissions.RequestAsync<BluetoothConnectPermission>();
+        var statusLoc  = await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
+        allGranted = statusScan == PermissionStatus.Granted
+                  && statusConn == PermissionStatus.Granted
+                  && statusLoc  == PermissionStatus.Granted;
+    } catch (Exception ex) {
+        await SafeAlert("Error", $"Failed to request Android BLE permissions: {ex.Message}");
+        allGranted = false;
+    }
 #else
-        // Other platforms as needed...
-
+        allGranted = true;
 #endif
 
         if (!allGranted)
@@ -115,32 +104,6 @@ public partial class Mainpage : ContentPage
             return;
         }
 
-        // Pick up any PendingShareText saved earlier
-        if (Preferences.ContainsKey("PendingShareText"))
-        {
-            var text = Preferences.Get("PendingShareText", "");
-            if (!string.IsNullOrWhiteSpace(text))
-            {
-                vm.MessageText = text;
-                Preferences.Remove("PendingShareText");
-            }
-        }
-
-        // Optionally kick off an initial scan here (Android only)
-        // await vm.ScanForDevicesAsync();
-
-
-        if (!allGranted)
-        {
-            await SafeAlert("Permission needed",
-                "KeyCatcher needs Location and Bluetooth permissions to scan for devices.");
-            return;
-        }
-
-        // 3️⃣ kick off Wi-Fi + BLE race exactly once
-        //  _ = Task.Run(() => cntlr .ConnectAsync());
-
-        // Optional: restore any pending share text
         if (Preferences.ContainsKey("PendingShareText"))
         {
             var text = Preferences.Get("PendingShareText", "");
@@ -153,9 +116,96 @@ public partial class Mainpage : ContentPage
 
         await hub.InitializeAsync();
         await vm.ConnectNowCommand.ExecuteAsync(null);
-
-
     }
+//    protected override async void OnAppearing()
+//    {
+//        base.OnAppearing();
+//        // _ = _cntl.ConnectAsync();
+
+//        if (_permissionsChecked) return;
+//        _permissionsChecked = true;
+//        var allGranted = true;
+
+
+//        var win = Application.Current.Windows.First();
+//        double width = win.Width;   // logical units (DIP)
+//        double height = win.Height;
+//        Debug.WriteLine($"Page sees {width} × {height}");
+
+
+//#if ANDROID
+//        try
+//        {
+//            var statusScan = await Permissions.RequestAsync<BluetoothScanPermission>();
+//            var statusConn = await Permissions.RequestAsync<BluetoothConnectPermission>();
+//            var statusLoc = await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
+
+//            allGranted = statusScan == PermissionStatus.Granted
+//                         && statusConn == PermissionStatus.Granted
+//                         && statusLoc == PermissionStatus.Granted;
+//        }
+//        catch (Exception ex)
+//        {
+//            await SafeAlert("Error", $"Failed to request Android BLE permissions: {ex.Message}");
+//            allGranted = false;
+//        }
+//#elif WINDOWS
+//        // Do not request runtime permissions on Windows.
+//        // Capabilities are declared in Platforms/Windows/Package.appxmanifest.
+//        allGranted = true;
+//#else
+//        // Other platforms as needed...
+
+//#endif
+
+//        if (!allGranted)
+//        {
+//            await SafeAlert("Permission needed",
+//                "KeyCatcher needs Location and Bluetooth permissions to scan for devices.");
+//            return;
+//        }
+
+//        // Pick up any PendingShareText saved earlier
+//        if (Preferences.ContainsKey("PendingShareText"))
+//        {
+//            var text = Preferences.Get("PendingShareText", "");
+//            if (!string.IsNullOrWhiteSpace(text))
+//            {
+//                vm.MessageText = text;
+//                Preferences.Remove("PendingShareText");
+//            }
+//        }
+
+//        // Optionally kick off an initial scan here (Android only)
+//        // await vm.ScanForDevicesAsync();
+
+
+//        if (!allGranted)
+//        {
+//            await SafeAlert("Permission needed",
+//                "KeyCatcher needs Location and Bluetooth permissions to scan for devices.");
+//            return;
+//        }
+
+//        // 3️⃣ kick off Wi-Fi + BLE race exactly once
+//        //  _ = Task.Run(() => cntlr .ConnectAsync());
+
+//        // Optional: restore any pending share text
+//        if (Preferences.ContainsKey("PendingShareText"))
+//        {
+//            var text = Preferences.Get("PendingShareText", "");
+//            if (!string.IsNullOrWhiteSpace(text))
+//            {
+//                vm.MessageText = text;
+//                Preferences.Remove("PendingShareText");
+//            }
+//        }
+
+//        await hub.InitializeAsync();
+//        await vm.ConnectNowCommand.ExecuteAsync(null);
+
+
+//    }
 
     private static Task SafeAlert(string title, string message, string cancel = "OK")
     {

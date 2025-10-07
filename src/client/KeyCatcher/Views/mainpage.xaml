@@ -72,7 +72,7 @@
 
 
             <!--  Text="{Binding IsWifiUp, StringFormat='Wi-Fi: {0:Up;Down}'}"  "{Binding Title, Source={x:Reference headerRoot}}"BLE Icon Button  -->
-            <ImageButton
+            <!--<ImageButton
                 Grid.Column="2"
                 BackgroundColor="Transparent"
                 Command="{Binding BleCommand}"
@@ -85,7 +85,7 @@
                         Color="{Binding BleIconColor}" />
 
                 </ImageButton.Source>
-            </ImageButton>
+            </ImageButton>-->
             <!--<ImageButton
             Grid.Column="2"
             BackgroundColor="Transparent"
@@ -102,7 +102,7 @@
             </ImageButton>-->
 
             <!--  Wi-Fi Icon Button  -->
-            <ImageButton
+            <!--<ImageButton
                 Grid.Column="3"
                 Margin="6,0,0,0"
                 BackgroundColor="Transparent"
@@ -114,23 +114,22 @@
                         Glyph="{StaticResource SolidWifi}"
                         Color="{Binding WifiIconColor}" />
                 </ImageButton.Source>
-            </ImageButton>
+            </ImageButton>-->
 
-            <!--  Help/Question Icon  Color="{Binding WifiIconColor, Source={x:Reference headerRoot}}" /> (only visible if both are down)  -->
-            <ImageButton
+            <!--  Command="Command="{Binding showNetworkCommand}"{Binding HelpCommand}"Help/Question Icon  Color="{Binding WifiIconColor, Source={x:Reference headerRoot}}" /> (only visible if both are down)  -->
+            <!--<ImageButton
                 Grid.Column="4"
+                Margin="5,0,0,0"
                 BackgroundColor="Transparent"
-                Command="{Binding HelpCommand}"
-                HeightRequest="24"
-                IsVisible="True"
-                WidthRequest="24">
+                Clicked="OnMoreClicked"
+                HeightRequest="14">
                 <ImageButton.Source>
                     <FontImageSource
                         FontFamily="FontAwesomeSolid"
-                        Glyph="{StaticResource SolidCircleQuestion}"
-                        Color="Orange" />
+                        Glyph="{StaticResource SolidEllipsisVertical}"
+                        Color="Coral" />
                 </ImageButton.Source>
-            </ImageButton>
+            </ImageButton>-->
         </Grid>
 
 
@@ -139,7 +138,45 @@
 
     </Shell.TitleView>
 
+    <!--  IconImageSource="{FontImageSource Glyph='&#xf142;' FontFamily='FontAwesomeSolid'}">  -->
 
+    <ContentPage.ToolbarItems>
+        <ToolbarItem
+            Command="{Binding BleCommand}"
+            Order="Primary"
+            Priority="0">
+            <ToolbarItem.IconImageSource>
+                <FontImageSource
+                    FontFamily="FontAwesomeBrands"
+                    Glyph="{StaticResource BrandBluetooth}"
+                    Size="40"
+                    Color="{Binding BleIconColor}" />
+            </ToolbarItem.IconImageSource>
+
+        </ToolbarItem>
+        <ToolbarItem
+            Command="{Binding showNetworkCommand}"
+            Order="Primary"
+            Priority="0">
+            <ToolbarItem.IconImageSource>
+                <FontImageSource
+                    FontFamily="FontAwesomeSolid"
+                    Glyph="{StaticResource SolidWifi}"
+                    Color="{Binding WifiIconColor}" />
+            </ToolbarItem.IconImageSource>
+
+        </ToolbarItem>
+        <ToolbarItem
+            Command="{Binding ShowHelpCommand}"
+            Order="Secondary"
+            Priority="1"
+            Text="Help" />
+        <ToolbarItem
+            Command="{Binding OpenSettingsCommand}"
+            Order="Secondary"
+            Priority="2"
+            Text="Settings" />
+    </ContentPage.ToolbarItems>
 
 
     <Border

@@ -2,83 +2,47 @@
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text;
-//using static CoreFoundation.DispatchSource;
 
 namespace KeyCatcher.services
 {
-    public sealed class KeyCatcherWiFiService : IDisposable //IKeyCatcherCommService, 
+    public sealed class KeyCatcherWiFiService : IDisposable
     {
         private const int DevicePort = 4210;
         private const string ApIp = "192.168.4.1";
+
+        // SINGLE SOCKET (static/shared across all instances)
         private static UdpClient? _sharedSock = null;
-private static int _sharedPort = 0;
+        private static int _sharedPort = 0;
+        private static readonly object _sockLock = new();
 
         private string? _ipAddress;
         private readonly CancellationTokenSource _cts = new();
 
         public event EventHandler<bool>? ConnectedChanged;
-
         public bool IsConnected { get; set; }
         public bool IsApMode => _ipAddress == ApIp;
 
-        public KeyCatcherWiFiService()
+        public KeyCatcherWiFiService() { }
+
+        // Ensure singleton UDP socket is created and ready
+        private static void EnsureUdpSocket()
         {
-            //_ipAddress = IpCache.Load()?.ToString();
+            lock (_sockLock)
+            {
+                if (_sharedSock == null)
+                {
+                    _sharedSock = new UdpClient(0); // Bind to any available port
+                    _sharedPort = ((IPEndPoint)_sharedSock.Client.LocalEndPoint!).Port;
+                    Log($"[UDP] Shared socket bound to local port: {_sharedPort}");
+                }
+            }
         }
-        // DiscoverDeviceIpAsync.cs
-        //private async Task<IPAddress?> DiscoverDeviceIpAsync(int port, int timeoutMs)
-        //{
-        //    using var udp = new UdpClient();
-        //    udp.EnableBroadcast = true;
 
-        //    // Get your local IPv4 subnet
-        //    var local = Dns.GetHostEntry(Dns.GetHostName()).AddressList
-        //        .FirstOrDefault(ip => ip.AddressFamily == AddressFamily.InterNetwork);
-        //    if (local == null) return null;
-
-        //    // Compute subnet broadcast address (assume /24)
-        //    var bytes = local.GetAddressBytes();
-        //   // bytes[0] = 255; // replace last octet with 255
-
-
-        //   // bytes[1] = 255; // replace last octet with 255
-
-        //  //  bytes[2] = 255; // replace last octet with 255
-
-        //    bytes[3] = 255; // replace last octet with 255
-
-
-
-
-        //    var broadcast = new IPAddress(bytes);
-
-
-
-        //    var discover = Encoding.UTF8.GetBytes("DISCOVER_KEYCATCHER");
-        //    //await udp.SendAsync(discover, discover.Length, new IPEndPoint(broadcast, 4210));
-        //    udp.EnableBroadcast = true;
-        //    await udp.SendAsync(discover, discover.Length, new IPEndPoint(IPAddress.Parse("255.255.255.255"), 4210));
-        //    var start = Environment.TickCount;
-        //    while (Environment.TickCount - start < timeoutMs)
-        //    {
-        //        if (udp.Available > 0)
-        //        {
-        //            var result = await udp.ReceiveAsync();
-        //            var msg = Encoding.UTF8.GetString(result.Buffer);
-        //            if (msg.StartsWith("PONG") || msg.StartsWith("KC:HELLO"))
-        //                return result.RemoteEndPoint.Address;
-        //        }
-        //        await Task.Delay(50);
-        //    }
-
-        //    return null; // timeout
-        //}
         public async Task<bool> ConnectAsync()
         {
             if (IsConnected && !string.IsNullOrEmpty(_ipAddress))
                 return true;
 
-            // 1) try cached
             if (!string.IsNullOrWhiteSpace(_ipAddress))
             {
                 if (await ProbeAsync(_ipAddress))
@@ -88,17 +52,13 @@ private static int _sharedPort = 0;
                 }
             }
 
-            // 2) discovery
-            //var found = await DiscoverDeviceIpAsync(DevicePort, 2000, _cts.Token);
             var found = await DiscoverDeviceIpAsync(DevicePort, 2000);
-            //if (!string.IsNullOrEmpty(found))
             if (found is not null)
             {
                 MarkConnected(found);
                 return true;
             }
 
-            // 3) AP fallback
             if (await ProbeAsync(ApIp))
             {
                 MarkConnected(ApIp);
@@ -123,22 +83,12 @@ private static int _sharedPort = 0;
                 return false;
 
             var payload = text.EndsWith("<<END>>") ? text : text + "<<END>>";
-            //var reply = await SendAndWaitAsync(payload, _ipAddress!, DevicePort, 5000);
-
             await SendWithAckAsync(payload, _ipAddress!, DevicePort, 8000);
-            //    .ContinueWith(t =>
-            //{
-            //    if (t.IsFaulted)
-            //        Log($"[WiFi] SendWithAck failed: {t.Exception?.GetBaseException().Message}");
-            //});
-            return true;// !string.IsNullOrEmpty(reply);
+            return true;
         }
 
         public async Task<string?> GetConfigAsync()
         {
-            // if (!await ConnectAsync())
-            //    return null;
-
             return await SendAndWaitAsync("get_config", _ipAddress!, DevicePort, 3000);
         }
 
@@ -151,9 +101,7 @@ private static int _sharedPort = 0;
 
         public void Dispose() => _cts.Cancel();
 
-        // ---------------- internal helpers ----------------
-
-        private void MarkConnected(string ip)
+        public void MarkConnected(string ip)
         {
             _ipAddress = ip;
             IsConnected = true;
@@ -161,6 +109,7 @@ private static int _sharedPort = 0;
             ConnectedChanged?.Invoke(this, true);
             System.Diagnostics.Debug.WriteLine($"[WiFi] ✔ Connected @ {ip}");
         }
+
         public async Task<bool> ProbeAsync()
         {
             var reply = await SendAndWaitAsync("ping", _ipAddress, DevicePort, 1200);
@@ -172,41 +121,25 @@ private static int _sharedPort = 0;
             return !string.IsNullOrEmpty(reply);
         }
 
-        private static async Task<string?> SendAndWaitAsync(string msg, string host, int port, int timeoutMs)
+        // ---------- SINGLE SOCKET SEND/WITH/ACK BELOW ----------
+
+        private static UdpClient SharedSock
         {
-            try
+            get
             {
-                using var sock = new UdpClient(AddressFamily.InterNetwork);
-                if (!IPAddress.TryParse(host, out var ip))
-                    ip = (await Dns.GetHostAddressesAsync(host))
-                        .First(a => a.AddressFamily == AddressFamily.InterNetwork);
-
-                sock.Connect(new IPEndPoint(ip, port));
-                var bytes = Encoding.UTF8.GetBytes(msg);
-                await sock.SendAsync(bytes, bytes.Length);
-
-                var task = sock.ReceiveAsync();
-                if (await Task.WhenAny(task, Task.Delay(timeoutMs)) == task)
-                {
-                    var res = await task;
-                    return Encoding.UTF8.GetString(res.Buffer);
-                }
-                return null;
-            }
-            catch
-            {
-                return null;
+                EnsureUdpSocket();
+                return _sharedSock!;
             }
         }
 
         public static async Task SendWithAckAsync(string msg, string host, int port, int finalTimeoutMs)
         {
-            // Bind to an available UDP port for both send and receive
-            using var sock = new UdpClient(0);
 
-            // Diagnostic: Show which local port is in use
-            var localEP = (IPEndPoint)sock.Client.LocalEndPoint;
-            Log($"UDP local bind: {localEP.Address}:{localEP.Port}");
+            Log("Starting send for msg:" + msg);
+            var sock = SharedSock;
+
+            var localEP = (IPEndPoint)sock.Client.LocalEndPoint!;
+            Log($"[UDP] Shared socket: {localEP.Address}:{localEP.Port}");
 
             const int ChunkBudget = 200;
             const int AckTimeoutPerTryMs = 2000;
@@ -215,7 +148,11 @@ private static int _sharedPort = 0;
             var payload = Encoding.UTF8.GetBytes(msg);
             int id = Random.Shared.Next(1, int.MaxValue);
             int total = (payload.Length + ChunkBudget - 1) / ChunkBudget;
-
+            while (_sharedSock!.Available > 0)
+            {
+                IPEndPoint ep = new IPEndPoint(IPAddress.Any, 0);
+                _sharedSock.Receive(ref ep);
+            }
             for (int index = 0, offset = 0; offset < payload.Length; index++)
             {
                 int len = Math.Min(ChunkBudget, payload.Length - offset);
@@ -226,12 +163,10 @@ private static int _sharedPort = 0;
                 bool acked = false;
                 for (int attempt = 0; attempt < MaxRetries && !acked; attempt++)
                 {
-                    var mylocalEP = (IPEndPoint)sock.Client.LocalEndPoint;
-                    Log($"UDP local bind: {mylocalEP.Address}:{localEP.Port}");
-
+                    Log($"[UDP] Send {index} attempt {attempt + 1} from {localEP.Address}:{localEP.Port}");
                     await sock.SendAsync(envBytes, envBytes.Length, host, port);
                     acked = await WaitAckAsync(sock, id, index, AckTimeoutPerTryMs);
-                    if (!acked) Log($"retry {index} attempt {attempt + 1}");
+                    if (!acked) Log($"[UDP] retry {index} attempt {attempt + 1}");
                 }
                 if (!acked) throw new TimeoutException($"No ACK for chunk {index}");
 
@@ -252,59 +187,30 @@ private static int _sharedPort = 0;
             }
         }
 
-        //public static async Task SendWithAckAsync(string msg, string host, int port, int finalTimeoutMs)
-        //{
-        //    using var sock = new UdpClient(AddressFamily.InterNetwork);
-        //    sock.Connect(host, port);
-
-        //    const int ChunkBudget = 200;
-        //    const int AckTimeoutPerTryMs = 2000;
-        //    const int MaxRetries = 4;
-
-        //    var payload = Encoding.UTF8.GetBytes(msg);
-        //    int id = Random.Shared.Next(1, int.MaxValue);
-        //    int total = (payload.Length + ChunkBudget - 1) / ChunkBudget;
-
-        //    for (int index = 0, offset = 0; offset < payload.Length; index++)
-        //    {
-        //        int len = Math.Min(ChunkBudget, payload.Length - offset);
-        //        string b64 = Convert.ToBase64String(payload, offset, len);
-        //        string env = $"{{\"t\":\"kc_chunk\",\"v\":1,\"id\":{id},\"n\":{total},\"i\":{index},\"pl\":\"{b64}\"}}";
-        //        byte[] envBytes = Encoding.UTF8.GetBytes(env);
-
-        //        bool acked = false;
-        //        for (int attempt = 0; attempt < MaxRetries && !acked; attempt++)
-        //        {
-        //            await sock.SendAsync(envBytes, envBytes.Length);
-        //            acked = await WaitAckAsync(sock, id, index, AckTimeoutPerTryMs);
-        //            if (!acked) Log($"retry {index} attempt {attempt + 1}");
-        //        }
-        //        if (!acked) throw new TimeoutException($"No ACK for chunk {index}");
-
-        //        Log($"ACK {index + 1}/{total}");
-        //        offset += len;
-        //    }
-
-        //    using var cts = new CancellationTokenSource(finalTimeoutMs);
-        //    while (true)
-        //    {
-        //        var res = await sock.ReceiveAsync(cts.Token);
-        //        if (!LooksLikeAck(res.Buffer))
-        //        {
-        //            string reply = Encoding.UTF8.GetString(res.Buffer);
-        //            Log("Final reply: " + reply);
-        //            return;
-        //        }
-        //    }
-        //}
-        public static void Log(string s)
+        private static async Task<string?> SendAndWaitAsync(string msg, string host, int port, int timeoutMs)
         {
-            //MainThread.BeginInvokeOnMainThread(() =>
-            //{
-            // LogLabel.Text = $"{DateTime.Now:T} {s}\n{LogLabel.Text}";
-            //StatusLabel.Text = s;
-            //});
-            Debug.WriteLine(s);
+            try
+            {
+                EnsureUdpSocket();
+                var sock = _sharedSock!;
+
+                if (!IPAddress.TryParse(host, out var ip))
+                    ip = (await Dns.GetHostAddressesAsync(host))
+                        .First(a => a.AddressFamily == AddressFamily.InterNetwork);
+
+                await sock.SendAsync(Encoding.UTF8.GetBytes(msg), msg.Length, new IPEndPoint(ip, port));
+                var task = sock.ReceiveAsync();
+                if (await Task.WhenAny(task, Task.Delay(timeoutMs)) == task)
+                {
+                    var res = await task;
+                    return Encoding.UTF8.GetString(res.Buffer);
+                }
+                return null;
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         static bool IsAckFor(byte[] buf, int id, int index)
@@ -314,8 +220,8 @@ private static int _sharedPort = 0;
                 using var doc = JsonDocument.Parse(buf);
                 var root = doc.RootElement;
                 if (root.GetProperty("t").GetString() != "kc_ack") return false;
-                return root.GetProperty("id").GetInt32() == id
-                    && root.GetProperty("i").GetInt32() == index;
+                return root.GetProperty("id").GetInt64() == id
+                    && root.GetProperty("i").GetInt64() == index;
             }
             catch { return false; }
         }
@@ -329,6 +235,19 @@ private static int _sharedPort = 0;
             }
             catch { return false; }
         }
+        //static async Task<bool> WaitAckAsync(UdpClient sock, int id, int index, int timeoutMs)
+        //{
+        //    using var cts = new CancellationTokenSource(timeoutMs);
+        //    try
+        //    {
+        //        while (true)
+        //        {
+        //            var res = await sock.ReceiveAsync(cts.Token);
+        //            if (IsAckFor(res.Buffer, id, index)) return true;
+        //        }
+        //    }
+        //    catch (OperationCanceledException) { return false; }
+        //}
         static async Task<bool> WaitAckAsync(UdpClient sock, int id, int index, int timeoutMs)
         {
             using var cts = new CancellationTokenSource(timeoutMs);
@@ -337,13 +256,15 @@ private static int _sharedPort = 0;
                 while (true)
                 {
                     var res = await sock.ReceiveAsync(cts.Token);
+                    Log($"[UDP] RX: {Encoding.UTF8.GetString(res.Buffer)}");
                     if (IsAckFor(res.Buffer, id, index)) return true;
                 }
             }
             catch (OperationCanceledException) { return false; }
         }
+        // --- rest of your device discovery, etc. (unchanged) ---
 
-        private async Task<string?> DiscoverDeviceIpAsync(int port, int timeoutMs)
+        public async Task<string?> DiscoverDeviceIpAsync(int port, int timeoutMs)
         {
             foreach (var ni in NetworkInterface.GetAllNetworkInterfaces())
             {
@@ -399,6 +320,10 @@ private static int _sharedPort = 0;
             return new IPAddress(b);
         }
 
+        public static void Log(string s)
+        {
+            System.Diagnostics.Debug.WriteLine(s);
+        }
     }
 
     public static class IpCache

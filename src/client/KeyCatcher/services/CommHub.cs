@@ -160,6 +160,38 @@ namespace KeyCatcher.services
             //});
             Debug.WriteLine("[CommHub] "+s);
         }
+
+        bool pendingReconnect = false;
+        public async Task<bool> SendConfigAsync(string configText, bool touchesWifi)
+        {
+            bool sent = await SendAsync(configText);
+
+            if (!sent) return false;
+
+            if (touchesWifi)
+            {
+                pendingReconnect = true;
+                // Notify UI: waiting for reconnect
+                for (int i = 0; i < 10; i++) // Try 10x, 1s apart
+                {
+                    await Task.Delay(1000);
+                    var ip = await _wifi.DiscoverDeviceIpAsync(4210, 1500);
+                    if (ip != null)
+                    {
+                        _wifi.MarkConnected(ip); // reacquire connection
+                        pendingReconnect = false;
+                        IsWifiUp = true;
+                        // Notify UI: success!
+                        return true;
+                    }
+                }
+                pendingReconnect = false;
+                IsWifiUp = false;
+                // UI: after retries, show "failed"
+                return false;
+            }
+            return true;
+        }
         public async Task<bool> SendAsync(string text)
         {
 
@@ -242,6 +274,9 @@ namespace KeyCatcher.services
 
         private async Task MaintainBleAsync()
         {
+
+
+            return;
             while (true)
             {
                 try
@@ -251,7 +286,7 @@ namespace KeyCatcher.services
                 }
                 catch { IsBleUp = false; }
 
-                await Task.Delay(20000);
+                await Task.Delay(5000);
             }
         }
         private bool _wasDisconnected = true;

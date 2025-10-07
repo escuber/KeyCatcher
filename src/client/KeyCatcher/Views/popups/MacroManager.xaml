@@ -16,8 +16,7 @@
         WidthRequest="500"
         HeightRequest="600">
 
-        <Grid RowDefinitions="Auto,*">
--->
+        <Grid RowDefinitions="Auto,*">-->
 <!--  Header  -->
 <!--
             <Grid
@@ -37,15 +36,12 @@
                     FontSize="18"
                     TextColor="White"
                     BackgroundColor="Transparent" />
-            </Grid>
-
--->
+            </Grid>-->
 <!--  Main body  -->
 <!--
             <Grid Row="1" Padding="16">
                 <ScrollView>
-                    <StackLayout Spacing="10">
--->
+                    <StackLayout Spacing="10">-->
 <!--  Macro list  -->
 <!--
                         <CollectionView
@@ -74,9 +70,7 @@
                                     </Frame>
                                 </DataTemplate>
                             </CollectionView.ItemTemplate>
-                        </CollectionView>
-
--->
+                        </CollectionView>-->
 <!--  Add new macro button  -->
 <!--
                         <Button
@@ -85,9 +79,7 @@
                             BackgroundColor="#2B0B98"
                             TextColor="White"
                             CornerRadius="10"
-                            FontAttributes="Bold" />
-
--->
+                            FontAttributes="Bold" />-->
 <!--  Inner edit section  -->
 <!--
                         <Border
@@ -119,9 +111,7 @@
                                         TextColor="White" />
                                 </HorizontalStackLayout>
                             </VerticalStackLayout>
-                        </Border>
-
--->
+                        </Border>-->
 <!--  Close  -->
 <!--
                         <Button
@@ -215,8 +205,9 @@
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
                         <Grid Padding="6,4" ColumnDefinitions="*,Auto,Auto">
-                            <Label Padding="60,0,0,0"
+                            <Label
                                 Grid.Column="0"
+                                Padding="60,0,0,0"
                                 Text="{Binding Name}"
                                 TextColor="Black"
                                 VerticalOptions="Center" />
@@ -259,7 +250,7 @@
                         Grid.Column="0"
                         Padding="12,4"
                         BackgroundColor="#3B0CA3"
-                         Clicked="BtnClose_Clicked"
+                        Clicked="BtnClose_Clicked"
                         CornerRadius="18"
                         Text="Cancel"
                         TextColor="White" />
@@ -283,7 +274,7 @@ CornerRadius="18"
 Text="Close"
 TextColor="White" />-->
             </Grid>
-            
+
             <Grid
                 Grid.RowSpan="2"
                 BackgroundColor="#80000000"
@@ -294,33 +285,38 @@ TextColor="White" />-->
                 <Border
                     Margin="12"
                     Padding="16"
-                    
-                     BackgroundColor="#F3E6CC"
+                    BackgroundColor="#F3E6CC"
                     StrokeShape="RoundRectangle 28"
                     StrokeThickness="1"
                     VerticalOptions="Center">
                     <VerticalStackLayout Spacing="10">
-                        <Label TextColor="Black"
+                        <Label
                             FontAttributes="Bold"
                             FontSize="20"
-                            Text="Edit Macro" />
-                        <Entry Placeholder="Name" TextColor="White" BackgroundColor="#2C2C3E"  Text="{Binding EditingMacro.Name}" />
-                        <Editor 
-                            AutoSize="TextChanges" TextColor="White" BackgroundColor="#2C2C3E"
+                            Text="Edit Macro"
+                            TextColor="Black" />
+                        <Entry
+                            BackgroundColor="#2C2C3E"
+                            Placeholder="Name"
+                            Text="{Binding EditingMacro.Name}"
+                            TextColor="White" />
+                        <Editor
+                            AutoSize="TextChanges"
+                            BackgroundColor="#2C2C3E"
                             HeightRequest="120"
                             Placeholder="Content"
-                            Text="{Binding EditingMacro.Content}" />
+                            Text="{Binding EditingMacro.Content}"
+                            TextColor="White" />
                         <HorizontalStackLayout HorizontalOptions="End" Spacing="10">
-                            <Button 
+                            <Button
                                 BackgroundColor="#2B0B98"
                                 Command="{Binding SaveMacroCommand}"
                                 Text="Save"
                                 TextColor="White" />
                             <Button
-                                
+                                BackgroundColor="#2B0B98"
                                 Command="{Binding CancelEditCommand}"
                                 Text="Cancel"
-                                BackgroundColor="#2B0B98"
                                 TextColor="White" />
                         </HorizontalStackLayout>
                     </VerticalStackLayout>
