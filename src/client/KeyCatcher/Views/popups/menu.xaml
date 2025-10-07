@@ -1,0 +1,15 @@
+﻿<toolkit:Popup
+    x:Class="KeyCatcher.Views.popups.menu"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit">
+    <VerticalStackLayout
+        Padding="12"
+        BackgroundColor="White"
+        Spacing="12"
+        WidthRequest="150">
+        <Button Clicked="OnHelpClicked" Text="Help" />
+        <Button Clicked="OnAboutClicked" Text="About" />
+        <Button Clicked="OnSettingsClicked" Text="Settings" />
+    </VerticalStackLayout>
+</toolkit:Popup>

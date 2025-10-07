@@ -13,59 +13,6 @@ namespace KeyCatcher.ViewModels;
 public partial class MainPageViewModel : ObservableObject
 {
 
-
-
-    //readonly KeyCatcherSettingsService _settings;
-
-    //[ObservableProperty] public  bool wifiUp;
-    //[ObservableProperty] bool bleUp;
-    //private readonly CommHub _hub;
-    //private readonly SendGate _sendGate;
-    //public KeyCatcherWiFiService wifi;
-    //public KeyCatcherBleService ble;
-    ///// <summary>
-    ///// public string BleIconColor => IsBleUp ? "DodgerBlue" : "Grey";
-    ///// </summary>
-    ////Colors.DodgerBlue : Colors.Gray;
-    //public string WifiIconColor => WifiUp ? "LimeGreen" : "Red";
-    //public CommHub Hub => _hub;
-    //[ObservableProperty] private string messageText = string.Empty;
-
-    //[ObservableProperty] private int pauseSeconds = 0;
-    //public IReadOnlyList<int> PauseOptions { get; } = new[] { 0, 5, 10 };
-    //public bool IsWifiUp
-    //{
-    //    get => (bool)GetValue(IsWifiUpProperty);
-    //    set
-    //    {
-    //        SetValue(IsWifiUpProperty, value);
-    //        Debug.WriteLine($"[Header] IsWifiUp set to {value}");
-    //        OnPropertyChanged(nameof(WifiIconColor)); // <---- THIS TRIGGERS UI UPDATE
-    //    }
-    ////}
-    //public MainPageViewModel(
-    //    CommHub hub, 
-    //    SendGate sendGate, 
-    //    KeyCatcherSettingsService setting, 
-    //    KeyCatcherWiFiService wwifi, 
-    //    KeyCatcherBleService bble)
-    //{
-    //    ble = bble;        wifi = wwifi;        _hub = hub;        _sendGate = sendGate;
-
-    //    _settings = setting;
-
-    //    _hub.PropertyChanged += (s, e) =>
-    //    {
-    //        if (e.PropertyName == nameof(_hub.IsWifiUp)) WifiUp = _hub.IsWifiUp;
-    //        if (e.PropertyName == nameof(_hub.IsBleUp)) BleUp = _hub.IsBleUp;
-    //    };
-    //    hub.PauseSeconds= Preferences.Get("pauseSeconds", 0);
-    //    PauseSeconds = hub.PauseSeconds;
-    //    _ = InitializeAsync(hub, setting);
-    //}
-
-
-
     [ObservableProperty] private int pauseSeconds = 0;
     public IReadOnlyList<int> PauseOptions { get; } = new[] { 0, 5, 10 };
 
@@ -93,7 +40,15 @@ public partial class MainPageViewModel : ObservableObject
     partial void OnBleUpChanged(bool value) => OnPropertyChanged(nameof(BleIconColor));
 
     // ... other properties/ctor ...
-
+    [RelayCommand]
+    private async Task ShowMacros()
+    {
+        var page = Shell.Current?.CurrentPage ?? Application.Current?.MainPage;
+        if (page is null) return;
+        
+        var popup = new KeyCatcher.Popups.MacroManager(_settings,_hub);
+        await page.ShowPopupAsync(popup);
+    }
     public MainPageViewModel(
         CommHub hub,
         SendGate sendGate,
@@ -113,38 +68,6 @@ public partial class MainPageViewModel : ObservableObject
         PauseSeconds = hub.PauseSeconds;
         // ... other ctor code ...
     }
-
-    //partial void OnWifiUpChanged(bool value)
-    //{
-    //    OnPropertyChanged(nameof(WifiIconColor)); // <-- This triggers XAML updates
-    //}
-    //partial void OnBleUpChanged(bool value)
-    //{
-    //    OnPropertyChanged(nameof(BleIconColor)); // <-- This triggers XAML updates
-    //}
-
-
-    //public bool IsWifiUp
-    //{
-    //    get => (bool)GetValue(IsWifiUpProperty);
-    //    set
-    //    {
-    //        SetValue(IsWifiUpProperty, value);
-    //        Debug.WriteLine($"[Header] IsWifiUp set to {value}");
-    //        OnPropertyChanged(nameof(WifiIconColor)); // <---- THIS TRIGGERS UI UPDATE
-    //    }
-    ////}
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -325,6 +248,25 @@ public partial class MainPageViewModel : ObservableObject
     private async Task Send()
     {
 
+
+        //var cfg = "{\"ssid\":\"DADNET\",\"pss\":\"4c4c4c4c\",\"in\":\"BOTH\",\"out\":\"USBHID\",\"ap\":false,\"creds\":[],\"macros\":{\"j1\":\"jimmy is the name\"},\"bflag\":\"\"\"serial\":\"KC-0480187D7850\"}";
+        //_settings.ApplyDeviceJson(cfg);
+
+//        var x = 0;
+
+        //var cconf = await wifi.GetConfigAsync();
+        //Log("config was:" + cconf);
+        //_settings.ApplyDeviceJson(conf);
+       // var msg = _settings.MakeMessage();
+       // Log("Make msg:" + msg);
+
+//        msg = _settings.MakeMessageMacro();
+//        Log("Make msg:" + msg);
+//await Hub.SendAsync(msg);
+
+//        //
+//        return;
+
         //wait ble.SendAsync("hellp  ");
         //string text = new string('A', 3000);// + "<<END>>";
         //var connn = wifi.IsConnected;
@@ -339,15 +281,15 @@ public partial class MainPageViewModel : ObservableObject
 
         //return;
         // messageText = text;
-        Log("send clicked");
-        await ShowCountdown();
-        
+        //Log("send clicked");
+        if(pauseSeconds>0)       await ShowCountdown();
+
         //await Task.Delay(PauseSeconds * 1000);
-
-
-        var ok = await _sendGate.TrySendAsync(() => _hub.SendAsync(messageText));
-        if (!ok)
-            await App.Current.MainPage.DisplayAlert("Blocked", "Sends are paused", "OK");
+        //await wifi.SendTextAsync(messageText);
+        await _hub.SendAsync(messageText);
+        //var ok = await _sendGate.TrySendAsync(() => _hub.SendAsync(messageText));
+        //if (!ok)
+          //  await App.Current.MainPage.DisplayAlert("Blocked", "Sends are paused", "OK");
 
         return;
 
@@ -365,10 +307,10 @@ public partial class MainPageViewModel : ObservableObject
 
 
 
-        var cconf = await wifi.GetConfigAsync();
 
-        //_settings.ApplyDeviceJson(conf);
-        var msg = _settings.MakeMessage();
+
+
+
 
         _settings.SSID = "mxxyDadsCar";
         _settings.Password = "4c4c4c4c";
@@ -503,7 +445,7 @@ public partial class MainPageViewModel : ObservableObject
 
     }
 
-    [ObservableProperty]
+   // [ObservableProperty]
     public string wifisUp => Hub.IsWifiUp ? "Wi-Fi: Up" : "Wi-Fi: Down";
 
     [RelayCommand]

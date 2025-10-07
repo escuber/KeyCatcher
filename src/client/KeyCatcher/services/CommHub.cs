@@ -48,6 +48,8 @@ namespace KeyCatcher.services
     }
     public partial class CommHub : ObservableObject, INotifyPropertyChanged
     {
+
+        private bool readConfig = false;
         private readonly KeyCatcherBleService _ble;
         private readonly KeyCatcherWiFiService _wifi;
         private readonly KeyCatcherSettingsService settings;
@@ -74,10 +76,6 @@ namespace KeyCatcher.services
         public async Task<string?> GetConfigAsync()
         {
 
-
-
-
-
             var config = "";
 
             // Use WiFi if connected, else BLE
@@ -85,12 +83,10 @@ namespace KeyCatcher.services
                 config = await _wifi.GetConfigAsync();
             if (_ble.IsConnected)
                 config = await _ble.GetConfigAsync();
-            //settings.ApplyDeviceJson(config);
+            Log(config);
+            settings.ApplyDeviceJson(config);
 
             return config;
-
-
-
         }
         public LinkMode Mode { get; private set; } = LinkMode.Auto;
         public bool WifiEnabled { get; private set; } = true;
@@ -164,6 +160,38 @@ namespace KeyCatcher.services
             //});
             Debug.WriteLine("[CommHub] "+s);
         }
+
+        bool pendingReconnect = false;
+        public async Task<bool> SendConfigAsync(string configText, bool touchesWifi)
+        {
+            bool sent = await SendAsync(configText);
+
+            if (!sent) return false;
+
+            if (touchesWifi)
+            {
+                pendingReconnect = true;
+                // Notify UI: waiting for reconnect
+                for (int i = 0; i < 10; i++) // Try 10x, 1s apart
+                {
+                    await Task.Delay(1000);
+                    var ip = await _wifi.DiscoverDeviceIpAsync(4210, 1500);
+                    if (ip != null)
+                    {
+                        _wifi.MarkConnected(ip); // reacquire connection
+                        pendingReconnect = false;
+                        IsWifiUp = true;
+                        // Notify UI: success!
+                        return true;
+                    }
+                }
+                pendingReconnect = false;
+                IsWifiUp = false;
+                // UI: after retries, show "failed"
+                return false;
+            }
+            return true;
+        }
         public async Task<bool> SendAsync(string text)
         {
 
@@ -178,7 +206,8 @@ namespace KeyCatcher.services
                     Log("sending wifi");
                     return await _wifi.SendTextAsync(text);
                 }
-                if (_ble.IsConnected)
+                if (IsBleUp)
+                //_ble.IsConnected)
                 {
                     Log("sending BLE");
                     return await _ble.SendAsync(text);
@@ -245,6 +274,9 @@ namespace KeyCatcher.services
 
         private async Task MaintainBleAsync()
         {
+
+
+            return;
             while (true)
             {
                 try
@@ -254,14 +286,14 @@ namespace KeyCatcher.services
                 }
                 catch { IsBleUp = false; }
 
-                await Task.Delay(20000);
+                await Task.Delay(5000);
             }
         }
-
+        private bool _wasDisconnected = true;
         // --------------------------------------------------------------------
         // Helpers
         // --------------------------------------------------------------------
-        private void RecomputeBest()
+        private async void RecomputeBest()
         {
             var newBest =
                 (IsWifiUp && WifiEnabled) ? Transport.Wifi :
@@ -273,8 +305,41 @@ namespace KeyCatcher.services
                 Best = newBest;
                 TransportChanged?.Invoke(newBest);
             }
+
+            bool nowConnected = newBest != Transport.None;
+
+            // Only trigger GetConfig once both layer 1 and 2 are confirmed ready
+            if (_wasDisconnected && nowConnected)
+            {
+                await WaitForTransportReadyAsync(newBest);
+                _ = GetConfigAsync();
+            }
+
+            _wasDisconnected = !nowConnected;
         }
 
+        private async Task WaitForTransportReadyAsync(Transport t)
+        {
+            const int maxWait = 1000;
+            const int step = 100;
+            int waited = 0;
+
+            while (waited < maxWait)
+            {
+                bool ready = t switch
+                {
+                    Transport.Wifi => _wifi?.IsConnected == true,
+                    Transport.Ble => _ble?.IsConnected == true,
+                    _ => false
+                };
+                if (ready) return;
+
+                await Task.Delay(step);
+                waited += step;
+            }
+
+            Debug.WriteLine($"[CommHub] WaitForTransportReady timed out after {waited}ms");
+        }
         private bool Set<T>(ref T field, T value, [CallerMemberName] string? name = null)
         {
             if (Equals(field, value)) return false;

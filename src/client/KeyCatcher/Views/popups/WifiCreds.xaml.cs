@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using KeyCatcher.models; // WifiCredential
 using KeyCatcher.services;
 using KeyCatcher.ViewModels;
+using System;
 using System.Windows.Input;
 namespace KeyCatcher.Popups
 {
@@ -138,26 +139,30 @@ namespace KeyCatcher.Popups
         // optional: trace the lifecycle
         // this.Opened += (_, __) => System.Diagnostics.Debug.WriteLine("WifiCreds opened");
         //this.Closed += (_, __) => System.Diagnostics.Debug.WriteLine("WifiCreds closed");
-        private async Task SafeCloseAsync()
-        {
-            if (_isClosed) return;                 // already closed
-            try { await CloseAsync(); }            // only close if still open
-            catch (Exception ex) { }     // swallow race condition
-            //PopupNotFoundException
-        }
+        //private async Task SafeCloseAsync()
+        //{
+        //    if (_isClosed) return;                 // already closed
+        //    try { await CloseAsync(); }            // only close if still open
+        //    catch (Exception ex) { }     // swallow race condition
+        //    //PopupNotFoundException
+        //}
         [RelayCommand]
         public void closeit()
         {
 
             CloseAsync().Wait();
         }
-        void OnSaveAndClose2(object sender, EventArgs e)
+        async void onsaveandclose2(object sender, EventArgs e)
         {
-            System.Diagnostics.Debug.WriteLine("OnSaveAndClose fired");
-            // do your save/apply logic here (or delegate to VM)
-            // Close with a result if you want:
-            CloseAsync().Wait();
-            // or: await CloseAsync(true);  <-- requires `async void OnSaveAndClose(...)`
+            await SaveAndCloseAsync();
+
+            //await VM.SaveAndClose();
+            //system.diagnostics.debug.writeline("onsaveandclose fired");
+            // do your save/apply logic here (or delegate to vm)
+            // close with a result if you want:
+            ///this.CloseAsync
+            //await CloseAsync();
+            // or: await closeasync(true);  <-- requires `async void onsaveandclose(...)`
         }
 
 
@@ -200,66 +205,7 @@ namespace KeyCatcher.Popups
             // 4. Close the popup
             await CloseAsync();
         }
-        private async Task DoSaveAndCloseAsync()
-        {
-            try
-            {
-                VM.IsBusy = true;                  // spinner + disable buttons
-
-                // persist locally
-                //VM.ApplyToService(_settings);
-
-                // push to device with timeout (don’t hang forever)
-                if (_hub is not null)
-                {
-                    _settings.Save();            // ensure saved before push
-                    var payload = _settings.MakeMessage();
-                    //todo fix this
-                    //var push = _hub.ApplySetupAsync(payload, 20_000);   // your method
-                    //var done = await Task.WhenAny(push, Task.Delay(20_000));
-                    // (optional) notify if it didn’t complete
-                }
-            }
-            finally
-            {
-                VM.IsBusy = false;
-                await SafeCloseAsync();            // <- guarded close
-            }
-        }
-        //credSaveAndCloseCommand = new Command(() =>
-        //{
-        //    // local save inside popup list only
-        //    VM.ApplyToService(_settings);
-        //    VM.Networks.Add(VM.EditingNetwork);
-        //    VM.EditingNetwork = new WifiCredential();
-        //    VM.IsEditing = false;
-        //});
-        // Wire this to your “Save & Close” button
-
-        private async void OnSaveAndClose(object? sender, EventArgs e)
-        {
-            try
-            {
-                if (BindingContext is WifiCredsViewModel vm)
-                    vm.ApplyToService(_settings);
-
-                if (_hub is not null)
-                {
-                    var payload = _settings.MakeMessage();
-                    // var ok = await _hub.ApplySetupAsync(payload, 20_000);
-                    // optionally show a toast if !ok
-                }
-
-                await CloseAsync();// ("updated");   // <-- MAUI Controls Popup
-            }
-            catch (Exception ex)
-            {
-                await MainThread.InvokeOnMainThreadAsync(() =>
-                    Application.Current.MainPage.DisplayAlert("Save failed", ex.Message, "OK"));
-                await CloseAsync();// ("error");
-            }
-        }
-
+        
         private async void OnCancel(object? sender, EventArgs e)
         {
             await CloseAsync();// ("cancel");        // <-- MAUI Controls Popup
@@ -272,58 +218,6 @@ namespace KeyCatcher.Popups
         }
 
 
-        //SaveAndCloseCommand = new Command(async () =>
-        //    {
-        //        // Persist and optionally push to device
-        //        VM.ApplyToService(_settings);
-        //        VM.IsEditing = false;
-
-        //        if (_hub is not null)
-        //        {
-        //            var payload = _settings.MakeMessage(); // emits <setup>...<<END>>
-        //            try { await _hub.ApplySetupAsync(payload, 20000); }
-        //            catch { /* ignore transport errors here */ }
-        //        }
-
-        //        await CloseAsync();
-        //    });
-        //    // after InitializeComponent and BindingContext
-        //    BtnSaveAndClose.Command = new Command(async () =>
-        //    {
-        //        VM.ApplyToService(_settings);
-
-        //        if (!(_hub?.IsAnyUp ?? false))
-        //        {
-        //            await Application.Current.MainPage.DisplayAlert(
-        //                "Not connected",
-        //                "Saved to app settings. Device update will run after a link is up.",
-        //                "OK");
-        //            await CloseAsync();
-        //            return;
-        //        }
-
-        //        try
-        //        {
-        //            var payload = _settings.MakeMessage();
-        //            var ok = await _hub!.ApplySetupAsync(payload, 20_000);
-        //            if (!ok)
-        //                await Application.Current.MainPage.DisplayAlert("Device not ready", "It did not come back in time. You can retry from Settings.", "OK");
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            await Application.Current.MainPage.DisplayAlert("Update failed", ex.Message, "OK");
-        //        }
-        //        finally
-        //        {
-        //            await CloseAsync();
-        //        }
-        //    });
-
-        //    // Sizing
-        //    ResizeToViewport();
-        //    DeviceDisplay.MainDisplayInfoChanged += (_, __) =>
-        //        MainThread.BeginInvokeOnMainThread(ResizeToViewport);
-        //}
 
         void ResizeToViewport()
         {
@@ -342,7 +236,7 @@ namespace KeyCatcher.Popups
 
 
         private void BtnClose_Clicked(object sender, EventArgs e)
-        {
+        {// real close
             _settings.Save();
             CloseAsync().Wait();
         }

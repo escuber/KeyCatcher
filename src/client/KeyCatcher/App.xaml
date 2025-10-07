@@ -22,6 +22,7 @@
                 <x:String x:Key="SolidTrash">&#xf1f8;</x:String>
                 <x:String x:Key="SolidBan">&#xf05e;</x:String>
                 <x:String x:Key="SolidCircleQuestion">&#xf059;</x:String>
+                <x:String x:Key="SolidEllipsisVertical">&#xf142;</x:String>
             </ResourceDictionary>
             <!--  Colors  -->
             <Color x:Key="KcOff">#9AA0A6</Color>

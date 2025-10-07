@@ -86,27 +86,103 @@
                     <!--  Everything above the list goes in Header  -->
                     <CollectionView.Header>
                         <VerticalStackLayout Padding="0" Spacing="12">
-                            <Border
-                                Grid.Row="0"
-                                Padding="16,8"
-                                Background="#2B0B98"
-                                HorizontalOptions="Start"
-                                StrokeShape="RoundRectangle 40,0,0,40"
-                                StrokeThickness="6"
-                                VerticalOptions="Start">
 
-                                <Border.Stroke>
-                                    <LinearGradientBrush EndPoint="0,1">
-                                        <GradientStop Offset="0.1" Color="#CC3d4930" />
-                                        <GradientStop Offset="1.0" Color="#30a6c0" />
-                                    </LinearGradientBrush>
-                                </Border.Stroke>
+                            <FlexLayout
+                                Grid.Row="0"
+                                Padding="0,0,3,2"
+                                AlignItems="Center"
+                                Background="Transparent"
+                                Direction="Row"
+                                JustifyContent="SpaceBetween">
+
+                                <!--  Left button  -->
+                                <!--<Button
+                                    BackgroundColor="CadetBlue"
+                                    Clicked="OnSetupWifiClicked"
+                                    FlexLayout.Basis="Auto"
+                                    HorizontalOptions="Start"
+                                    Text="SSIDs" />-->
+                                <Border
+                                    Padding="16,8"
+                                    Background="#2B0B98"
+                                    FlexLayout.AlignSelf="Start"
+                                    FlexLayout.Basis="50%"
+                                    HorizontalOptions="Start"
+                                    StrokeShape="RoundRectangle 40,0,0,40"
+                                    StrokeThickness="8"
+                                    VerticalOptions="Start">
+
+                                    <Border.Stroke>
+                                        <LinearGradientBrush EndPoint="0,1">
+                                            <GradientStop Offset="0.1" Color="#CC3d4930" />
+                                            <GradientStop Offset="1.0" Color="#30a6c0" />
+                                        </LinearGradientBrush>
+                                    </Border.Stroke>
+                                    <Label
+                                        FontAttributes="Bold"
+                                        FontSize="20"
+                                        Text="Network Settings"
+                                        TextColor="White" />
+                                </Border>
+                                <HorizontalStackLayout Margin="0,0,8,0">
+                                    <CheckBox x:Name="ApModeCheckbox" IsChecked="{Binding IsApModeEnabled, Mode=TwoWay}" />
+                                    <Label Text="Enable AP Mode" TextColor="Black" VerticalOptions="Center" />
+                                </HorizontalStackLayout>
+                            </FlexLayout>
+                            <!--<CheckBox
+                                    x:Name="ApModeCheckbox"
+                                    HorizontalOptions="Start"
+                                    IsChecked="{Binding IsApModeEnabled, Mode=TwoWay}"
+                                    VerticalOptions="Center" />
+
                                 <Label
-                                    FontAttributes="Bold"
-                                    FontSize="20"
-                                    Text="Network Settings"
-                                    TextColor="White" />
-                            </Border>
+                                    Margin="8,0,10,0"
+                                    FontSize="14"
+                                    TextColor="Black"
+                                    HorizontalOptions="Start"
+                                    Text="Enable AP Mode"
+                                    VerticalOptions="Center" />
+                            -->
+                            <!--<Button
+                                    BackgroundColor="CadetBlue"
+                                    Clicked="OnSetupWifiClicked"
+                                    FlexLayout.Basis="Auto"
+                                    HorizontalOptions="Start"
+                                    Text="SSIDs" />-->
+                            <!--
+
+
+                            </FlexLayout>-->
+                            <!--<FlexLayout Grid.Row="0">
+                                <Border
+                                    Padding="16,8"
+                                    Background="#2B0B98"
+                                    FlexLayout.AlignSelf="Start"
+                                    FlexLayout.Basis="50%"
+                                    HorizontalOptions="Start"
+                                    StrokeShape="RoundRectangle 40,0,0,40"
+                                    StrokeThickness="6"
+                                    VerticalOptions="Start">
+
+                                    <Border.Stroke>
+                                        <LinearGradientBrush EndPoint="0,1">
+                                            <GradientStop Offset="0.1" Color="#CC3d4930" />
+                                            <GradientStop Offset="1.0" Color="#30a6c0" />
+                                        </LinearGradientBrush>
+                                    </Border.Stroke>
+                                    <Label
+                                        FontAttributes="Bold"
+                                        FontSize="20"
+                                        Text="Network Settings"
+                                        TextColor="White" />
+                                </Border>
+                                <Label
+                                    FlexLayout.AlignSelf="End"
+                                    FlexLayout.Basis="50%"
+                                    HorizontalOptions="EndAndExpand"
+                                    Text="ap"
+                                    TextColor="Black" />
+                            </FlexLayout>-->
 
                             <!--  Title  -->
 
@@ -305,7 +381,7 @@
                         Grid.Column="2"
                         Padding="12,4"
                         BackgroundColor="#3B0CA3"
-                        Command="{Binding SaveAndCloseCommand}"
+                        Clicked="onsaveandclose2"
                         CornerRadius="18"
                         Text="Save n' Close"
                         TextColor="White" />
