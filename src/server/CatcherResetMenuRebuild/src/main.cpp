@@ -592,18 +592,17 @@ String expandMacros(const String& msg)
     String out = msg;
     Preferences prefs;
     prefs.begin("macros", true);
-    int start = out.indexOf('<');
+    int start = out.indexOf("[[");
     while (start != -1)
     {
-        int end = out.indexOf('>', start + 1);
+        int end = out.indexOf("]]", start + 2);
         if (end == -1)
-            break; // unmatched <
-        String macroName = out.substring(start + 1, end);
+            break; // unmatched {{
+        String macroName = out.substring(start + 2, end);
         String macroVal = prefs.getString(macroName.c_str(), "");
-        // Replace <macroname> with macroVal
-
-        out = out.substring(0, start) + macroVal + out.substring(end + 1);
-        start = out.indexOf('<', start + macroVal.length());
+        // Replace {{macroname}} with macroVal
+        out = out.substring(0, start) + macroVal + out.substring(end + 2);
+        start = out.indexOf("[[", start + macroVal.length());
     }
     prefs.end();
     return out;
@@ -1115,135 +1114,177 @@ static void StartTypingJob(const String &msg)
     processIncoming(msg); // this does the slow typing
     gTypingBusy = false;
 }
-
+#define KC_JSON_CAP 512   // ← bump this higher if your envelopes grow
 static void kcHandleEnvelope(const uint8_t *data, size_t len,
                              KCTransport tr,
                              const IPAddress &ip = IPAddress(), uint16_t port = 0)
 {
     kcMaybeTimeout();
-     Serial.println("kcHandleEnvelope");
- Serial.printf("Raw [%d]: ", (int)len);
-    // Serial.write(data, len);
-    // Serial.println();
+    Serial.println("kcHandleEnvelope");
+    Serial.printf("Raw [%d]: ", (int)len);
+    // Serial.write(data, len);  // keep commented unless debugging payloads
+
     StaticJsonDocument<KC_JSON_CAP> doc;
-    if (deserializeJson(doc, data, len))
+    DeserializationError err = deserializeJson(doc, data, len);
+    if (err)
     {
-        Serial.println(".1");
+        Serial.printf("[DEBUG] JSON parse failed: %s\n", err.c_str());
         return;
     }
-    // Serial.println(".2");
+
     const char *t = doc["t"] | "";
-    if (strcmp(t, "kc_chunk") != 0)
+    if (strcmp(t, "kc_chunk") != 0) {
+        Serial.println("[DEBUG] Not kc_chunk, returning.");
         return;
-    // Serial.println("2");
-    uint32_t id = doc["id"] | 0U;
-    uint16_t n = doc["n"] | 0U;
+    }
+
+    uint32_t id  = doc["id"] | 0U;
+    uint16_t n   = doc["n"] | 0U;
     uint16_t idx = doc["i"] | 0U;
     const char *plB64 = doc["pl"] | "";
-    if (!id || !n || idx >= n)
+
+    if (!id || !n || idx >= n) {
+        Serial.printf("[DEBUG] Invalid: id=%lu n=%u idx=%u\n", id, n, idx);
         return;
-    // Serial.println("3");
+    }
+
     if (kc.id == 0)
     {
-        kc.id = id;
+        kc.id    = id;
         kc.total = n;
-        kc.next = 0;
+        kc.next  = 0;
         kc.buf.clear();
-        kc.buf.reserve(std::min<uint32_t>(KC_MAX_ACCUM, static_cast<uint32_t>(n) * 220));
-        kc.fromUdp = (tr == KCTransport::Udp);
-        kc.udpIp = ip;
-        kc.udpPort = port;
+        kc.buf.reserve(KC_MAX_ACCUM);
+        Serial.printf("[DEBUG] New transfer: id=%lu n=%u idx=%u port=%u\n", id, n, idx, port);
     }
-    // Serial.println("4");
-    if (id != kc.id || n != kc.total)
+
+    // Always update sender on every UDP chunk!
+    if (tr == KCTransport::Udp)
+    {
+        kc.fromUdp = true;
+        kc.udpIp   = ip;
+        kc.udpPort = port;
+        Serial.printf("[DEBUG] Updated sender: %s:%u\n", ip.toString().c_str(), port);
+    }
+
+    // sanity-check transfer context
+    if (id != kc.id || n != kc.total) {
+        Serial.printf("[DEBUG] id/n mismatch: id=%lu n=%u vs kc.id=%lu kc.total=%u\n", id, n, kc.id, kc.total);
         return;
-    if (idx != kc.next)
-        return;
-    // Serial.println("5");
-    size_t srcLen = strlen(plB64);
+    }
+if (idx < kc.next) {
+    Serial.printf("[DEBUG] Duplicate idx received: idx=%u, kc.next=%u. Resending ACK.\n", idx, kc.next);
+    if (kc.fromUdp)
+        kcSendAckUdp(kc.udpIp, kc.udpPort, kc.id, idx);
+    else
+        kcSendAckBle(kc.id, idx);
+    return;
+}
+if (idx > kc.next) {
+    Serial.printf("[DEBUG] Out-of-order idx received: idx=%u, kc.next=%u. Ignoring.\n", idx, kc.next);
+    return;
+}
+
+    size_t srcLen  = strlen(plB64);
     size_t needLen = 0;
-    mbedtls_base64_decode(nullptr, 0, &needLen, (const unsigned char *)plB64, srcLen);
-    if (needLen == 0)
+    mbedtls_base64_decode(nullptr, 0, &needLen,
+                          (const unsigned char *)plB64, srcLen);
+    if (needLen == 0) {
+        Serial.printf("[DEBUG] needLen=0 (srcLen=%u), returning.\n", (unsigned)srcLen);
         return;
+    }
 
     if (kc.buf.size() + needLen > KC_MAX_ACCUM)
     {
+        Serial.println("[DEBUG] Buffer overflow, returning and resetting state.");
         kc.reset();
         return;
     }
-    // Serial.println("6");
+
     size_t old = kc.buf.size();
     kc.buf.resize(old + needLen);
     size_t outLen = 0;
     int rc = mbedtls_base64_decode((unsigned char *)&kc.buf[old], needLen, &outLen,
                                    (const unsigned char *)plB64, srcLen);
+
     if (rc != 0 || outLen != needLen)
     {
+        Serial.printf("[DEBUG] Base64 decode failed (rc=%d, out=%u, need=%u)\n", rc, (unsigned)outLen, (unsigned)needLen);
+        // Defensive ACK so client doesn’t hang on first chunk
+        if (tr == KCTransport::Udp)
+        {
+            Serial.printf("Sending udp ACK to %s:%u for idx=%u [decode fail]\n", ip.toString().c_str(), port, idx);
+            kcSendAckUdp(ip, port, id, idx);
+        }
+        else
+        {
+            Serial.printf("Sending ble ACK for idx=%u [decode fail]\n", idx);
+            kcSendAckBle(id, idx);
+        }
         kc.reset();
         return;
     }
-    // Serial.println("7");
-    kc.lastMs = millis();
-    kc.next = idx + 1;
 
-    // (optional) visibility while testing
-    // Serial.printf("[KC] chunk %u/%u, acc=%u\n", (unsigned)(idx + 1), (unsigned)n, (unsigned)kc.buf.size());
+    kc.lastMs = millis();
+    kc.next   = idx + 1;
 
     if (kc.fromUdp)
+    {
+        Serial.printf("Sending udp ACK to %s:%u for idx=%u\n", kc.udpIp.toString().c_str(), kc.udpPort, idx);
         kcSendAckUdp(kc.udpIp, kc.udpPort, kc.id, idx);
+    }
     else
+    {
+        Serial.printf("Sending ble ACK for idx=%u\n", idx);
         kcSendAckBle(kc.id, idx);
+    }
 
     const bool isLast = (kc.next == kc.total);
-    if (isLast)
+    if (!isLast)
+        return;
+
+    // final assembly reached
+    delay(20);  // allow last ACK to propagate
+    String msg((const char *)kc.buf.data(), kc.buf.size());
+    Serial.println("msg:" + msg);
+
+    bool handled = false;
+    if (msg == "get_config" || msg.startsWith("get_config"))
     {
-        // small guard so the client can process the last ACK cleanly
-        delay(20);
-        String msg((const char *)kc.buf.data(), kc.buf.size());
-        Serial.println('msg:' + msg);
-
-        // Optional special handling
-        bool handled = false;
-        if (msg == "get_config" || msg.startsWith("get_config"))
-        {
-            bleNotifyConfigChunked(getConfig()); // or UDP path if it arrived via UDP
-            handled = true;
-        }
-
-        // Always send final OK immediately so the client completes
-        StaticJsonDocument<32> ok;
-        ok["t"] = "kc_ok";
-        char out[32];
-        size_t m = serializeJson(ok, out, sizeof(out));
-        if (kc.fromUdp)
-        {
-            Udp.beginPacket(kc.udpIp, kc.udpPort);
-            Udp.write((const uint8_t *)out, m);
-            Udp.endPacket();
-        }
-        else if (gTxChar)
-        {
-            gTxChar->setValue((uint8_t *)out, m);
-            gTxChar->notify();
-        }
-
-        // Free state so a new send can begin while we type
-        kc.reset();
-
-        // If get_config already replied, we are done
-        if (handled)
-            return;
-
-        // Dedupe and start the typing job
-        uint32_t h = Hash32(msg);
-        uint32_t now = millis();
-        if (SeenRecently(h, now))
-        {
-            return; // identical recent message; ignore
-        }
-        StartTypingJob(msg);
+        bleNotifyConfigChunked(getConfig());
+        handled = true;
     }
+
+    // always send final ok
+    StaticJsonDocument<32> ok;
+    ok["t"] = "kc_ok";
+    char out[32];
+    size_t m = serializeJson(ok, out, sizeof(out));
+    if (kc.fromUdp)
+    {
+        Serial.printf("[DEBUG] Sending kc_ok to %s:%u\n", kc.udpIp.toString().c_str(), kc.udpPort);
+        Udp.beginPacket(kc.udpIp, kc.udpPort);
+        Udp.write((const uint8_t *)out, m);
+        Udp.endPacket();
+    }
+    else if (gTxChar)
+    {
+        Serial.printf("[DEBUG] Sending kc_ok over BLE\n");
+        gTxChar->setValue((uint8_t *)out, m);
+        gTxChar->notify();
+    }
+
+    kc.reset();
+
+    if (handled)
+        return;
+
+    uint32_t h = Hash32(msg);
+    uint32_t now = millis();
+    if (!SeenRecently(h, now))
+        StartTypingJob(msg);
 }
+
 
 // enum class KCTransport { Udp, Ble };
 void pollUdpKcAndLegacy()
