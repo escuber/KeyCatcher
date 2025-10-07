@@ -445,7 +445,7 @@ public partial class MainPageViewModel : ObservableObject
 
     }
 
-    [ObservableProperty]
+   // [ObservableProperty]
     public string wifisUp => Hub.IsWifiUp ? "Wi-Fi: Up" : "Wi-Fi: Down";
 
     [RelayCommand]
