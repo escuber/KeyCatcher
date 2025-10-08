@@ -26,7 +26,7 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore src/client/KeyCatcher/KeyCatcher2.csproj
 
-      # ---------------- Windows Build ----------------
+      # ---------- Build Windows ----------
       - name: Build Windows (Unpackaged EXE)
         run: >
           dotnet publish src/client/KeyCatcher/KeyCatcher2.csproj
@@ -35,12 +35,19 @@ jobs:
           -p:WindowsPackageType=None
           -p:Platform="Any CPU"
 
-      - name: Zip Windows output
+      # Auto-detect and zip publish folder
+      - name: Zip Windows output (auto-detect)
+        shell: pwsh
         run: |
-          cd src/client/KeyCatcher/bin/Release/net9.0-windows10.0.19041.0/win-x64/publish
-          powershell Compress-Archive * ../../../KeyCatcher_Windows.zip
+          $publishPath = Get-ChildItem -Path "src/client/KeyCatcher/bin/Release/net9.0-windows10.0.19041.0" -Directory -Recurse |
+            Where-Object { $_.Name -eq "publish" } |
+            Select-Object -First 1
+          if (-not $publishPath) { throw "Publish folder not found!" }
+          Write-Host "Found publish folder: $($publishPath.FullName)"
+          Compress-Archive -Path "$($publishPath.FullName)\*" `
+                           -DestinationPath "src/client/KeyCatcher/bin/Release/net9.0-windows10.0.19041.0/KeyCatcher_Windows.zip"
 
-      # ---------------- Android Build ----------------
+      # ---------- Build Android ----------
       - name: Build Android APK
         run: >
           dotnet publish src/client/KeyCatcher/KeyCatcher2.csproj
@@ -49,7 +56,7 @@ jobs:
           -p:AndroidPackageFormat=apk
           -p:AndroidKeyStore=false
 
-      # ---------------- Upload Artifacts ----------------
+      # ---------- Upload Artifacts ----------
       - name: Upload Windows ZIP
         uses: actions/upload-artifact@v4
         with:
@@ -62,7 +69,7 @@ jobs:
           name: KeyCatcher-Android
           path: src/client/KeyCatcher/bin/Release/net9.0-android/publish/*.apk
 
-  # ---------------- Optional GitHub Release ----------------
+  # ---------- GitHub Release ----------
   release:
     needs: build
     runs-on: ubuntu-latest
