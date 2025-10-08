@@ -3,13 +3,42 @@ on:
   push:
     tags:
       - v*
+name: Build Android APK
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
+  build-android:
+    runs-on: windows-latest
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 9
+        uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 8.0.x
-      - run: dotnet --info
+          dotnet-version: 9.0.x
+
+      - name: Install MAUI workload
+        run: dotnet workload install maui
+
+      - name: Restore
+        run: dotnet restore src/client/KeyCatcher/KeyCatcher2.csproj
+
+      - name: Build Android APK
+        run: >
+          dotnet publish src/client/KeyCatcher/KeyCatcher2.csproj
+          -f net9.0-android -c Release
+          -p:AndroidPackageFormat=apk
+          -p:AndroidKeyStore=false
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: KeyCatcher-Android-APK
+          path: src/client/KeyCatcher/bin/Release/net9.0-android/publish/*.apk

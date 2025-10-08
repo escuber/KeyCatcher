@@ -1,0 +1,85 @@
+name: Build and Release KeyCatcher (Windows + Android)
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: windows-latest
+    name: Build Windows and Android
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Install MAUI workloads
+        run: dotnet workload install maui
+
+      - name: Restore dependencies
+        run: dotnet restore src/client/KeyCatcher/KeyCatcher2.csproj
+
+      # ---------------- Windows Build ----------------
+      - name: Build Windows (Unpackaged EXE)
+        run: >
+          dotnet publish src/client/KeyCatcher/KeyCatcher2.csproj
+          -f net9.0-windows10.0.19041.0
+          -c Release
+          -p:WindowsPackageType=None
+          -p:Platform="Any CPU"
+
+      - name: Zip Windows output
+        run: |
+          cd src/client/KeyCatcher/bin/Release/net9.0-windows10.0.19041.0/win-x64/publish
+          powershell Compress-Archive * ../../../KeyCatcher_Windows.zip
+
+      # ---------------- Android Build ----------------
+      - name: Build Android APK
+        run: >
+          dotnet publish src/client/KeyCatcher/KeyCatcher2.csproj
+          -f net9.0-android
+          -c Release
+          -p:AndroidPackageFormat=apk
+          -p:AndroidKeyStore=false
+
+      # ---------------- Upload Artifacts ----------------
+      - name: Upload Windows ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: KeyCatcher-Windows
+          path: src/client/KeyCatcher/bin/Release/net9.0-windows10.0.19041.0/KeyCatcher_Windows.zip
+
+      - name: Upload Android APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: KeyCatcher-Android
+          path: src/client/KeyCatcher/bin/Release/net9.0-android/publish/*.apk
+
+  # ---------------- Optional GitHub Release ----------------
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            artifacts/KeyCatcher-Windows/KeyCatcher_Windows.zip
+            artifacts/KeyCatcher-Android/*.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
