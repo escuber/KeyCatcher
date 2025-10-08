@@ -166,16 +166,19 @@
             </ToolbarItem.IconImageSource>
 
         </ToolbarItem>
+        <!--Command="{Binding ShowHelpCommand}"-->
+        
         <ToolbarItem
-            Command="{Binding ShowHelpCommand}"
+            
+            Clicked="OnHelpIconClicked"
             Order="Secondary"
             Priority="1"
             Text="Help" />
         <ToolbarItem
-            Command="{Binding OpenSettingsCommand}"
+            Command="{Binding ShowMacrosCommand}"
             Order="Secondary"
             Priority="2"
-            Text="Settings" />
+            Text="Edit Macros" />
     </ContentPage.ToolbarItems>
 
 
@@ -233,14 +236,14 @@
                     TextColor="White" />-->
                     <!--<Button Command="{Binding ToggleWifiCommand}" Text="Toggle ble Status" />-->
 
-                    <Button
+                    <!--<Button
                         Padding="12,4"
                         BackgroundColor="#2C2C3E"
                         Command="{Binding ShowMacrosCommand}"
                         CornerRadius="18"
                         Style="{StaticResource FooterButtonStyle}"
                         Text="Edit Macros"
-                        TextColor="White" />
+                        TextColor="White" />-->
 
 
 

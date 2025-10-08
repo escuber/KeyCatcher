@@ -1,0 +1,54 @@
+name: Build Windows MSI
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+
+      - name: Install MAUI workload
+        run: |
+          dotnet workload install maui
+
+      - name: Restore
+        run: dotnet restore YourApp.sln
+
+      - name: Build MSI
+        run: >
+          dotnet publish src/YourApp.csproj
+          -c Release
+          -f net8.0-windows10.0.19041.0
+          -p:WindowsPackageType=msi
+          -p:PublishDir=${{ github.workspace }}\artifacts\win\
+
+      - name: Find MSI
+        id: find_msi
+        shell: pwsh
+        run: |
+          $msi = Get-ChildItem -Recurse -Filter *.msi | Select-Object -First 1
+          if (-not $msi) { throw "No MSI found" }
+          echo "msi_path=$($msi.FullName)" >> $env:GITHUB_OUTPUT
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-msi
+          path: ${{ steps.find_msi.outputs.msi_path }}
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ steps.find_msi.outputs.msi_path }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

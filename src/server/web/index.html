@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>KeyCatcher Config</title>
+  <meta name="viewport" content="width=440, initial-scale=1, maximum-scale=1">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.0/css/all.min.css">
+  <style>
+    body { margin:0; background:#ebe7df; font-family: 'Segoe UI',Arial,sans-serif; min-height:100vh;}
+    .card {
+      background: #F3E6CC;
+      border-radius: 24px;
+      box-shadow: 0 4px 32px 0 rgba(0,0,0,0.13);
+      max-width: 420px;
+      margin: 28px auto;
+      padding: 25px 20px 20px 20px;
+      display: flex; flex-direction: column; gap: 22px;
+    }
+    .header {
+      display: flex; align-items: center; gap: 12px;
+      font-size: 1.45rem; font-weight: 600; color: #1A1423;
+    }
+    .header .fa-key { color: #c59a43; font-size: 2rem; }
+    .form-row { display: flex; flex-direction: column; gap: 4px; margin-bottom: 3px;}
+    label { font-size: 1.07rem; color: #53482a; margin-bottom: 1px; }
+    input, select {
+      font-size: 1.07rem; border-radius: 11px;
+      border: 1.5px solid #ded4be; background: #fffaf1;
+      padding: 7px 14px 7px 14px; outline: none; transition: border-color 0.2s;
+    }
+    input:focus, select:focus { border-color: #c59a43; }
+    .password-row { position:relative; display:flex; align-items: center;}
+    .password-row input { flex:1; }
+    .pw-toggle {
+      background: none; border: none; position: absolute; right: 10px;
+      top: 50%; transform: translateY(-50%);
+      cursor: pointer; font-size: 1.12rem; color: #ab943d; opacity: 0.8;
+    }
+    .wifi-list {
+      background: #fff8eb; border-radius: 13px;
+      border: 1.1px solid #e6dbb7; padding: 4px 2px 0 7px;
+      margin-bottom: 0;
+    }
+    .wifi-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 5px 3px 4px 0; font-size: 1.07rem;
+      border-bottom: 1px solid #f1e2bb;
+      gap:10px;
+    }
+    .wifi-item:last-child { border-bottom:none;}
+    .wifi-actions i {
+      color: #987500; margin-left: 9px; cursor: pointer; font-size: 1.14rem; opacity:0.83;
+      transition: color 0.16s;
+    }
+    .wifi-actions i:hover { color: #bd9406; }
+    .add-btn {
+      margin: 6px 0 2px 1px; padding: 4px 13px 4px 7px; border-radius: 8px;
+      border: none; background: #efe1b7; color: #7d6d30;
+      font-size: 0.99rem; cursor: pointer; font-weight: 500;
+      display: flex; align-items: center; gap:7px;
+      transition: background 0.13s;
+    }
+    .add-btn:hover { background: #f3e7ce; }
+    .form-toggle {
+      display: flex; align-items: center; gap: 14px; margin-top: 5px;
+    }
+    .toggle-switch {
+      position: relative; display: inline-block; width: 38px; height: 22px;
+    }
+    .toggle-switch input { opacity: 0; width: 0; height: 0;}
+    .slider { position: absolute;top:0;left:0;right:0;bottom:0;
+      background: #dbcc9a; border-radius: 22px; transition: background 0.22s;}
+    .toggle-switch input:checked + .slider { background: #c59a43;}
+    .slider:before {
+      content: ""; position: absolute; left:3px;top:3px;width:16px;height:16px;
+      background: #fff; border-radius: 50%; transition: 0.22s;}
+    .toggle-switch input:checked + .slider:before { transform: translateX(16px);}
+    .macro-row { display:flex; align-items:center; gap:10px; }
+    .macro-list { background: #fff8eb; border-radius: 13px; border: 1.1px solid #e6dbb7; padding: 2px 3px 2px 7px;}
+    .macro-item {
+      display:flex; align-items: center; justify-content:space-between;
+      padding: 5px 2px 4px 0; font-size:1.07rem; border-bottom: 1px solid #f1e2bb;
+      gap:10px;
+    }
+    .macro-item:last-child { border-bottom:none;}
+    .macro-actions i {
+      color: #94702e; margin-left: 9px; cursor: pointer; font-size: 1.14rem; opacity:0.83;
+      transition: color 0.16s;
+    }
+    .macro-actions i:hover { color: #a68621;}
+    .macro-title {
+      display:flex;align-items:center;gap:8px;margin-bottom:2px;font-size:1.09rem;color:#4c4322;
+    }
+    .btn {
+      padding: 8px 23px; font-size: 1.09rem; border-radius: 11px; border: none;
+      font-weight: 500; letter-spacing: 0.01em; cursor: pointer;
+      box-shadow: 0 1.5px 9px rgba(160,144,84,0.10); transition: background 0.15s;
+    }
+    .btn-primary { background: #c59a43; color: #fff;}
+    .btn-primary:hover { background: #b48b36;}
+    .btn-cancel { background: #e2d6b3; color: #7c6330;}
+    .btn-cancel:hover { background: #d6c590;}
+    .row-buttons { display: flex; justify-content: flex-end; gap: 11px; margin-top:14px;}
+    /* MODAL */
+    .modal-bg {
+      position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:1111;
+      background:rgba(32,30,15,0.19);display:none;align-items:center;justify-content:center;
+    }
+    .modal-bg.active {display:flex;}
+    .modal-content {
+      background: #f8f3e2; border-radius: 17px; box-shadow: 0 4px 32px rgba(130,110,55,0.18);
+      padding: 22px 24px 18px 24px; min-width: 240px; max-width:95vw;
+      display:flex; flex-direction: column; gap:13px;
+      animation: popIn 0.17s cubic-bezier(.6,-0.28,.74,.05);
+    }
+    @keyframes popIn {
+      from {transform:scale(.85) translateY(30px); opacity:.3;}
+      to {transform:scale(1) translateY(0); opacity:1;}
+    }
+    .modal-actions { display:flex; gap:10px; justify-content: flex-end; margin-top:6px;}
+    @media (max-width:540px) {
+      .card { max-width: 99vw; margin:2vw 0; padding: 3vw;}
+    }
+  </style>
+</head>
+<body>
+  <form class="card" id="configForm" autocomplete="off" onsubmit="saveConfig(event)">
+    <div class="header">
+      <i class="fas fa-key"></i> KeyCatcher Config
+    </div>
+
+    <!-- WiFi Section -->
+    <div class="form-row">
+      <label>WiFi Networks</label>
+      <div class="wifi-list" id="wifiList"></div>
+      <button type="button" class="add-btn" onclick="openWifiEditor()">
+        <i class="fas fa-plus"></i> Add Network
+      </button>
+    </div>
+
+    <!-- WiFi Editor Modal -->
+    <div class="modal-bg" id="wifiModal">
+      <div class="modal-content">
+        <div style="font-weight:600;font-size:1.1rem;">
+          <span id="wifiModalTitle">Add WiFi</span>
+        </div>
+        <div class="form-row">
+          <label>SSID</label>
+          <input type="text" id="editSsid" maxlength="32" placeholder="Network SSID">
+        </div>
+        <div class="form-row password-row">
+          <label style="width:100%;">Password</label>
+          <input type="password" id="editPw" maxlength="64" placeholder="Password">
+          <button class="pw-toggle" type="button" onclick="togglePw('editPw', this)">
+            <i class="fas fa-eye"></i>
+          </button>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-cancel" onclick="closeWifiModal()">Cancel</button>
+          <button type="button" class="btn btn-primary" onclick="saveWifi()">Save</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Macro Section -->
+    <div class="form-row">
+      <div class="macro-title">
+        <i class="fas fa-list-ul"></i> Macros
+      </div>
+      <div class="macro-list" id="macroList"></div>
+      <button type="button" class="add-btn" onclick="openMacroEditor()">
+        <i class="fas fa-plus"></i> Add Macro
+      </button>
+    </div>
+
+    <!-- Macro Editor Modal -->
+    <div class="modal-bg" id="macroModal">
+      <div class="modal-content">
+        <div style="font-weight:600;font-size:1.1rem;">
+          <span id="macroModalTitle">Add Macro</span>
+        </div>
+        <div class="form-row">
+          <label>Name</label>
+          <input type="text" id="editMacroName" maxlength="20" placeholder="Macro name">
+        </div>
+        <div class="form-row">
+          <label>Content</label>
+          <textarea id="editMacroContent" rows="3" style="border-radius:8px;border:1.3px solid #ded4be;width:100%;padding:7px;font-size:1.06rem;background:#fffaf1;"></textarea>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-cancel" onclick="closeMacroModal()">Cancel</button>
+          <button type="button" class="btn btn-primary" onclick="saveMacro()">Save</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Input/Output/Mode -->
+    <div class="form-row">
+      <label for="input-source">Input Source</label>
+      <select id="input-source">
+        <option>WIFI</option>
+        <option>BLE</option>
+        <option>USBHID</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <label for="output-source">Output Source</label>
+      <select id="output-source">
+        <option>USBHID</option>
+        <option>BLEHID</option>
+      </select>
+    </div>
+    <div class="form-row form-toggle">
+      <label for="ap-mode">AP Mode</label>
+      <label class="toggle-switch">
+        <input type="checkbox" id="ap-mode">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <!-- Buttons -->
+    <div class="row-buttons">
+      <button type="button" class="btn btn-cancel" onclick="location.reload()">Cancel</button>
+      <button type="submit" class="btn btn-primary">Save</button>
+    </div>
+    <div id="saveMsg" style="margin:10px 0 0 0; text-align:right;font-size:0.97rem;color:#5c5128;min-height:19px;"></div>
+  </form>
+
+  <script>
+    // Data Model
+    let wifiNetworks = [];
+    let macros = [];
+    let editingWifiIndex = -1;
+    let editingMacroIndex = -1;
+
+    // ----------- WiFi Section ----------
+    function renderWifiList() {
+      const list = document.getElementById('wifiList');
+      list.innerHTML = '';
+      wifiNetworks.forEach((item, idx) => {
+        let li = document.createElement('div');
+        li.className = 'wifi-item';
+        li.innerHTML = `
+          <span>${escapeHtml(item.ssid)}</span>
+          <span class="wifi-actions">
+            <i class="fas fa-pen" title="Edit" onclick="openWifiEditor(${idx})"></i>
+            <i class="fas fa-trash" title="Delete" onclick="deleteWifi(${idx})"></i>
+          </span>
+        `;
+        list.appendChild(li);
+      });
+    }
+    function openWifiEditor(idx = null) {
+      editingWifiIndex = idx;
+      document.getElementById('wifiModalTitle').innerText = (idx == null ? "Add WiFi" : "Edit WiFi");
+      document.getElementById('editSsid').value = idx == null ? "" : wifiNetworks[idx].ssid;
+      document.getElementById('editPw').value = idx == null ? "" : wifiNetworks[idx].password;
+      document.getElementById('wifiModal').classList.add('active');
+      setTimeout(() => document.getElementById('editSsid').focus(), 220);
+    }
+    function closeWifiModal() {
+      document.getElementById('wifiModal').classList.remove('active');
+      editingWifiIndex = -1;
+    }
+    function saveWifi() {
+      const ssid = document.getElementById('editSsid').value.trim();
+      const pw = document.getElementById('editPw').value;
+      if (!ssid) { alert('SSID required.'); return; }
+      if (editingWifiIndex == null || editingWifiIndex === -1) {
+        wifiNetworks.push({ ssid, password: pw });
+      } else {
+        wifiNetworks[editingWifiIndex] = { ssid, password: pw };
+      }
+      closeWifiModal();
+      renderWifiList();
+    }
+    function deleteWifi(idx) {
+      if (confirm('Delete this network?')) {
+        wifiNetworks.splice(idx, 1);
+        renderWifiList();
+      }
+    }
+    function togglePw(id, btn) {
+      const field = document.getElementById(id);
+      if (field.type === 'password') {
+        field.type = 'text'; btn.innerHTML = '<i class="fas fa-eye-slash"></i>';
+      } else {
+        field.type = 'password'; btn.innerHTML = '<i class="fas fa-eye"></i>';
+      }
+      field.focus();
+    }
+
+    // ---------- Macro Section ----------
+    function renderMacroList() {
+      const list = document.getElementById('macroList');
+      list.innerHTML = '';
+      macros.forEach((item, idx) => {
+        let li = document.createElement('div');
+        li.className = 'macro-item';
+        li.innerHTML = `
+          <span style="font-weight:500">${escapeHtml(item.name)}</span>
+          <span class="macro-actions">
+            <i class="fas fa-pen" title="Edit" onclick="openMacroEditor(${idx})"></i>
+            <i class="fas fa-trash" title="Delete" onclick="deleteMacro(${idx})"></i>
+          </span>
+        `;
+        list.appendChild(li);
+      });
+    }
+    function openMacroEditor(idx = null) {
+      editingMacroIndex = idx;
+      document.getElementById('macroModalTitle').innerText = (idx == null ? "Add Macro" : "Edit Macro");
+      document.getElementById('editMacroName').value = idx == null ? "" : macros[idx].name;
+      document.getElementById('editMacroContent').value = idx == null ? "" : macros[idx].content;
+      document.getElementById('macroModal').classList.add('active');
+      setTimeout(() => document.getElementById('editMacroName').focus(), 220);
+    }
+    function closeMacroModal() {
+      document.getElementById('macroModal').classList.remove('active');
+      editingMacroIndex = -1;
+    }
+    function saveMacro() {
+      const name = document.getElementById('editMacroName').value.trim();
+      const content = document.getElementById('editMacroContent').value;
+      if (!name) { alert('Macro name required.'); return; }
+      if (editingMacroIndex == null || editingMacroIndex === -1) {
+        macros.push({ name, content });
+      } else {
+        macros[editingMacroIndex] = { name, content };
+      }
+      closeMacroModal();
+      renderMacroList();
+    }
+    function deleteMacro(idx) {
+      if (confirm('Delete this macro?')) {
+        macros.splice(idx, 1);
+        renderMacroList();
+      }
+    }
+
+    // --------- Form Submit/Load ---------
+    function getFormData() {
+      return {
+        networks: wifiNetworks,
+        ssid: wifiNetworks[0]?.ssid || '',
+        password: wifiNetworks[0]?.password || '',
+        input_source: document.getElementById('input-source').value,
+        output_source: document.getElementById('output-source').value,
+        ap_mode: document.getElementById('ap-mode').checked,
+        macros: macros
+      };
+    }
+    function setFormData(cfg) {
+      wifiNetworks = cfg.networks || (cfg.ssid ? [{ ssid: cfg.ssid, password: cfg.password || "" }] : []);
+      macros = cfg.macros || [];
+      document.getElementById('input-source').value = cfg.input_source || "WIFI";
+      document.getElementById('output-source').value = cfg.output_source || "USBHID";
+      document.getElementById('ap-mode').checked = !!cfg.ap_mode;
+      renderWifiList();
+      renderMacroList();
+    }
+
+    async function loadConfig() {
+      let cfg = null;
+      try {
+        const resp = await fetch('/config', { cache:'no-store' });
+        cfg = await resp.json();
+      } catch(e) {
+        // fallback: try default
+        cfg = { ssid:"DADNET", password:"4c4c4c4c", input_source:"WIFI", output_source:"USBHID", ap_mode:false, networks:[], macros:[] };
+      }
+      setFormData(cfg);
+    }
+    async function saveConfig(e) {
+      if(e) e.preventDefault();
+      document.getElementById('saveMsg').innerText = 'Saving...';
+      try {
+        const body = JSON.stringify(getFormData());
+        const resp = await fetch('/config', { method:'POST', headers:{'Content-Type':'application/json'}, body });
+        if(resp.ok) {
+          document.getElementById('saveMsg').innerText = "Saved!";
+        } else {
+          throw new Error(await resp.text());
+        }
+      } catch(err) {
+        document.getElementById('saveMsg').innerText = "Failed to save: "+err;
+      }
+    }
+
+    // ------- Modal clickaway close -------
+    window.onclick = function(e) {
+      document.querySelectorAll('.modal-bg.active').forEach(m => {
+        if(e.target === m) m.classList.remove('active');
+      });
+    }
+
+    // ------- Utility --------
+    function escapeHtml(s) {
+      return (s||"").replace(/[&<>"']/g, c => (
+        { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]
+      ));
+    }
+    // Init
+    window.onload = loadConfig;
+  </script>
+</body>
+</html>

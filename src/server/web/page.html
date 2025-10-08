@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>KeyCatcher Configuration</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.0/css/all.min.css">
+  <meta name="viewport" content="width=540">
+  <style>
+    body {
+      background: #ebe7df;
+      margin: 0;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      min-height: 100vh;
+    }
+    .card {
+      background: #F3E6CC;
+      border-radius: 26px;
+      box-shadow: 0 4px 32px 0 rgba(0,0,0,0.15);
+      max-width: 420px;
+      margin: 40px auto;
+      padding: 32px 32px 24px 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      font-size: 1.8rem;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      color: #1A1423;
+    }
+    .header .fa-key {
+      color: #c59a43;
+      font-size: 2.1rem;
+      margin-right: 4px;
+    }
+    .form-row {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    label {
+      font-size: 1.07rem;
+      color: #4e4840;
+      margin-bottom: 1px;
+    }
+    input, select {
+      font-size: 1.1rem;
+      border-radius: 12px;
+      border: 1.5px solid #ded4be;
+      background: #fffaf1;
+      padding: 7px 14px;
+      outline: none;
+      margin-bottom: 2px;
+      transition: border-color 0.2s;
+    }
+    input:focus, select:focus {
+      border-color: #c59a43;
+    }
+    .wifi-list {
+      background: #fff8eb;
+      border-radius: 15px;
+      padding: 10px 16px 10px 10px;
+      margin-bottom: 0px;
+      border: 1px solid #e6dbb7;
+    }
+    .wifi-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 0;
+      font-size: 1.07rem;
+      border-bottom: 1px solid #ebdeba;
+    }
+    .wifi-item:last-child { border-bottom: none; }
+    .wifi-actions i {
+      color: #987500;
+      margin-left: 13px;
+      cursor: pointer;
+      font-size: 1.2rem;
+      opacity: 0.83;
+      transition: color 0.18s;
+    }
+    .wifi-actions i:hover { color: #bd9406; }
+    .form-toggle {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 7px;
+    }
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 38px;
+      height: 22px;
+    }
+    .toggle-switch input {
+      opacity: 0; width: 0; height: 0;
+    }
+    .slider {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: #dbcc9a;
+      border-radius: 22px;
+      transition: background 0.22s;
+    }
+    .toggle-switch input:checked + .slider { background: #c59a43; }
+    .slider:before {
+      content: "";
+      position: absolute;
+      left: 3px;
+      top: 3px;
+      width: 16px;
+      height: 16px;
+      background: #fff;
+      border-radius: 50%;
+      transition: 0.22s;
+    }
+    .toggle-switch input:checked + .slider:before {
+      transform: translateX(16px);
+    }
+    .row-buttons {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .btn {
+      padding: 9px 23px;
+      font-size: 1.09rem;
+      border-radius: 11px;
+      border: none;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+      box-shadow: 0 1.5px 9px rgba(160,144,84,0.10);
+      transition: background 0.16s;
+    }
+    .btn-primary {
+      background: #c59a43;
+      color: #fff;
+    }
+    .btn-primary:hover {
+      background: #b48b36;
+    }
+    .btn-cancel {
+      background: #e2d6b3;
+      color: #7c6330;
+    }
+    .btn-cancel:hover {
+      background: #d6c590;
+    }
+    .btn-macro {
+      background: #ede1bb;
+      color: #94732a;
+      margin-bottom: 7px;
+      margin-top: 2px;
+      border-radius: 9px;
+      padding: 7px 17px;
+      font-size: 1.03rem;
+      border: 1.5px solid #ded4be;
+      font-weight: 500;
+      float: right;
+    }
+    .btn-macro:hover { background: #f2e5c3; color: #a88431;}
+    @media (max-width: 600px) {
+      .card { max-width: 96vw; padding: 2vw;}
+    }
+  </style>
+</head>
+<body>
+  <form class="card">
+    <div class="header">
+      <i class="fas fa-key"></i>
+      KeyCatcher Configuration
+    </div>
+
+    <div class="form-row">
+      <label for="ssid">SSID</label>
+      <input type="text" id="ssid" placeholder="Enter SSID" value="DADNET">
+    </div>
+    <div class="form-row">
+      <label for="password">Password</label>
+      <input type="password" id="password" placeholder="WiFi Password" value="4c4c4c4c">
+    </div>
+    <div class="form-row">
+      <label>Networks</label>
+      <div class="wifi-list">
+        <div class="wifi-item">
+          <span>DADNET</span>
+          <span class="wifi-actions">
+            <i class="fas fa-pen"></i>
+            <i class="fas fa-trash"></i>
+          </span>
+        </div>
+        <div class="wifi-item">
+          <span>DADNET2</span>
+          <span class="wifi-actions">
+            <i class="fas fa-pen"></i>
+            <i class="fas fa-trash"></i>
+          </span>
+        </div>
+      </div>
+    </div>
+    <button type="button" class="btn-macro">
+      <i class="fas fa-list-ul"></i> Macro Manager
+    </button>
+
+    <div class="form-row">
+      <label for="input-source">Input Source</label>
+      <select id="input-source">
+        <option>WIFI</option>
+        <option>BLE</option>
+        <option>USBHID</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <label for="output-source">Output Source</label>
+      <select id="output-source">
+        <option>USBHID</option>
+        <option>BLEHID</option>
+      </select>
+    </div>
+    <div class="form-row form-toggle">
+      <label for="ap-mode">AP Mode</label>
+      <label class="toggle-switch">
+        <input type="checkbox" id="ap-mode">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="row-buttons">
+      <button type="button" class="btn btn-cancel">Cancel</button>
+      <button type="submit" class="btn btn-primary">Save</button>
+    </div>
+  </form>
+</body>
+</html>
