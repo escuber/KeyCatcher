@@ -22,7 +22,7 @@ jobs:
           dotnet workload install maui-android
 
       - name: Restore
-        run: dotnet restore YourApp.sln
+        run: dotnet restore src/client/KeyCatcher/KeyCatcher2.sln
 
       - name: Decode keystore
         if: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
@@ -34,7 +34,7 @@ jobs:
       - name: Build APK signed if keystore present else unsigned
         run: |
           if [ -f my.keystore ]; then
-            dotnet publish src/YourApp.csproj \
+            dotnet publish src/client/KeyCatcher/YourApp.csproj \
               -c Release \
               -f net8.0-android \
               -p:AndroidPackageFormat=apk \

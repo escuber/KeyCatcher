@@ -22,11 +22,11 @@ jobs:
           dotnet workload install maui
 
       - name: Restore
-        run: dotnet restore YourApp.sln
+        run: dotnet restore src/client/KeyCatcher/KeyCatcher2.sln
 
       - name: Build MSI
         run: >
-          dotnet publish src/YourApp.csproj
+          dotnet publish src/client/KeyCatcher/KeyCatcher2.csproj
           -c Release
           -f net8.0-windows10.0.19041.0
           -p:WindowsPackageType=msi
