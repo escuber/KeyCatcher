@@ -18,15 +18,24 @@ jobs:
             8.0.x
 
       - name: Install MAUI workload
-        run: |
-          dotnet workload install maui
+        run: dotnet workload install maui
 
       - name: Restore
         run: dotnet restore src/client/KeyCatcher/KeyCatcher2.sln
 
+      - name: Find MAUI csproj
+        id: find_csproj
+        shell: pwsh
+        run: |
+          $proj = Get-ChildItem -Path src/client/KeyCatcher -Recurse -Filter *.csproj | Select-Object -First 1
+          if (-not $proj) { throw "No csproj found under src/client/KeyCatcher" }
+          echo "CSPROJ=$($proj.FullName)" >> $env:GITHUB_ENV
+          Write-Host "Found: $($proj.FullName)"
+
       - name: Build MSI
+        shell: pwsh
         run: >
-          dotnet publish src/client/KeyCatcher/KeyCatcher2.csproj
+          dotnet publish "${env:CSPROJ}"
           -c Release
           -f net8.0-windows10.0.19041.0
           -p:WindowsPackageType=msi
@@ -40,15 +49,43 @@ jobs:
           if (-not $msi) { throw "No MSI found" }
           echo "msi_path=$($msi.FullName)" >> $env:GITHUB_OUTPUT
 
+      - name: SHA256
+        shell: pwsh
+        run: |
+          $msi = "${{ steps.find_msi.outputs.msi_path }}"
+          $hash = Get-FileHash $msi -Algorithm SHA256
+          "$($hash.Hash)  $(Split-Path $msi -Leaf)" | Out-File "$msi.sha256" -Encoding ascii
+
+      # Optional code signing. Controlled by secrets. No if: on secrets to avoid your earlier error.
+      - name: Sign MSI if cert provided
+        shell: pwsh
+        env:
+          WIN_CERT_PFX_BASE64: ${{ secrets.WIN_CERT_PFX_BASE64 }}
+          WIN_CERT_PASSWORD: ${{ secrets.WIN_CERT_PASSWORD }}
+        run: |
+          if ([string]::IsNullOrWhiteSpace($env:WIN_CERT_PFX_BASE64) -or [string]::IsNullOrWhiteSpace($env:WIN_CERT_PASSWORD)) {
+            Write-Host "No Windows signing secrets. Skipping signing."
+            exit 0
+          }
+          $pfx = "$env:RUNNER_TEMP\codesign.pfx"
+          [IO.File]::WriteAllBytes($pfx, [Convert]::FromBase64String($env:WIN_CERT_PFX_BASE64))
+          & "C:\Program Files (x86)\Windows Kits\10\App Certification Kit\signtool.exe" sign `
+            /f $pfx /p $env:WIN_CERT_PASSWORD /fd SHA256 /tr http://timestamp.digicert.com `
+            "${{ steps.find_msi.outputs.msi_path }}"
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: windows-msi
-          path: ${{ steps.find_msi.outputs.msi_path }}
+          path: |
+            ${{ steps.find_msi.outputs.msi_path }}
+            ${{ steps.find_msi.outputs.msi_path }}.sha256
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: ${{ steps.find_msi.outputs.msi_path }}
+          files: |
+            ${{ steps.find_msi.outputs.msi_path }}
+            ${{ steps.find_msi.outputs.msi_path }}.sha256
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

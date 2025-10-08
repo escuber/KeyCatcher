@@ -18,38 +18,59 @@ jobs:
             8.0.x
 
       - name: Install MAUI workload
-        run: |
-          dotnet workload install maui-android
+        run: dotnet workload install maui-android
 
       - name: Restore
         run: dotnet restore src/client/KeyCatcher/KeyCatcher2.sln
 
-      - name: Decode keystore
-        if: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
+      - name: Find MAUI csproj
+        id: find_csproj
         run: |
-          echo "${ANDROID_KEYSTORE_BASE64}" | base64 -d > my.keystore
+          CSProj=$(find src/client/KeyCatcher -name "*.csproj" | head -n 1)
+          if [ -z "$CSProj" ]; then
+            echo "No csproj found under src/client/KeyCatcher"
+            exit 1
+          fi
+          echo "CSPROJ=$CSProj" >> $GITHUB_ENV
+          echo "Found: $CSProj"
+
+      - name: Decode keystore if provided
         env:
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
-
-      - name: Build APK signed if keystore present else unsigned
         run: |
+          if [ -n "${ANDROID_KEYSTORE_BASE64}" ]; then
+            echo "${ANDROID_KEYSTORE_BASE64}" | base64 -d > my.keystore
+            echo "Keystore decoded."
+          else
+            echo "No ANDROID_KEYSTORE_BASE64. Building unsigned APK."
+          fi
+
+      - name: Build APK
+        env:
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          PUBLISH_DIR="${GITHUB_WORKSPACE}/artifacts/android/"
+          mkdir -p "$PUBLISH_DIR"
+
           if [ -f my.keystore ]; then
-            dotnet publish src/client/KeyCatcher/YourApp.csproj \
+            dotnet publish "${CSPROJ}" \
               -c Release \
               -f net8.0-android \
               -p:AndroidPackageFormat=apk \
               -p:AndroidKeyStore=True \
               -p:AndroidSigningKeyStore=my.keystore \
-              -p:AndroidSigningStorePass=${{ secrets.ANDROID_KEYSTORE_PASSWORD }} \
-              -p:AndroidSigningKeyAlias=${{ secrets.ANDROID_KEY_ALIAS }} \
-              -p:AndroidSigningKeyPass=${{ secrets.ANDROID_KEY_PASSWORD }} \
-              -p:PublishDir=${{ github.workspace }}/artifacts/android/
+              -p:AndroidSigningStorePass="${ANDROID_KEYSTORE_PASSWORD}" \
+              -p:AndroidSigningKeyAlias="${ANDROID_KEY_ALIAS}" \
+              -p:AndroidSigningKeyPass="${ANDROID_KEY_PASSWORD}" \
+              -p:PublishDir="$PUBLISH_DIR"
           else
-            dotnet publish src/YourApp.csproj \
+            dotnet publish "${CSPROJ}" \
               -c Release \
               -f net8.0-android \
               -p:AndroidPackageFormat=apk \
-              -p:PublishDir=${{ github.workspace }}/artifacts/android/
+              -p:PublishDir="$PUBLISH_DIR"
           fi
 
       - name: Find APK
@@ -61,15 +82,17 @@ jobs:
           fi
           echo "APK_PATH=$APK_PATH" >> $GITHUB_ENV
 
+      - name: SHA256
+        run: |
+          cd "$(dirname "$APK_PATH")"
+          sha256sum "$(basename "$APK_PATH")" > "$(basename "$APK_PATH").sha256"
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: android-apk
-          path: ${{ env.APK_PATH }}
+          path: |
+            ${{ env.APK_PATH }}
+            ${{ env.APK_PATH }}.sha256
 
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          files: ${{ env.APK_PATH }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - na
