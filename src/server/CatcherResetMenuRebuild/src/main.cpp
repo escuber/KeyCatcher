@@ -10,7 +10,8 @@
 #include <Arduino.h>
 #include <WiFi.h>
 #include <WiFiUdp.h>
-
+#include <ESPAsyncWebServer.h>
+#include <LittleFS.h> 
 #include <WiFi.h>
 #include <WiFiUdp.h>
 #include "USB.h"
@@ -1123,6 +1124,7 @@ static void kcHandleEnvelope(const uint8_t *data, size_t len,
     Serial.println("kcHandleEnvelope");
     Serial.printf("Raw [%d]: ", (int)len);
     // Serial.write(data, len);  // keep commented unless debugging payloads
+    
 
     StaticJsonDocument<KC_JSON_CAP> doc;
     DeserializationError err = deserializeJson(doc, data, len);
@@ -1142,7 +1144,7 @@ static void kcHandleEnvelope(const uint8_t *data, size_t len,
     uint16_t n   = doc["n"] | 0U;
     uint16_t idx = doc["i"] | 0U;
     const char *plB64 = doc["pl"] | "";
-
+Serial.printf("[DEBUG] Incoming chunk: id=%lu n=%u idx=%u port=%u\n", id, n, idx, port);
     if (!id || !n || idx >= n) {
         Serial.printf("[DEBUG] Invalid: id=%lu n=%u idx=%u\n", id, n, idx);
         return;
@@ -2040,6 +2042,7 @@ void setup()
     delay(500);
 
     Serial.println("Starting web!");
+      //LittleFS.begin(); // or SPIFFS.begin()
     setupWeb();
     
     // UpdateStatusLed();

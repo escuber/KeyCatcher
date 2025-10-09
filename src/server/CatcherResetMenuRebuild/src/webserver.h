@@ -1,11 +1,18 @@
 #pragma once
 
-#include <Arduino.h>
+#include <ESPAsyncWebServer.h>
 
-// Declare your setup function for the web server
+// If using LittleFS/SPIFFS:
+#include <FS.h>
+#include <LittleFS.h>
+#include <Preferences.h>
+#include <ArduinoJson.h>
+
+// Export the web server object if you want to use it elsewhere:
+extern AsyncWebServer server;
+
+// Web setup
 void setupWeb();
 
-// Optionally, if you want to interact with macros from main.cpp:
-void saveMacro(const String& name, const String& text);
-String loadMacro(const String& name);
-String listMacros();
+// (Optional) Expose config helpers if used in main.cpp
+String getConfigJson();
